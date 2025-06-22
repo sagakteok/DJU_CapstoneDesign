@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:label="dju_parking_project"
+        android:label="랏봇"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

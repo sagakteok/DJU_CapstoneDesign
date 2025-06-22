@@ -1,5 +1,5 @@
 name: dju_parking_project
-description: "This is Project to get graduation in DJU."
+description: "대전대학교 주차장 앱"
 
 publish_to: 'none'
 
@@ -11,18 +11,47 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
   cupertino_icons: ^1.0.8
-
   flutter_secure_storage: ^8.1.0
-
   http: ^0.13.6
+  flutter_native_splash: ^2.4.6
 
 dev_dependencies:
+  flutter_launcher_icons: ^0.13.1
   flutter_test:
     sdk: flutter
-
-  flutter_lints: ^5.0.0
+  flutter_lints: ^3.0.0
 
 flutter:
   uses-material-design: true
+
+  assets:
+    - assets/fonts/
+    - assets/splash/splash_logo.png
+
+  fonts:
+    - family: SpoqaHanSansNeo
+      fonts:
+        - asset: assets/fonts/SpoqaHanSansNeo-Thin.otf
+          weight: 100
+        - asset: assets/fonts/SpoqaHanSansNeo-Light.otf
+          weight: 300
+        - asset: assets/fonts/SpoqaHanSansNeo-Regular.otf
+          weight: 400
+        - asset: assets/fonts/SpoqaHanSansNeo-Medium.otf
+          weight: 500
+        - asset: assets/fonts/SpoqaHanSansNeo-Bold.otf
+          weight: 600
+
+    - family: VitroPride
+      fonts:
+        - asset: assets/fonts/VITRO_PRIDE_OTF.otf
+
+    - family: VitroCore
+      fonts:
+        - asset: assets/fonts/VITRO_CORE_OTF.otf
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icon/app_icon.png"
