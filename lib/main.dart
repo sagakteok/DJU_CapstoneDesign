@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-// 내부 화면 import
+// 로그인 전후 화면
 import 'screens/login_screen.dart';
-import 'screens/home_screen.dart';
 import 'screens/app_start.dart';
+import 'screens/bottom_navigation.dart'; // ✅ 바텀 네비가 포함된 메인 루트
 
-// 회원가입 단계별 화면 import
+// 회원가입 단계별 화면
 import 'screens/signup/step1_terms_screen.dart';
 import 'screens/signup/step2_userinfo_screen.dart';
 import 'screens/signup/step3_account_screen.dart';
@@ -15,11 +15,11 @@ import 'screens/signup/step4_email_verify_screen.dart';
 import 'screens/signup/step5_vehicle_screen.dart';
 import 'screens/signup/step6_complete_screen.dart';
 
-// ID 찾기 단계별 화면 import
+// ID 찾기 단계별 화면
 import 'screens/auth_edit/FindID/step1_email_verify_screen.dart';
 import 'screens/auth_edit/FindID/step2_complete_screen.dart';
 
-// 비밀번호 재설정 단계별 화면 import
+// 비밀번호 재설정 단계별 화면
 import 'screens/auth_edit/ResetPW/step1_userinfo_screen.dart';
 import 'screens/auth_edit/ResetPW/step2_email_verify_screen.dart';
 import 'screens/auth_edit/ResetPW/step3_resetpw_screen.dart';
@@ -33,7 +33,7 @@ void main() async {
     DeviceOrientation.portraitUp,
   ]);
 
-  // 시스템 UI 스타일 (상태바, 내비게이션바 색상)
+  // 상태바 & 내비게이션바 스타일
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
@@ -55,7 +55,6 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   final storage = FlutterSecureStorage();
-
   Widget _defaultScreen = const Center(child: CircularProgressIndicator());
 
   @override
@@ -67,7 +66,7 @@ class _MyAppState extends State<MyApp> {
   Future<void> _checkToken() async {
     final token = await storage.read(key: 'token');
     setState(() {
-      _defaultScreen = token == null ? const AppStart() : const HomeScreen();
+      _defaultScreen = token == null ? const AppStart() : const BottomNavigation(); // ✅ 여기만 변경
     });
   }
 
@@ -96,9 +95,9 @@ class _MyAppState extends State<MyApp> {
       debugShowCheckedModeBanner: false,
       home: _defaultScreen,
       routes: {
-        '/appstart': (context) => const AppStart(),
-        '/login': (context) => const LoginScreen(),
-        '/home': (context) => const HomeScreen(),
+        '/appstart': (_) => const AppStart(),
+        '/login': (_) => const LoginScreen(),
+        '/home': (_) => const BottomNavigation(), // ✅ 항상 이 라우트가 바텀 네비 진입점
         '/signup/step1': (_) => const SignupStep1TermsScreen(),
         '/signup/step2': (_) => const SignupStep2UserInfoScreen(),
         '/signup/step3': (_) => const SignupStep3AccountScreen(),
@@ -110,7 +109,7 @@ class _MyAppState extends State<MyApp> {
         '/auth_edit/ResetPW/step1': (_) => const ResetPWStep1UserInfoScreen(),
         '/auth_edit/ResetPW/step2': (_) => const ResetPWStep2EmailVerifyScreen(),
         '/auth_edit/ResetPW/step3': (_) => const ResetPWStep3ResetPWScreen(),
-        '/auth_edit/ResetPW/step4': (_) => const ResetPWStep4ResetCompleteScreen()
+        '/auth_edit/ResetPW/step4': (_) => const ResetPWStep4ResetCompleteScreen(),
       },
     );
   }

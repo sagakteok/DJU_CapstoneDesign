@@ -39,9 +39,9 @@ class AppStart extends StatelessWidget {
                   ),
                   SizedBox(width: 5),
                   Icon(
-                    Icons.double_arrow,
+                    Icons.keyboard_double_arrow_right,
                     color: Color(0xFF757575),
-                    size: 14,
+                    size: 18,
                   ),
                 ],
               ),
