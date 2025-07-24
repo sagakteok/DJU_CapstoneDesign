@@ -1,29 +1,20 @@
 import 'package:flutter/material.dart';
 import '../../../services/auth_service.dart';
 
-class LoginedHomeScreen extends StatelessWidget {
-  const LoginedHomeScreen({super.key});
+class LogoutedHomeScreen extends StatelessWidget {
+  const LogoutedHomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     final authService = AuthService();
     final screenWidth = MediaQuery.of(context).size.width;
 
-    // TODO: 실제 사용자 정보로 대체 예정
-    const String userName = '홍길동';
-    const String carNumber = '123사 4567';
-    const String entryDate = '2025.06.05 (목)';
-    const String entryTime = '오전 11:26';
-    const String duration = '2분 10초';
-    const String currentFee = '0원';
-    const String nextFeeInfo = '200원 / 10분';
-
     return Scaffold(
       backgroundColor: const Color(0xFFF9FCFB),
       appBar: AppBar(
         backgroundColor: const Color(0xFF76B55C),
         elevation: 0,
-        scrolledUnderElevation: 0, // ✅ 스크롤 시 색 변화 방지
+        scrolledUnderElevation: 0,
         automaticallyImplyLeading: false,
         title: const Text(
           'Lot Bot',
@@ -33,11 +24,21 @@ class LoginedHomeScreen extends StatelessWidget {
             color: Colors.white,
           ),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout, color: Colors.white),
+            onPressed: () async {
+              await authService.logout();
+              if (context.mounted) {
+                Navigator.pushReplacementNamed(context, '/appstart');
+              }
+            },
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // 상단 영역
             Container(
               height: 300,
               width: double.infinity,
@@ -57,9 +58,9 @@ class LoginedHomeScreen extends StatelessWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          '$userName의 $carNumber',
-                          style: const TextStyle(
+                        const Text(
+                          '로그인 해주세요.',
+                          style: TextStyle(
                             fontFamily: 'SpoqaHanSansNeo',
                             fontWeight: FontWeight.w700,
                             fontSize: 15,
@@ -102,7 +103,7 @@ class LoginedHomeScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text(
-                            '주차 현황',
+                            '차량 번호 조회',
                             style: TextStyle(
                               fontFamily: 'VitroPride',
                               fontWeight: FontWeight.w400,
@@ -110,164 +111,54 @@ class LoginedHomeScreen extends StatelessWidget {
                               color: Color(0xFF61984A),
                             ),
                           ),
-                          const SizedBox(height: 15),
-                          const Text(
-                            entryDate,
-                            style: TextStyle(
-                              fontFamily: 'SpoqaHanSansNeo',
-                              fontWeight: FontWeight.w500,
-                              fontSize: 9,
-                              color: Color(0xFF2F3644),
+                          const SizedBox(height: 17),
+
+                          // ✅ 추가된 가운데 텍스트
+                          const Center(
+                            child: Text(
+                              '조회하실 차량번호를\n입력해주세요',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontFamily: 'SpoqaHanSansNeo',
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFF414B6A),
+                              ),
                             ),
                           ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              RichText(
-                                text: const TextSpan(
-                                  children: [
-                                    TextSpan(
-                                      text: '$entryTime ',
-                                      style: TextStyle(
-                                        fontFamily: 'SpoqaHanSansNeo',
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: 13,
-                                        color: Color(0xFF65A549),
-                                      ),
-                                    ),
-                                    TextSpan(
-                                      text: '입차',
-                                      style: TextStyle(
-                                        fontFamily: 'SpoqaHanSansNeo',
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: 13,
-                                        color: Color(0xFF414B6A),
-                                      ),
-                                    ),
-                                  ],
+
+                          const SizedBox(height: 12),
+
+                          SizedBox(
+                            width: double.infinity,
+                            child: TextField(
+                              decoration: const InputDecoration(
+                                hintText: '차량번호 입력 (ex.123사 5678)',
+                                hintStyle: TextStyle(
+                                  fontFamily: 'SpoqaHanSansNeo',
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 11,
+                                  color: Color(0xFFD6E1D1), // 힌트 색상
+                                ),
+                                enabledBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(color: Color(0xFFD6E1D1), width: 1), // 비활성 밑줄
+                                ),
+                                focusedBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(color: Color(0xFF76B55C), width: 1.5), // 포커스 밑줄
                                 ),
                               ),
-                              RichText(
-                                text: const TextSpan(
-                                  children: [
-                                    TextSpan(
-                                      text: '이용 시간: ',
-                                      style: TextStyle(
-                                        fontFamily: 'SpoqaHanSansNeo',
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: 13,
-                                        color: Color(0xFF414B6A),
-                                      ),
-                                    ),
-                                    TextSpan(
-                                      text: duration,
-                                      style: TextStyle(
-                                        fontFamily: 'SpoqaHanSansNeo',
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: 13,
-                                        color: Color(0xFF65A549),
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                              style: const TextStyle(
+                                fontFamily: 'SpoqaHanSansNeo',
+                                fontWeight: FontWeight.w600,
+                                fontSize: 13,
+                                color: Color(0xFF2F3644), // 입력 시 텍스트 색상
                               ),
-                            ],
-                          ),
-                          const SizedBox(height: 22),
-                          RichText(
-                            text: const TextSpan(
-                              children: [
-                                TextSpan(
-                                  text: currentFee,
-                                  style: TextStyle(
-                                    fontFamily: 'SpoqaHanSansNeo',
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: 13,
-                                    color: Color(0xFF65A549),
-                                  ),
-                                ),
-                                TextSpan(
-                                  text: ' 이용 중',
-                                  style: TextStyle(
-                                    fontFamily: 'SpoqaHanSansNeo',
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 13,
-                                    color: Color(0xFF414B6A),
-                                  ),
-                                ),
-                              ],
                             ),
                           ),
-                          const SizedBox(height: 10),
-                          Stack(
-                            children: [
-                              Container(
-                                height: 5,
-                                width: double.infinity,
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFD9D9D9),
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                              ),
-                              Container(
-                                height: 5,
-                                width: screenWidth * 0.3,
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF76B55C),
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text(
-                                '0분',
-                                style: TextStyle(
-                                  fontFamily: 'SpoqaHanSansNeo',
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 8,
-                                  color: Color(0xFF2F3644),
-                                ),
-                              ),
-                              RichText(
-                                text: const TextSpan(
-                                  children: [
-                                    TextSpan(
-                                      text: '다음 구간: ',
-                                      style: TextStyle(
-                                        fontFamily: 'SpoqaHanSansNeo',
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 10,
-                                        color: Color(0xFF2F3644),
-                                      ),
-                                    ),
-                                    TextSpan(
-                                      text: nextFeeInfo,
-                                      style: TextStyle(
-                                        fontFamily: 'SpoqaHanSansNeo',
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 10,
-                                        color: Color(0xFF61984A),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const Text(
-                                '60분',
-                                style: TextStyle(
-                                  fontFamily: 'SpoqaHanSansNeo',
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 8,
-                                  color: Color(0xFF2F3644),
-                                ),
-                              ),
-                            ],
-                          ),
+
                           const Spacer(),
+
+                          // 조회하기 버튼
                           Center(
                             child: SizedBox(
                               width: 160,
@@ -276,7 +167,7 @@ class LoginedHomeScreen extends StatelessWidget {
                                 onPressed: () {},
                                 style: ElevatedButton.styleFrom(
                                   elevation: 0,
-                                  shadowColor: Colors.transparent, // ✅ 그림자 제거
+                                  shadowColor: Colors.transparent,
                                   backgroundColor: const Color(0xFF8CCE71),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10),
@@ -284,7 +175,7 @@ class LoginedHomeScreen extends StatelessWidget {
                                   padding: EdgeInsets.zero,
                                 ),
                                 child: const Text(
-                                  '출차 결제',
+                                  '조회하기',
                                   style: TextStyle(
                                     fontFamily: 'SpoqaHanSansNeo',
                                     fontSize: 13,
@@ -305,14 +196,13 @@ class LoginedHomeScreen extends StatelessWidget {
 
             const SizedBox(height: 25),
 
-            // 하단 버튼 2줄
+            // 하단 버튼 1줄만 (정기권 구매하기)
             Column(
               children: [
                 // 첫 번째 버튼
                 Container(
                   width: screenWidth * 0.92,
                   height: 85,
-                  margin: const EdgeInsets.only(bottom: 17),
                   padding: const EdgeInsets.only(left: 23, right: 17),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(20),
@@ -391,86 +281,11 @@ class LoginedHomeScreen extends StatelessWidget {
                     ],
                   ),
                 ),
-
-                // 두 번째 버튼
-                Container(
-                  width: screenWidth * 0.92,
-                  height: 85,
-                  padding: const EdgeInsets.only(left: 23, right: 17),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0x08000000), // ✅ 3% 불투명도 그림자
-                        offset: const Offset(0, 0),
-                        blurRadius: 7,
-                        spreadRadius: 3,
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // 왼쪽 텍스트
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
-                          Text(
-                            '주차칸 예약하기',
-                            style: TextStyle(
-                              fontFamily: 'SpoqaHanSansNeo',
-                              fontSize: 15,
-                              fontWeight: FontWeight.w700,
-                              color: Color(0xFF376524),
-                            ),
-                          ),
-                          SizedBox(height: 2),
-                          Text(
-                            '주차하고 싶은 건물의 주차 자리를',
-                            style: TextStyle(
-                              fontFamily: 'VitroPride',
-                              fontSize: 10,
-                              color: Color(0xFF2F3644),
-                            ),
-                          ),
-                          Text(
-                            '예약해보세요.',
-                            style: TextStyle(
-                              fontFamily: 'VitroPride',
-                              fontSize: 10,
-                              color: Color(0xFF2F3644),
-                            ),
-                          ),
-                        ],
-                      )
-                      ,Row(
-                        children: const [
-                          Text(
-                            '더보기',
-                            style: TextStyle(
-                              fontFamily: 'SpoqaHanSansNeo',
-                              fontWeight: FontWeight.w600,
-                              fontSize: 10,
-                              color: Color(0xFF2F3644),
-                            ),
-                          ),
-                          SizedBox(width: 3),
-                          Icon(
-                            Icons.keyboard_arrow_right,
-                            size: 12,
-                            color: Color(0xFF2F3644),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
               ],
             ),
             const SizedBox(height: 30),
 
+            // 건물 별 잔여석
             Padding(
               padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
               child: const Align(
@@ -487,7 +302,6 @@ class LoginedHomeScreen extends StatelessWidget {
             ),
             const SizedBox(height: 15),
 
-            // ✅ 건물 별 잔여석 박스
             Container(
               width: screenWidth * 0.92,
               height: 200,
@@ -532,7 +346,7 @@ class LoginedHomeScreen extends StatelessWidget {
     );
   }
 
-  /// ✅ 건물 별 잔여석 UI 요소
+  /// 건물 별 잔여석 UI 요소
   Widget _buildBuildingStatus({
     required String buildingName,
     required int available,
@@ -544,16 +358,16 @@ class LoginedHomeScreen extends StatelessWidget {
 
     if (rate == 0) {
       congestionText = '만차';
-      congestionColor = const Color(0xFF757575); // 빨강
+      congestionColor = const Color(0xFF757575);
     } else if (rate <= 0.3) {
       congestionText = '혼잡';
-      congestionColor = const Color(0xFFCD0505); // 주황
+      congestionColor = const Color(0xFFCD0505);
     } else if (rate <= 0.5) {
       congestionText = '보통';
-      congestionColor = const Color(0xFFD7D139); // 노랑
+      congestionColor = const Color(0xFFD7D139);
     } else {
       congestionText = '여유';
-      congestionColor = const Color(0xFF76B55C); // 초록
+      congestionColor = const Color(0xFF76B55C);
     }
 
     return Padding(
@@ -564,7 +378,6 @@ class LoginedHomeScreen extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // 왼쪽: 건물 이름 + "-" + 혼잡도
               Row(
                 children: [
                   Text(
@@ -635,19 +448,19 @@ class LoginedHomeScreen extends StatelessWidget {
       ),
     );
   }
-}
 
-Color _getStatusColor(congestionText) {
-  switch (congestionText) {
-    case '여유':
-      return const Color(0xFF76B55C); // 녹색
-    case '보통':
-      return const Color(0xFFD7D139); // 노란색
-    case '혼잡':
-      return const Color(0xFFCD0505); // 주황
-    case '만차':
-      return const Color(0xFF757575); // 빨강
-    default:
-      return const Color(0xFF414B6A); // 기본색
+  Color _getStatusColor(String congestionText) {
+    switch (congestionText) {
+      case '여유':
+        return const Color(0xFF76B55C);
+      case '보통':
+        return const Color(0xFFD7D139);
+      case '혼잡':
+        return const Color(0xFFCD0505);
+      case '만차':
+        return const Color(0xFF757575);
+      default:
+        return const Color(0xFF414B6A);
+    }
   }
 }

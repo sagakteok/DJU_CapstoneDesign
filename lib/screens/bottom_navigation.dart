@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
-
+import 'BottomNavPages/HomeScreen/logouted_home_screen.dart';
 import 'BottomNavPages/HomeScreen/logined_home_screen.dart';
 import 'BottomNavPages/car_breakdown.dart';
 import 'BottomNavPages/payment_breakdown.dart';
@@ -18,7 +18,7 @@ class _BottomNavigationState extends State<BottomNavigation> {
   int _currentIndex = 0;
 
   final List<Widget> _pages = const [
-    LoginedHomeScreen(),
+    LogoutedHomeScreen(),
     CarBreakdown(),
     PaymentBreakdown(),
     Notice(),
