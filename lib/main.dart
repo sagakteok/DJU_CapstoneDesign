@@ -1,3 +1,4 @@
+import 'package:dju_parking_project/screens/auth_edit/password_edit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -24,6 +25,13 @@ import 'screens/auth_edit/ResetPW/step1_userinfo_screen.dart';
 import 'screens/auth_edit/ResetPW/step2_email_verify_screen.dart';
 import 'screens/auth_edit/ResetPW/step3_resetpw_screen.dart';
 import 'screens/auth_edit/ResetPW/step4_complete_screen.dart';
+
+// 계정 정보 수정
+import 'screens/auth_edit/userinfo_edit.dart';
+import 'screens/auth_edit/email_edit.dart';
+import 'screens/auth_edit/password_edit.dart';
+import 'screens/auth_edit/vehicle_edit.dart';
+import 'screens/auth_edit/userinfo_edit_complete.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -97,7 +105,7 @@ class _MyAppState extends State<MyApp> {
       routes: {
         '/appstart': (_) => const AppStart(),
         '/login': (_) => const LoginScreen(),
-        '/home': (_) => const BottomNavigation(), // ✅ 항상 이 라우트가 바텀 네비 진입점
+        '/home': (_) => const BottomNavigation(),
         '/signup/step1': (_) => const SignupStep1TermsScreen(),
         '/signup/step2': (_) => const SignupStep2UserInfoScreen(),
         '/signup/step3': (_) => const SignupStep3AccountScreen(),
@@ -110,6 +118,11 @@ class _MyAppState extends State<MyApp> {
         '/auth_edit/ResetPW/step2': (_) => const ResetPWStep2EmailVerifyScreen(),
         '/auth_edit/ResetPW/step3': (_) => const ResetPWStep3ResetPWScreen(),
         '/auth_edit/ResetPW/step4': (_) => const ResetPWStep4ResetCompleteScreen(),
+        '/auth_edit/UserInfoEdit': (_) => const UserInfoEditScreen(),
+        '/auth_edit/EmailEdit': (_) => const EmailEditScreen(),
+        '/auth_edit/PasswordEdit': (_) => const PasswordEditScreen(),
+        '/auth_edit/VehicleEdit': (_) => const VehicleEditScreen(),
+        '/auth_edit/UserInfoEditComplete': (_) => const UserInfoEditCompleteScreen()
       },
     );
   }
