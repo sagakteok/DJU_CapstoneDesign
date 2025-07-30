@@ -144,7 +144,7 @@ class LogoutedHomeScreen extends StatelessWidget {
                                   borderSide: BorderSide(color: Color(0xFFD6E1D1), width: 1), // 비활성 밑줄
                                 ),
                                 focusedBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(color: Color(0xFF76B55C), width: 1.5), // 포커스 밑줄
+                                  borderSide: BorderSide(color: Color(0xFF76B55C), width: 1), // 포커스 밑줄
                                 ),
                               ),
                               style: const TextStyle(
