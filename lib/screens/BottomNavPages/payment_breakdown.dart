@@ -67,6 +67,7 @@ class _PaymentBreakdownState extends State<PaymentBreakdown> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF9FCFB),
@@ -102,7 +103,7 @@ class _PaymentBreakdownState extends State<PaymentBreakdown> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 10),
+                  SizedBox(height: screenHeight * 0.02),
                   const Text(
                     '결제 내역',
                     style: TextStyle(

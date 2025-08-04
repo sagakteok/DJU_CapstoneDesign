@@ -12,6 +12,7 @@ class MyAccount extends StatelessWidget {
     final String carNumber = '209우 4647';
 
     final double screenWidth = MediaQuery.of(context).size.width;
+    final double screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
       appBar: AppBar(
@@ -40,7 +41,7 @@ class MyAccount extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 10),
+            SizedBox(height: screenHeight * 0.03),
             Center(
               child: Container(
                 width: screenWidth * 0.92,
@@ -89,7 +90,7 @@ class MyAccount extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 30),
+            SizedBox(height: screenHeight * 0.05),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
               child: const Text(
@@ -148,11 +149,63 @@ class MyAccount extends StatelessWidget {
                     ),
                     const SizedBox(height: 10),
                     const Divider(thickness: 1, color: Color(0xFFECF2E9)),
-                    const SizedBox(height: 30), // ✅ 하단 여백
+                    SizedBox(height: screenHeight * 0.06),
                   ],
                 ),
               ),
             ),
+            // 로그아웃 버튼
+            Center(
+              child: SizedBox(
+                width: screenWidth * 0.8,
+                height: 52,
+                child: ElevatedButton(
+                  onPressed: () {
+                    // 로그아웃 처리 로직
+                    Navigator.pushNamedAndRemoveUntil(context, '/appstart', (route) => false);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF50A12E),
+                    elevation: 0, // 그림자 제거
+                    shadowColor: Colors.transparent, // 그림자 제거
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                  ),
+                  child: const Text(
+                    '로그아웃',
+                    style: TextStyle(
+                      fontFamily: 'SpoqaHanSansNeo',
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 15),
+
+            // 회원 탈퇴하기 텍스트
+            Center(
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.pushNamed(context, '/withdraw'); // 실제 탈퇴 페이지 경로로 연결
+                },
+                child: const Text(
+                  '회원 탈퇴하기',
+                  style: TextStyle(
+                    fontFamily: 'SpoqaHanSansNeo',
+                    fontWeight: FontWeight.w400,
+                    fontSize: 12,
+                    color: Color(0xFF8B95A1),
+                    decoration: TextDecoration.underline,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 30), // ✅ 하단 여백
           ],
         ),
       ),

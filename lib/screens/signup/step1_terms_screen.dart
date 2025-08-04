@@ -46,6 +46,7 @@ class _SignupStep1TermsScreenState extends State<SignupStep1TermsScreen> {
   @override
   Widget build(BuildContext context) {
     final buttonWidth = MediaQuery.of(context).size.width * 0.85;
+    final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
       extendBodyBehindAppBar: false,
@@ -59,7 +60,7 @@ class _SignupStep1TermsScreenState extends State<SignupStep1TermsScreen> {
       ),
       body: Column(
         children: [
-          const SizedBox(height: 10),
+          SizedBox(height: screenHeight * 0.02),
           Center(
             child: SizedBox(
               width: buttonWidth,

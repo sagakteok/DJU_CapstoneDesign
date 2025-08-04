@@ -122,6 +122,7 @@ class _FindIDStep1EmailVerifyScreenState extends State<FindIDStep1EmailVerifyScr
   Widget build(BuildContext context) {
     final buttonWidth = MediaQuery.of(context).size.width * 0.85;
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+    final screenHeight = MediaQuery.of(context).size.height;
     final isKeyboardVisible = bottomInset > 0;
 
     return Scaffold(
@@ -142,7 +143,7 @@ class _FindIDStep1EmailVerifyScreenState extends State<FindIDStep1EmailVerifyScr
       body: Center(
         child: Column(
           children: [
-            const SizedBox(height: 10),
+            SizedBox(height: screenHeight * 0.02),
             SizedBox(
               width: buttonWidth,
               child: const Column(

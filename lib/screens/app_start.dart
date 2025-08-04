@@ -5,10 +5,8 @@ class AppStart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final buttonWidth = MediaQuery
-        .of(context)
-        .size
-        .width * 0.85;
+    final buttonWidth = MediaQuery.of(context).size.width * 0.85;
+    final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
       appBar: AppBar(
@@ -53,7 +51,7 @@ class AppStart extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const SizedBox(height: 10),
+            SizedBox(height: screenHeight * 0.01),
             SizedBox(
               width: buttonWidth,
               child: Column(

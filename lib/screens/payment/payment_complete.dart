@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class UserInfoEditCompleteScreen extends StatelessWidget {
-  const UserInfoEditCompleteScreen({super.key});
+class PaymentCompleteScreen extends StatelessWidget {
+  const PaymentCompleteScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +26,7 @@ class UserInfoEditCompleteScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: const [
                   Text(
-                    '계정 수정 완료',
+                    '결제 완료',
                     style: TextStyle(
                       fontSize: 33,
                       fontFamily: 'VitroPride',
@@ -36,7 +36,7 @@ class UserInfoEditCompleteScreen extends StatelessWidget {
                   ),
                   SizedBox(height: 20),
                   Text(
-                    '메인 화면으로 이동 후',
+                    '메인 화면으로 이동하여',
                     style: TextStyle(
                       fontSize: 14,
                       fontFamily: 'SpoqaHanSansNeo',
@@ -110,7 +110,7 @@ class UserInfoEditCompleteScreen extends StatelessWidget {
                             child: Container(
                               alignment: Alignment.center,
                               child: const Text(
-                                '메인 이동',
+                                '홈 화면 이동',
                                 style: TextStyle(
                                   color: Colors.white,
                                   fontFamily: 'SpoqaHanSansNeo',

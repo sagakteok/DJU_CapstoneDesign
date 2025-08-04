@@ -33,6 +33,11 @@ import 'screens/auth_edit/password_edit.dart';
 import 'screens/auth_edit/vehicle_edit.dart';
 import 'screens/auth_edit/userinfo_edit_complete.dart';
 
+// 결제 페이지
+import 'screens/payment/buy_pass.dart';
+import 'screens/payment/purchase.dart';
+import 'screens/payment/payment_complete.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -122,7 +127,10 @@ class _MyAppState extends State<MyApp> {
         '/auth_edit/EmailEdit': (_) => const EmailEditScreen(),
         '/auth_edit/PasswordEdit': (_) => const PasswordEditScreen(),
         '/auth_edit/VehicleEdit': (_) => const VehicleEditScreen(),
-        '/auth_edit/UserInfoEditComplete': (_) => const UserInfoEditCompleteScreen()
+        '/auth_edit/UserInfoEditComplete': (_) => const UserInfoEditCompleteScreen(),
+        '/payment/BuyPass': (_) => const BuyPassScreen(),
+        '/payment/purchase': (_) => const PurchaseScreen(),
+        '/payment/PaymentComplete': (_) => const PaymentCompleteScreen()
       },
     );
   }

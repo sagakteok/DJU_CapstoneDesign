@@ -6,6 +6,7 @@ class SignupStep6CompleteScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final buttonWidth = MediaQuery.of(context).size.width * 0.85;
+    final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
       appBar: AppBar(
@@ -18,7 +19,7 @@ class SignupStep6CompleteScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const SizedBox(height: 30),
+            SizedBox(height: screenHeight * 0.05),
             SizedBox(
               width: buttonWidth,
               child: Column(
@@ -99,7 +100,7 @@ class SignupStep6CompleteScreen extends StatelessWidget {
                               gradient: const LinearGradient(
                                 colors: [
                                   Color(0xFF76B55C),
-                                  Color(0xFF25C1A1),
+                                  Color(0xFF15C3AF),
                                 ],
                                 begin: Alignment.topCenter,
                                 end: Alignment.bottomCenter,

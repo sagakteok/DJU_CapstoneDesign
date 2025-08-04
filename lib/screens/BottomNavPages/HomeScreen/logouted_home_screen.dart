@@ -24,17 +24,6 @@ class LogoutedHomeScreen extends StatelessWidget {
             color: Colors.white,
           ),
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout, color: Colors.white),
-            onPressed: () async {
-              await authService.logout();
-              if (context.mounted) {
-                Navigator.pushReplacementNamed(context, '/appstart');
-              }
-            },
-          ),
-        ],
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -196,89 +185,92 @@ class LogoutedHomeScreen extends StatelessWidget {
 
             const SizedBox(height: 25),
 
-            // 하단 버튼 1줄만 (정기권 구매하기)
             Column(
               children: [
-                // 첫 번째 버튼
-                Container(
-                  width: screenWidth * 0.92,
-                  height: 85,
-                  padding: const EdgeInsets.only(left: 23, right: 17),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    gradient: const LinearGradient(
-                      begin: Alignment.centerLeft,
-                      end: Alignment.centerRight,
-                      colors: [
-                        Color(0xFF25C1A1), // 왼쪽 색상
-                        Color(0xFF76B55C), // 오른쪽 색상
+                GestureDetector(
+                  onTap: () {
+                    Navigator.pushNamed(context, '/payment/BuyPass');
+                  },
+                  child: Container(
+                    width: screenWidth * 0.92,
+                    height: 85,
+                    padding: const EdgeInsets.only(left: 23, right: 17),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      gradient: const LinearGradient(
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                        colors: [
+                          Color(0xFF25C1A1),
+                          Color(0xFF76B55C),
+                        ],
+                      ),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Color(0x08000000),
+                          offset: Offset(0, 0),
+                          blurRadius: 7,
+                          spreadRadius: 3,
+                        ),
                       ],
                     ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Color(0x08000000), // 그림자 (3% 불투명도)
-                        offset: Offset(0, 0),
-                        blurRadius: 7,
-                        spreadRadius: 3,
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // 왼쪽 텍스트
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
-                          Text(
-                            '정기권 구매하기',
-                            style: TextStyle(
-                              fontFamily: 'SpoqaHanSansNeo',
-                              fontSize: 15,
-                              fontWeight: FontWeight.w700,
-                              color: Color(0xFFFFFFFF),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        // 왼쪽 텍스트
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const [
+                            Text(
+                              '정기권 구매하기',
+                              style: TextStyle(
+                                fontFamily: 'SpoqaHanSansNeo',
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700,
+                                color: Color(0xFFFFFFFF),
+                              ),
                             ),
-                          ),
-                          SizedBox(height: 2),
-                          Text(
-                            '정기권을 구매하여',
-                            style: TextStyle(
-                              fontFamily: 'VitroPride',
-                              fontSize: 10,
-                              color: Color(0xFFFFFFFF),
+                            SizedBox(height: 2),
+                            Text(
+                              '정기권을 구매하여',
+                              style: TextStyle(
+                                fontFamily: 'VitroPride',
+                                fontSize: 10,
+                                color: Color(0xFFFFFFFF),
+                              ),
                             ),
-                          ),
-                          Text(
-                            '더 저렴하게 주차장을 이용해보세요.',
-                            style: TextStyle(
-                              fontFamily: 'VitroPride',
-                              fontSize: 10,
-                              color: Color(0xFFFFFFFF),
+                            Text(
+                              '더 저렴하게 주차장을 이용해보세요.',
+                              style: TextStyle(
+                                fontFamily: 'VitroPride',
+                                fontSize: 10,
+                                color: Color(0xFFFFFFFF),
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        children: const [
-                          Text(
-                            '더보기',
-                            style: TextStyle(
-                              fontFamily: 'SpoqaHanSansNeo',
-                              fontWeight: FontWeight.w600,
-                              fontSize: 10,
+                          ],
+                        ),
+                        Row(
+                          children: const [
+                            Text(
+                              '더보기',
+                              style: TextStyle(
+                                fontFamily: 'SpoqaHanSansNeo',
+                                fontWeight: FontWeight.w600,
+                                fontSize: 10,
+                                color: Color(0xFFECF2E9),
+                              ),
+                            ),
+                            SizedBox(width: 3),
+                            Icon(
+                              Icons.keyboard_arrow_right,
+                              size: 12,
                               color: Color(0xFFECF2E9),
                             ),
-                          ),
-                          SizedBox(width: 3),
-                          Icon(
-                            Icons.keyboard_arrow_right,
-                            size: 12,
-                            color: Color(0xFFECF2E9),
-                          ),
-                        ],
-                      ),
-                    ],
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],
