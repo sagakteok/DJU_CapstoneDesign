@@ -5,11 +5,11 @@ class MyAccount extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final String userName = '강현민';
-    final String userBirth = '1996.02.14';
-    final String userPhone = '010-1234-5678';
-    final String userEmail = 'hyunmin@example.com';
-    final String carNumber = '209우 4647';
+    final String userName = '신용범';
+    final String userBirth = '2001.07.08';
+    final String userPhone = '010-4084-8891';
+    final String userEmail = 'syb010708@gmail.com';
+    final String carNumber = '372머 9480';
 
     final double screenWidth = MediaQuery.of(context).size.width;
     final double screenHeight = MediaQuery.of(context).size.height;

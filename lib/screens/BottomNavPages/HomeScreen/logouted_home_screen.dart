@@ -185,118 +185,112 @@ class LogoutedHomeScreen extends StatelessWidget {
 
             const SizedBox(height: 25),
 
-            Column(
-              children: [
-                GestureDetector(
-                  onTap: () {
-                    Navigator.pushNamed(context, '/payment/BuyPass');
-                  },
-                  child: Container(
-                    width: screenWidth * 0.92,
-                    height: 85,
-                    padding: const EdgeInsets.only(left: 23, right: 17),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                      gradient: const LinearGradient(
-                        begin: Alignment.centerLeft,
-                        end: Alignment.centerRight,
-                        colors: [
-                          Color(0xFF25C1A1),
-                          Color(0xFF76B55C),
-                        ],
-                      ),
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Color(0x08000000),
-                          offset: Offset(0, 0),
-                          blurRadius: 7,
-                          spreadRadius: 3,
-                        ),
+            Center(
+              child: SizedBox(
+                width: screenWidth * 0.92,
+                height: 85,
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    gradient: const LinearGradient(
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                      colors: [
+                        Color(0xFF25C1A1),
+                        Color(0xFF76B55C),
                       ],
                     ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        // 왼쪽 텍스트
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: const [
-                            Text(
-                              '정기권 구매하기',
-                              style: TextStyle(
-                                fontFamily: 'SpoqaHanSansNeo',
-                                fontSize: 15,
-                                fontWeight: FontWeight.w700,
-                                color: Color(0xFFFFFFFF),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        offset: const Offset(0, 0),
+                        blurRadius: 7,
+                        spreadRadius: 2,
+                      ),
+                    ],
+                  ),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/payment/BuyPass');
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.transparent, // Container 배경 보이게
+                      shadowColor: Colors.transparent,     // 버튼 그림자 제거
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      padding: EdgeInsets.zero,
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 23, right: 17),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          // 왼쪽 텍스트
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: const [
+                              Text(
+                                '정기권 구매하기',
+                                style: TextStyle(
+                                  fontFamily: 'SpoqaHanSansNeo',
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w700,
+                                  color: Color(0xFFFFFFFF),
+                                ),
                               ),
-                            ),
-                            SizedBox(height: 2),
-                            Text(
-                              '정기권을 구매하여',
-                              style: TextStyle(
-                                fontFamily: 'VitroPride',
-                                fontSize: 10,
-                                color: Color(0xFFFFFFFF),
+                              SizedBox(height: 2),
+                              Text(
+                                '정기권을 구매하여',
+                                style: TextStyle(
+                                  fontFamily: 'VitroPride',
+                                  fontSize: 10,
+                                  color: Color(0xFFFFFFFF),
+                                ),
                               ),
-                            ),
-                            Text(
-                              '더 저렴하게 주차장을 이용해보세요.',
-                              style: TextStyle(
-                                fontFamily: 'VitroPride',
-                                fontSize: 10,
-                                color: Color(0xFFFFFFFF),
+                              Text(
+                                '더 저렴하게 주차장을 이용해보세요.',
+                                style: TextStyle(
+                                  fontFamily: 'VitroPride',
+                                  fontSize: 10,
+                                  color: Color(0xFFFFFFFF),
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                        Row(
-                          children: const [
-                            Text(
-                              '더보기',
-                              style: TextStyle(
-                                fontFamily: 'SpoqaHanSansNeo',
-                                fontWeight: FontWeight.w600,
-                                fontSize: 10,
+                            ],
+                          ),
+                          // 오른쪽 더보기
+                          Row(
+                            children: const [
+                              Text(
+                                '더보기',
+                                style: TextStyle(
+                                  fontFamily: 'SpoqaHanSansNeo',
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 10,
+                                  color: Color(0xFFECF2E9),
+                                ),
+                              ),
+                              SizedBox(width: 3),
+                              Icon(
+                                Icons.keyboard_arrow_right,
+                                size: 12,
                                 color: Color(0xFFECF2E9),
                               ),
-                            ),
-                            SizedBox(width: 3),
-                            Icon(
-                              Icons.keyboard_arrow_right,
-                              size: 12,
-                              color: Color(0xFFECF2E9),
-                            ),
-                          ],
-                        ),
-                      ],
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 30),
-
-            // 건물 별 잔여석
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
-              child: const Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  '건물 별 잔여석',
-                  style: TextStyle(
-                    fontFamily: 'VitroPride',
-                    fontSize: 18,
-                    color: Color(0xFF376524),
                   ),
                 ),
               ),
             ),
-            const SizedBox(height: 15),
-
+            const SizedBox(height: 25),
+            // ✅ 건물 별 잔여석 박스 (이 블록으로 기존 해당 Container 대체)
             Container(
               width: screenWidth * 0.92,
-              height: 200,
+              padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(20),
@@ -310,8 +304,30 @@ class LogoutedHomeScreen extends StatelessWidget {
                 ],
               ),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // 타이틀 (왼쪽 상단)
+                  const Text(
+                    '건물 별 잔여석',
+                    style: TextStyle(
+                      fontFamily: 'SpoqaHanSansNeo',
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF4B7C76),
+                    ),
+                  ),
+                  // 서브타이틀 (왼쪽)
+                  const Text(
+                    '실시간 주차칸도 확인해보세요.',
+                    style: TextStyle(
+                      fontFamily: 'VitroPride',
+                      fontSize: 10,
+                      color: Color(0xFF414B6A),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // 빌딩 아이템들
                   _buildBuildingStatus(
                     buildingName: '융합과학관',
                     available: 200,
@@ -331,6 +347,26 @@ class LogoutedHomeScreen extends StatelessWidget {
               ),
             ),
 
+            const SizedBox(height: 25),
+
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+              child: const Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  '최근 공지사항',
+                  style: TextStyle(
+                    fontFamily: 'VitroPride',
+                    fontSize: 18,
+                    color: Color(0xFF376524),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 15),
+
+            _buildNoticeSection(screenWidth),
+
             const SizedBox(height: 30),
           ],
         ),
@@ -338,13 +374,13 @@ class LogoutedHomeScreen extends StatelessWidget {
     );
   }
 
-  /// 건물 별 잔여석 UI 요소
+  /// ✅ 건물 별 잔여석 UI 요소 (주차칸 보기 버튼 세로 가운데 정렬)
   Widget _buildBuildingStatus({
     required String buildingName,
     required int available,
     required int total,
   }) {
-    final double rate = available / total;
+    final double rate = total == 0 ? 0 : available / total;
     String congestionText;
     Color congestionColor;
 
@@ -363,12 +399,14 @@ class LogoutedHomeScreen extends StatelessWidget {
     }
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20.0),
-      child: Column(
+      padding: const EdgeInsets.symmetric(vertical: 15),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center, // ✅ 버튼과 그룹 세로 정렬
         children: [
-          const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          // ⬅️ 왼쪽 그룹 (건물명 + 혼잡도, 잔여석 숫자)
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
@@ -381,7 +419,7 @@ class LogoutedHomeScreen extends StatelessWidget {
                       color: Color(0xFF414B6A),
                     ),
                   ),
-                  const SizedBox(width: 4),
+                  const SizedBox(width: 6),
                   const Text(
                     '-',
                     style: TextStyle(
@@ -391,7 +429,7 @@ class LogoutedHomeScreen extends StatelessWidget {
                       color: Color(0xFFADB5CA),
                     ),
                   ),
-                  const SizedBox(width: 4),
+                  const SizedBox(width: 6),
                   Text(
                     congestionText,
                     style: TextStyle(
@@ -407,11 +445,20 @@ class LogoutedHomeScreen extends StatelessWidget {
                 TextSpan(
                   children: [
                     TextSpan(
+                      text: '잔여석: ',
+                      style: TextStyle(
+                        fontFamily: 'SpoqaHanSansNeo',
+                        fontWeight: FontWeight.w500,
+                        fontSize: 10,
+                        color: Color(0xFF38A48E),
+                      ),
+                    ),
+                    TextSpan(
                       text: '$available ',
                       style: TextStyle(
                         fontFamily: 'SpoqaHanSansNeo',
-                        fontWeight: FontWeight.w700,
-                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 10,
                         color: _getStatusColor(congestionText),
                       ),
                     ),
@@ -419,8 +466,8 @@ class LogoutedHomeScreen extends StatelessWidget {
                       text: '/ $total',
                       style: const TextStyle(
                         fontFamily: 'SpoqaHanSansNeo',
-                        fontWeight: FontWeight.w700,
-                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 10,
                         color: Color(0xFF414B6A),
                       ),
                     ),
@@ -429,30 +476,177 @@ class LogoutedHomeScreen extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          const Divider(
-            color: Color(0xFFECF2E9),
-            thickness: 1,
-            height: 1,
+
+          // ➡️ 오른쪽: '주차칸 보기' 버튼 (세로 가운데 배치됨)
+          SizedBox(
+            width: 70,
+            height: 35,
+            child: ElevatedButton(
+              onPressed: () {
+                // TODO: 주차칸 보기 액션 연결
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF8FD8A8), // 배경색
+                shadowColor: Colors.transparent,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10), // radius 10
+                ),
+                padding: EdgeInsets.zero,
+                elevation: 0, // 그림자 제거
+              ),
+              child: const Text(
+                '주차칸 보기',
+                style: TextStyle(
+                  fontFamily: 'SpoqaHanSansNeo',
+                  fontWeight: FontWeight.w500,
+                  fontSize: 10,
+                  color: Colors.white, // #FFFFFF
+                ),
+              ),
+            ),
           ),
-          const SizedBox(height: 8),
         ],
       ),
     );
   }
+}
 
-  Color _getStatusColor(String congestionText) {
-    switch (congestionText) {
-      case '여유':
-        return const Color(0xFF76B55C);
-      case '보통':
-        return const Color(0xFFD7D139);
-      case '혼잡':
-        return const Color(0xFFCD0505);
-      case '만차':
-        return const Color(0xFF757575);
-      default:
-        return const Color(0xFF414B6A);
-    }
+Color _getStatusColor(congestionText) {
+  switch (congestionText) {
+    case '여유':
+      return const Color(0xFF76B55C); // 녹색
+    case '보통':
+      return const Color(0xFFD7D139); // 노란색
+    case '혼잡':
+      return const Color(0xFFCD0505); // 주황
+    case '만차':
+      return const Color(0xFF757575); // 빨강
+    default:
+      return const Color(0xFF414B6A); // 기본색
   }
+}
+
+// 최근 공지사항 섹션 (제목 제거)
+Widget _buildNoticeSection(double screenWidth) {
+  final List<String> notices = [
+    '주차장 이용 시간 안내',
+    '정기권 할인 이벤트',
+    '앱 업데이트 공지',
+  ];
+
+  return Container(
+    width: screenWidth * 0.92,
+    padding: const EdgeInsets.only(top: 20, left: 15, right: 15, bottom: 30),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(20),
+      boxShadow: const [
+        BoxShadow(
+          color: Color(0x08000000),
+          offset: Offset(0, 0),
+          blurRadius: 7,
+          spreadRadius: 3,
+        ),
+      ],
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // 공지사항 리스트만 남김
+        ...notices.map((title) {
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: SizedBox(
+              width: double.infinity,
+              height: 45,
+              child: ElevatedButton(
+                onPressed: () {
+                  // TODO: 공지 클릭 이벤트 처리
+                  print('$title 클릭됨');
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFFFFFFF), // 배경 흰톤 유지
+                  shadowColor: Colors.transparent,
+                  elevation: 0, // 그림자 제거
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  alignment: Alignment.centerLeft, // 텍스트 왼쪽 정렬
+                  padding: const EdgeInsets.only(left: 15, right: 5),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        title,
+                        style: const TextStyle(
+                          fontFamily: 'SpoqaHanSansNeo',
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
+                          color: Color(0xFF414B6A),
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    const Icon(
+                      Icons.keyboard_arrow_right,
+                      size: 20,
+                      color: Color(0xFFC0C3CD),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }).toList(),
+
+        const SizedBox(height: 20),
+
+        // 하단 "더 읽어보러 가기" 버튼
+        Center(
+          child: SizedBox(
+            width: screenWidth * 0.8,
+            height: 45,
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    offset: const Offset(0, 3),
+                    blurRadius: 7,
+                    spreadRadius: 2,
+                  ),
+                ],
+              ),
+              child: ElevatedButton(
+                onPressed: () {
+                  // TODO: 더 읽어보러 가기 클릭 이벤트
+                  print('더 읽어보러 가기 클릭됨');
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF50A12E),
+                  shadowColor: Colors.transparent,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  elevation: 0, // 버튼 자체 elevation 제거 (Container의 boxShadow만 사용)
+                ),
+                child: const Text(
+                  '더 읽어보러 가기',
+                  style: TextStyle(
+                    fontFamily: 'SpoqaHanSansNeo',
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        )
+      ],
+    ),
+  );
 }
