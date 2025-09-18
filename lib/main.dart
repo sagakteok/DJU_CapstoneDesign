@@ -7,6 +7,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'screens/login_screen.dart';
 import 'screens/app_start.dart';
 import 'screens/bottom_navigation.dart'; // ✅ 바텀 네비가 포함된 메인 루트
+import 'screens/NoticeItem.dart';
 
 // 회원가입 단계별 화면
 import 'screens/signup/step1_terms_screen.dart';
@@ -111,6 +112,7 @@ class _MyAppState extends State<MyApp> {
         '/appstart': (_) => const AppStart(),
         '/login': (_) => const LoginScreen(),
         '/home': (_) => const BottomNavigation(),
+        '/NoticeItem': (_) => const NoticeItem(),
         '/signup/step1': (_) => const SignupStep1TermsScreen(),
         '/signup/step2': (_) => const SignupStep2UserInfoScreen(),
         '/signup/step3': (_) => const SignupStep3AccountScreen(),
