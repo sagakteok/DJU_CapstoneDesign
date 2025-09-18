@@ -70,7 +70,7 @@ class MyAccount extends StatelessWidget {
                         '$userName 님',
                         style: const TextStyle(
                           fontFamily: 'SpoqaHanSansNeo',
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.w600,
                           fontSize: 18,
                           color: Colors.white,
                         ),
@@ -80,7 +80,7 @@ class MyAccount extends StatelessWidget {
                         carNumber,
                         style: const TextStyle(
                           fontFamily: 'SpoqaHanSansNeo',
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w500,
                           fontSize: 13,
                           color: Color(0xFFECF2E9),
                         ),
