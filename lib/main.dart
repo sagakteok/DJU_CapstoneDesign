@@ -1,13 +1,13 @@
-import 'package:dju_parking_project/screens/auth_edit/password_edit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-// 로그인 전후 화면
-import 'screens/login_screen.dart';
+// 화면 import
 import 'screens/app_start.dart';
-import 'screens/bottom_navigation.dart'; // ✅ 바텀 네비가 포함된 메인 루트
+import 'screens/bottom_navigation.dart';
+import 'screens/login_screen.dart';
 import 'screens/NoticeItem.dart';
+import 'screens/ViewParkingCam.dart';
 
 // 회원가입 단계별 화면
 import 'screens/signup/step1_terms_screen.dart';
@@ -39,10 +39,12 @@ import 'screens/payment/buy_pass.dart';
 import 'screens/payment/purchase.dart';
 import 'screens/payment/payment_complete.dart';
 
+ValueNotifier<int> bottomNavIndex = ValueNotifier<int>(0);
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // 화면 회전 금지: 세로 방향 고정
+  // 화면 회전 금지
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
   ]);
@@ -80,7 +82,8 @@ class _MyAppState extends State<MyApp> {
   Future<void> _checkToken() async {
     final token = await storage.read(key: 'token');
     setState(() {
-      _defaultScreen = token == null ? const AppStart() : const BottomNavigation(); // ✅ 여기만 변경
+      _defaultScreen =
+      token == null ? const AppStart() : const BottomNavigation();
     });
   }
 
@@ -113,6 +116,7 @@ class _MyAppState extends State<MyApp> {
         '/login': (_) => const LoginScreen(),
         '/home': (_) => const BottomNavigation(),
         '/NoticeItem': (_) => const NoticeItem(),
+        '/ViewParkingCam': (_) => const ViewParkingCam(),
         '/signup/step1': (_) => const SignupStep1TermsScreen(),
         '/signup/step2': (_) => const SignupStep2UserInfoScreen(),
         '/signup/step3': (_) => const SignupStep3AccountScreen(),
@@ -132,7 +136,7 @@ class _MyAppState extends State<MyApp> {
         '/auth_edit/UserInfoEditComplete': (_) => const UserInfoEditCompleteScreen(),
         '/payment/BuyPass': (_) => const BuyPassScreen(),
         '/payment/purchase': (_) => const PurchaseScreen(),
-        '/payment/PaymentComplete': (_) => const PaymentCompleteScreen()
+        '/payment/PaymentComplete': (_) => const PaymentCompleteScreen(),
       },
     );
   }

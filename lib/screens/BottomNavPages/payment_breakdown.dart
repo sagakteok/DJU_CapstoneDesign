@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:intl/intl.dart';
+import '../../main.dart';
 
 class PaymentBreakdown extends StatefulWidget {
   const PaymentBreakdown({super.key});
@@ -78,7 +79,7 @@ class _PaymentBreakdownState extends State<PaymentBreakdown> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
-            Navigator.pushReplacementNamed(context, '/home');
+            bottomNavIndex.value = 0;
           },
         ),
         centerTitle: true,

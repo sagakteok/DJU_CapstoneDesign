@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
-
 import '../NoticeItem.dart';
+import '../../main.dart';
 
 class Notice extends StatefulWidget {
   const Notice({super.key});
@@ -45,7 +45,7 @@ class _NoticeState extends State<Notice> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
-            Navigator.pushReplacementNamed(context, '/home');
+            bottomNavIndex.value = 0;
           },
         ),
         centerTitle: true,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
+import '../../main.dart';
 
 class CarBreakdown extends StatefulWidget {
   const CarBreakdown({super.key});
@@ -70,7 +71,7 @@ class _CarBreakdownState extends State<CarBreakdown> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
-            Navigator.pushReplacementNamed(context, '/home');
+            bottomNavIndex.value = 0;
           },
         ),
         centerTitle: true,

@@ -173,7 +173,7 @@ class BuyPassScreen extends StatelessWidget {
                     style: TextStyle(
                       fontFamily: 'SpoqaHanSansNeo',
                       fontWeight: FontWeight.w700,
-                      fontSize: 20,
+                      fontSize: 18,
                       color: Colors.white,
                     ),
                   ),

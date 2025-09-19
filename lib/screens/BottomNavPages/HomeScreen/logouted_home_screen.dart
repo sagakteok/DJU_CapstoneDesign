@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../services/auth_service.dart';
+import '../../../main.dart';
+import '../../ViewParkingCam.dart';
 
 class LogoutedHomeScreen extends StatelessWidget {
   const LogoutedHomeScreen({super.key});
@@ -327,21 +329,26 @@ class LogoutedHomeScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 20),
 
-                  // 빌딩 아이템들
                   _buildBuildingStatus(
+                    context: context,
                     buildingName: '융합과학관',
                     available: 200,
                     total: 250,
+                    buildingIndex: 0, // index 추가
                   ),
                   _buildBuildingStatus(
+                    context: context,
                     buildingName: '서문 잔디밭',
                     available: 0,
                     total: 250,
+                    buildingIndex: 1,
                   ),
                   _buildBuildingStatus(
+                    context: context,
                     buildingName: '산학협력관',
                     available: 20,
                     total: 250,
+                    buildingIndex: 2,
                   ),
                 ],
               ),
@@ -365,7 +372,7 @@ class LogoutedHomeScreen extends StatelessWidget {
             ),
             const SizedBox(height: 15),
 
-            _buildNoticeSection(screenWidth),
+            _buildNoticeSection(context, screenWidth),
 
             const SizedBox(height: 30),
           ],
@@ -376,9 +383,11 @@ class LogoutedHomeScreen extends StatelessWidget {
 
   /// ✅ 건물 별 잔여석 UI 요소 (주차칸 보기 버튼 세로 가운데 정렬)
   Widget _buildBuildingStatus({
+    required BuildContext context,
     required String buildingName,
     required int available,
     required int total,
+    required int buildingIndex,
   }) {
     final double rate = total == 0 ? 0 : available / total;
     String congestionText;
@@ -477,22 +486,27 @@ class LogoutedHomeScreen extends StatelessWidget {
             ],
           ),
 
-          // ➡️ 오른쪽: '주차칸 보기' 버튼 (세로 가운데 배치됨)
           SizedBox(
             width: 70,
             height: 35,
             child: ElevatedButton(
               onPressed: () {
-                // TODO: 주차칸 보기 액션 연결
+                // 건물별 주차칸 보기 눌렀을 때 해당 인덱스 전달
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => ViewParkingCam(initialBuildingIndex: buildingIndex)
+                  ),
+                );
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF8FD8A8), // 배경색
+                backgroundColor: const Color(0xFF8FD8A8),
                 shadowColor: Colors.transparent,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10), // radius 10
+                  borderRadius: BorderRadius.circular(10),
                 ),
                 padding: EdgeInsets.zero,
-                elevation: 0, // 그림자 제거
+                elevation: 0,
               ),
               child: const Text(
                 '주차칸 보기',
@@ -500,7 +514,7 @@ class LogoutedHomeScreen extends StatelessWidget {
                   fontFamily: 'SpoqaHanSansNeo',
                   fontWeight: FontWeight.w500,
                   fontSize: 10,
-                  color: Colors.white, // #FFFFFF
+                  color: Colors.white,
                 ),
               ),
             ),
@@ -527,7 +541,7 @@ Color _getStatusColor(congestionText) {
 }
 
 // 최근 공지사항 섹션 (제목 제거)
-Widget _buildNoticeSection(double screenWidth) {
+Widget _buildNoticeSection(BuildContext context, double screenWidth) {
   final List<String> notices = [
     '주차장 이용 시간 안내',
     '정기권 할인 이벤트',
@@ -561,8 +575,7 @@ Widget _buildNoticeSection(double screenWidth) {
               height: 45,
               child: ElevatedButton(
                 onPressed: () {
-                  // TODO: 공지 클릭 이벤트 처리
-                  print('$title 클릭됨');
+                  Navigator.pushNamed(context, '/NoticeItem');
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFFFFFFFF), // 배경 흰톤 유지
@@ -622,8 +635,7 @@ Widget _buildNoticeSection(double screenWidth) {
               ),
               child: ElevatedButton(
                 onPressed: () {
-                  // TODO: 더 읽어보러 가기 클릭 이벤트
-                  print('더 읽어보러 가기 클릭됨');
+                  bottomNavIndex.value = 3;
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF50A12E),

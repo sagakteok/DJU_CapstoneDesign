@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../main.dart';
 
 class MyAccount extends StatelessWidget {
   const MyAccount({super.key});
@@ -22,7 +23,7 @@ class MyAccount extends StatelessWidget {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
-            Navigator.pushReplacementNamed(context, '/home');
+            bottomNavIndex.value = 0;
           },
         ),
         centerTitle: true,
