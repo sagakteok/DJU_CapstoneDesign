@@ -19,7 +19,7 @@ class AppStart extends StatelessWidget {
             padding: const EdgeInsets.only(right: 10),
             child: TextButton(
               onPressed: () {
-                Navigator.pushReplacementNamed(context, '/home');
+                Navigator.pushReplacementNamed(context, '/logoutedhome');
               },
               style: ButtonStyle(
                 overlayColor: MaterialStateProperty.all(Colors.transparent),

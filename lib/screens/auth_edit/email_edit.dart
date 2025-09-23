@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import '../../services/auth_service.dart';
 
 class EmailEditScreen extends StatefulWidget {
   const EmailEditScreen({super.key});
@@ -13,6 +14,8 @@ class _EmailEditScreenState extends State<EmailEditScreen> {
   final _emailCodeController = TextEditingController();
   Timer? _timer;
   int _remainingSeconds = 0;
+  final AuthService _authService = AuthService();
+  bool _isLoading = false;
 
   void _startCountdown() {
     _timer?.cancel();
@@ -31,15 +34,76 @@ class _EmailEditScreenState extends State<EmailEditScreen> {
     });
   }
 
-  void _sendEmailCode() {
-    _startCountdown();
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('이메일 인증번호가 발송되었습니다.')),
-    );
+  Future<void> _sendEmailCode() async {
+    final email = _emailController.text.trim();
+    if (email.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('이메일을 입력해주세요.')),
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+    try {
+      // 이메일 변경 호출 제거 → 인증만 진행
+      final sendResult = await _authService.sendEmailVerification(email);
+      if (sendResult['success'] == true) {
+        _startCountdown();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('이메일 인증번호가 발송되었습니다.')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(sendResult['message'] ?? '인증번호 발송 실패')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('오류 발생: $e')),
+      );
+    } finally {
+      setState(() => _isLoading = false);
+    }
   }
 
-  void _verifyCode() {
-    Navigator.pushNamed(context, '/auth_edit/UserInfoEditComplete');
+  Future<void> _verifyCode() async {
+    final email = _emailController.text.trim();
+    final code = _emailCodeController.text.trim();
+    if (email.isEmpty || code.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('이메일과 인증번호를 입력해주세요.')),
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+    try {
+      final result = await _authService.verifyEmailCode(email, code);
+      if (result['success'] == true) {
+        // 인증 성공 시 이메일 변경 처리
+        final updateResult = await _authService.updateEmail(email);
+        if (updateResult['success'] == true) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('이메일 인증 및 변경이 완료되었습니다.')),
+          );
+          Navigator.pushReplacementNamed(context, '/auth_edit/UserInfoEditComplete');
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(updateResult['message'] ?? '이메일 변경 실패')),
+          );
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(result['message'] ?? '인증번호 검증 실패')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('오류 발생: $e')),
+      );
+    } finally {
+      setState(() => _isLoading = false);
+    }
   }
 
   final _labelStyle = const TextStyle(
@@ -100,7 +164,7 @@ class _EmailEditScreenState extends State<EmailEditScreen> {
               obscureText: obscure,
               keyboardType: keyboardType,
             ),
-            if (showTimer && _remainingSeconds > 0) // 👈 조건 분기 추가
+            if (showTimer && _remainingSeconds > 0)
               Padding(
                 padding: EdgeInsets.zero,
                 child: Text(
@@ -187,7 +251,6 @@ class _EmailEditScreenState extends State<EmailEditScreen> {
                 ],
               ),
             ),
-
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.only(top: 80, bottom: 60),
@@ -202,7 +265,7 @@ class _EmailEditScreenState extends State<EmailEditScreen> {
                         height: 52,
                         width: double.infinity,
                         child: OutlinedButton(
-                          onPressed: _sendEmailCode,
+                          onPressed: _isLoading ? null : _sendEmailCode,
                           style: OutlinedButton.styleFrom(
                             side: const BorderSide(color: Color(0xFF50A12E), width: 1),
                             shape: RoundedRectangleBorder(
@@ -210,7 +273,9 @@ class _EmailEditScreenState extends State<EmailEditScreen> {
                             ),
                             backgroundColor: Colors.white,
                           ),
-                          child: const Text(
+                          child: _isLoading
+                              ? const CircularProgressIndicator(color: Color(0xFF50A12E))
+                              : const Text(
                             '인증번호 보내기',
                             style: TextStyle(
                               color: Color(0xFF50A12E),
@@ -227,14 +292,13 @@ class _EmailEditScreenState extends State<EmailEditScreen> {
                 ),
               ),
             ),
-
             Padding(
               padding: const EdgeInsets.only(bottom: 50),
               child: SizedBox(
                 width: buttonWidth,
                 height: 52,
                 child: ElevatedButton(
-                  onPressed: _verifyCode,
+                  onPressed: _isLoading ? null : _verifyCode,
                   style: ElevatedButton.styleFrom(
                     padding: EdgeInsets.zero,
                     backgroundColor: const Color(0xFF50A12E),
@@ -243,7 +307,9 @@ class _EmailEditScreenState extends State<EmailEditScreen> {
                       borderRadius: BorderRadius.circular(15),
                     ),
                   ),
-                  child: const Text(
+                  child: _isLoading
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : const Text(
                     '변경 완료',
                     style: TextStyle(
                       color: Colors.white,

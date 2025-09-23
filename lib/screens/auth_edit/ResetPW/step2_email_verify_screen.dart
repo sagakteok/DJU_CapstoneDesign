@@ -1,17 +1,26 @@
+// lib/screens/auth_edit/ResetPW/step2_email_verify_screen.dart
 import 'dart:async';
 import 'package:flutter/material.dart';
+import '../../../services/auth_service.dart';
+import './step3_resetpw_screen.dart';
 
 class ResetPWStep2EmailVerifyScreen extends StatefulWidget {
-  const ResetPWStep2EmailVerifyScreen({super.key});
+  final String email; // 필수 email 전달
+
+  const ResetPWStep2EmailVerifyScreen({super.key, required this.email});
 
   @override
-  State<ResetPWStep2EmailVerifyScreen> createState() => _ResetPWStep2EmailVerifyScreenState();
+  State<ResetPWStep2EmailVerifyScreen> createState() =>
+      _ResetPWStep2EmailVerifyScreenState();
 }
 
-class _ResetPWStep2EmailVerifyScreenState extends State<ResetPWStep2EmailVerifyScreen> {
+class _ResetPWStep2EmailVerifyScreenState
+    extends State<ResetPWStep2EmailVerifyScreen> {
   final _emailCodeController = TextEditingController();
+  final AuthService _authService = AuthService(); // 이메일 전송/검증 서비스
   Timer? _timer;
   int _remainingSeconds = 0;
+  bool _isLoading = false;
 
   void _startCountdown() {
     _timer?.cancel();
@@ -30,23 +39,66 @@ class _ResetPWStep2EmailVerifyScreenState extends State<ResetPWStep2EmailVerifyS
     });
   }
 
-  void _sendEmailCode() {
-    _startCountdown();
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('이메일 인증번호가 발송되었습니다.')),
-    );
+  Future<void> _sendEmailCode() async {
+    setState(() => _isLoading = true);
+    try {
+      final result = await _authService.sendEmailVerification(widget.email);
+      if (result['success'] == true) {
+        _startCountdown();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('이메일 인증번호가 발송되었습니다.')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(result['message'] ?? '인증번호 발송 실패')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('오류 발생: $e')),
+      );
+    } finally {
+      setState(() => _isLoading = false);
+    }
   }
 
-  void _verifyCode() {
-    Navigator.pushNamed(context, '/auth_edit/ResetPW/step3');
+  Future<void> _verifyCode() async {
+    final code = _emailCodeController.text.trim();
+    if (code.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('인증번호를 입력해주세요.')),
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+    try {
+      final result = await _authService.verifyEmailCode(widget.email, code);
+      if (result['success'] == true) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('이메일 인증 완료! 다음 단계로 이동합니다.')),
+        );
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ResetPWStep3ResetPWScreen(email: widget.email),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(result['message'] ?? '인증번호 검증 실패')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('오류 발생: $e')),
+      );
+    } finally {
+      setState(() => _isLoading = false);
+    }
   }
 
-  String _formatTime(int seconds) {
-    final minutes = (seconds ~/ 60).toString().padLeft(2, '0');
-    final secs = (seconds % 60).toString().padLeft(2, '0');
-    return '$minutes:$secs';
-  }
-
+  // ===== 기존 스타일/레이아웃 그대로 =====
   final _labelStyle = const TextStyle(
     color: Color(0xFF525252),
     fontWeight: FontWeight.w400,
@@ -60,6 +112,12 @@ class _ResetPWStep2EmailVerifyScreenState extends State<ResetPWStep2EmailVerifyS
     fontFamily: 'SpoqaHanSansNeo',
     fontWeight: FontWeight.w400,
   );
+
+  String _formatTime(int seconds) {
+    final minutes = (seconds ~/ 60).toString().padLeft(2, '0');
+    final secs = (seconds % 60).toString().padLeft(2, '0');
+    return '$minutes:$secs';
+  }
 
   InputDecoration buildInputDecoration(String hint) {
     return InputDecoration(
@@ -79,7 +137,8 @@ class _ResetPWStep2EmailVerifyScreenState extends State<ResetPWStep2EmailVerifyS
     );
   }
 
-  Widget buildTextField(String label, TextEditingController controller, String hintText) {
+  Widget buildTextField(String label, TextEditingController controller,
+      String hintText) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -126,7 +185,6 @@ class _ResetPWStep2EmailVerifyScreenState extends State<ResetPWStep2EmailVerifyS
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      extendBodyBehindAppBar: false,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -139,10 +197,10 @@ class _ResetPWStep2EmailVerifyScreenState extends State<ResetPWStep2EmailVerifyS
             const SizedBox(height: 10),
             SizedBox(
               width: buttonWidth,
-              child: const Column(
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  const Text(
                     '이메일 인증',
                     style: TextStyle(
                       fontSize: 27,
@@ -150,8 +208,8 @@ class _ResetPWStep2EmailVerifyScreenState extends State<ResetPWStep2EmailVerifyS
                       color: Color(0xFF1E1E1E),
                     ),
                   ),
-                  SizedBox(height: 10),
-                  Text(
+                  const SizedBox(height: 10),
+                  const Text(
                     '본인이 입력한 이메일 주소에서',
                     style: TextStyle(
                       fontSize: 13,
@@ -160,7 +218,7 @@ class _ResetPWStep2EmailVerifyScreenState extends State<ResetPWStep2EmailVerifyS
                       color: Color(0xFF000000),
                     ),
                   ),
-                  Text(
+                  const Text(
                     '인증을 완료해주세요.',
                     style: TextStyle(
                       fontSize: 13,
@@ -169,24 +227,34 @@ class _ResetPWStep2EmailVerifyScreenState extends State<ResetPWStep2EmailVerifyS
                       color: Color(0xFF000000),
                     ),
                   ),
+                  const SizedBox(height: 10),
+                  Text(
+                    '인증 대상 이메일: ${widget.email}',
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontFamily: 'SpoqaHanSansNeo',
+                      fontWeight: FontWeight.w400,
+                      color: Colors.black54,
+                    ),
+                  ),
                 ],
               ),
             ),
-
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.only(top: 80, bottom: 60),
+                padding: const EdgeInsets.only(top: 40, bottom: 60),
                 child: SizedBox(
                   width: buttonWidth,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      buildTextField('이메일 인증번호', _emailCodeController, '인증번호를 입력해주세요.'),
+                      buildTextField(
+                          '이메일 인증번호', _emailCodeController, '인증번호를 입력해주세요.'),
                       SizedBox(
                         height: 52,
                         width: double.infinity,
                         child: OutlinedButton(
-                          onPressed: _sendEmailCode,
+                          onPressed: _isLoading ? null : _sendEmailCode,
                           style: OutlinedButton.styleFrom(
                             side: const BorderSide(color: Color(0xFF50A12E), width: 1),
                             shape: RoundedRectangleBorder(
@@ -194,7 +262,9 @@ class _ResetPWStep2EmailVerifyScreenState extends State<ResetPWStep2EmailVerifyS
                             ),
                             backgroundColor: Colors.white,
                           ),
-                          child: const Text(
+                          child: _isLoading
+                              ? const CircularProgressIndicator(color: Color(0xFF50A12E))
+                              : const Text(
                             '인증번호 보내기',
                             style: TextStyle(
                               color: Color(0xFF50A12E),
@@ -211,14 +281,13 @@ class _ResetPWStep2EmailVerifyScreenState extends State<ResetPWStep2EmailVerifyS
                 ),
               ),
             ),
-
             Padding(
               padding: const EdgeInsets.only(bottom: 50),
               child: SizedBox(
                 width: buttonWidth,
                 height: 52,
                 child: ElevatedButton(
-                  onPressed: _verifyCode,
+                  onPressed: _isLoading ? null : _verifyCode,
                   style: ElevatedButton.styleFrom(
                     padding: EdgeInsets.zero,
                     backgroundColor: const Color(0xFF50A12E),
@@ -227,7 +296,9 @@ class _ResetPWStep2EmailVerifyScreenState extends State<ResetPWStep2EmailVerifyS
                       borderRadius: BorderRadius.circular(15),
                     ),
                   ),
-                  child: const Text(
+                  child: _isLoading
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : const Text(
                     '인증 완료하기',
                     style: TextStyle(
                       color: Colors.white,

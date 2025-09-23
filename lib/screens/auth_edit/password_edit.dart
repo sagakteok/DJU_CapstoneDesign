@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../services/auth_service.dart';
 
 class PasswordEditScreen extends StatefulWidget {
   const PasswordEditScreen({super.key});
@@ -10,15 +11,38 @@ class PasswordEditScreen extends StatefulWidget {
 class _PasswordEditScreenState extends State<PasswordEditScreen> {
   final _passwordController = TextEditingController();
   final _passwordConfirmController = TextEditingController();
+  final AuthService _authService = AuthService();
+  bool _isLoading = false;
 
-  void _nextStep() {
+  Future<void> _nextStep() async {
     if (_passwordController.text != _passwordConfirmController.text) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('비밀번호가 일치하지 않습니다.')),
       );
       return;
     }
-    Navigator.pushNamed(context, '/auth_edit/UserInfoEditComplete');
+
+    setState(() => _isLoading = true);
+
+    try {
+      final result = await _authService.updatePassword(_passwordController.text.trim());
+      if (result['success'] == true) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('비밀번호가 성공적으로 변경되었습니다.')),
+        );
+        Navigator.pushReplacementNamed(context, '/auth_edit/UserInfoEditComplete');
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(result['message'] ?? '비밀번호 변경 실패')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('에러 발생: $e')),
+      );
+    } finally {
+      setState(() => _isLoading = false);
+    }
   }
 
   final _labelStyle = const TextStyle(
@@ -158,7 +182,7 @@ class _PasswordEditScreenState extends State<PasswordEditScreen> {
                 width: buttonWidth,
                 height: 52,
                 child: ElevatedButton(
-                  onPressed: _nextStep,
+                  onPressed: _isLoading ? null : _nextStep,
                   style: ElevatedButton.styleFrom(
                     padding: EdgeInsets.zero,
                     backgroundColor: const Color(0xFF50A12E),
@@ -167,7 +191,9 @@ class _PasswordEditScreenState extends State<PasswordEditScreen> {
                       borderRadius: BorderRadius.circular(15),
                     ),
                   ),
-                  child: const Text(
+                  child: _isLoading
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : const Text(
                     '변경 완료',
                     style: TextStyle(
                       color: Colors.white,

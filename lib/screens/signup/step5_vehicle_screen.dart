@@ -1,4 +1,8 @@
+// step5_vehicle_screen.dart
 import 'package:flutter/material.dart';
+import '../../services/auth_service.dart';
+import 'package:provider/provider.dart';
+import 'package:dju_parking_project/services/signup_state.dart';
 
 class SignupStep5VehicleScreen extends StatefulWidget {
   const SignupStep5VehicleScreen({super.key});
@@ -9,9 +13,77 @@ class SignupStep5VehicleScreen extends StatefulWidget {
 
 class _SignupStep5VehicleScreenState extends State<SignupStep5VehicleScreen> {
   final _vehicleNumberController = TextEditingController();
+  final AuthService _authService = AuthService();
+  bool _isButtonEnabled = false;
+  bool _isLoading = false;
 
-  void _completeSignup() {
-    Navigator.pushNamed(context, '/signup/step6');
+  @override
+  void initState() {
+    super.initState();
+    _vehicleNumberController.addListener(_validateInput);
+    _validateInput();
+  }
+
+  void _validateInput() {
+    setState(() {
+      _isButtonEnabled = _vehicleNumberController.text.trim().isNotEmpty;
+    });
+  }
+
+  Future<void> _completeSignup() async {
+    setState(() { _isLoading = true; });
+    final _signupState = Provider.of<SignupState>(context, listen: false);
+
+    final carRaw = _vehicleNumberController.text.trim();
+    String formattedCar = carRaw;
+
+    // 차량번호 한글 뒤 공백 적용
+    final reg = RegExp(r'([0-9]+[가-힣]+)([0-9]+)');
+    if (reg.hasMatch(carRaw)) {
+      formattedCar = carRaw.replaceAllMapped(reg, (m) => '${m[1]} ${m[2]}');
+    }
+
+    // SignupState에 차량번호 저장
+    _signupState.updateStep5(carNumber: formattedCar);
+
+    // SignupState에 누적된 정보 가져오기
+    final data = _signupState.toJson();
+
+    // null 체크
+    if (data['name'] == null ||
+        data['email'] == null ||
+        data['password'] == null ||
+        data['phone_number'] == null ||
+        data['birth_date'] == null ||
+        data['car_number'] == null ||
+        data['marketing_opt_in'] == null) {
+      setState(() { _isLoading = false; });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('회원 정보가 올바르게 입력되지 않았습니다.')),
+      );
+      return;
+    }
+
+// 서버로 회원가입 요청 (7개 정보 모두 전달)
+    final result = await _authService.signup(
+      data['name']!,
+      data['birth_date']!,
+      data['phone_number']!,
+      data['email']!,
+      data['password']!,
+      data['car_number']!,
+      data['marketing_opt_in']!,
+    );
+
+    setState(() { _isLoading = false; });
+
+    if (result['success'] == true) {
+      Navigator.pushNamed(context, '/signup/step6');
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(result['message'] ?? '가입 실패')),
+      );
+    }
   }
 
   final _labelStyle = const TextStyle(
@@ -69,7 +141,6 @@ class _SignupStep5VehicleScreenState extends State<SignupStep5VehicleScreen> {
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      extendBodyBehindAppBar: false,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -115,7 +186,6 @@ class _SignupStep5VehicleScreenState extends State<SignupStep5VehicleScreen> {
                 ],
               ),
             ),
-
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.only(top: 80, bottom: 60),
@@ -131,14 +201,13 @@ class _SignupStep5VehicleScreenState extends State<SignupStep5VehicleScreen> {
                 ),
               ),
             ),
-
             Padding(
               padding: const EdgeInsets.only(bottom: 50),
               child: SizedBox(
                 width: buttonWidth,
                 height: 52,
                 child: ElevatedButton(
-                  onPressed: _completeSignup,
+                  onPressed: _isButtonEnabled ? _completeSignup : null,
                   style: ElevatedButton.styleFrom(
                     padding: EdgeInsets.zero,
                     backgroundColor: const Color(0xFF50A12E),
@@ -147,8 +216,10 @@ class _SignupStep5VehicleScreenState extends State<SignupStep5VehicleScreen> {
                       borderRadius: BorderRadius.circular(15),
                     ),
                   ),
-                  child: const Text(
-                    '가입 완료하기',
+                  child: _isLoading
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : const Text(
+                    '가입 완료',
                     style: TextStyle(
                       color: Colors.white,
                       fontFamily: 'SpoqaHanSansNeo',

@@ -1,7 +1,10 @@
-import 'dart:async';
+// step2_userinfo_screen.dart
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:dju_parking_project/services/signup_state.dart';
 
 class SignupStep2UserInfoScreen extends StatefulWidget {
+
   const SignupStep2UserInfoScreen({super.key});
 
   @override
@@ -12,47 +15,26 @@ class _SignupStep2UserInfoScreenState extends State<SignupStep2UserInfoScreen> {
   final _nameController = TextEditingController();
   final _birthController = TextEditingController();
   final _phoneController = TextEditingController();
-  final _authCodeController = TextEditingController();
 
-  Timer? _timer;
-  int _remainingSeconds = 0;
-
-  void _sendAuthCode() {
-    setState(() {
-      _remainingSeconds = 420; // 7 minutes
-    });
-    _startTimer();
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('인증번호가 발송되었습니다.')),
-    );
-  }
-
-  void _startTimer() {
-    _timer?.cancel();
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (_remainingSeconds == 0) {
-        timer.cancel();
-      } else {
-        setState(() {
-          _remainingSeconds--;
-        });
-      }
-    });
-  }
-
-  String _formatTime(int seconds) {
-    final minutes = (seconds ~/ 60).toString().padLeft(2, '0');
-    final secs = (seconds % 60).toString().padLeft(2, '0');
-    return "$minutes:$secs";
-  }
-
-  @override
-  void dispose() {
-    _timer?.cancel();
-    super.dispose();
+  bool _allFieldsFilled() {
+    return _nameController.text.isNotEmpty &&
+        _birthController.text.isNotEmpty &&
+        _phoneController.text.isNotEmpty;
   }
 
   void _nextStep() {
+    final signupState = Provider.of<SignupState>(context, listen: false);
+
+    signupState.updateStep2(
+      name: _nameController.text,
+      birthDate: _birthController.text,
+      phoneNumber: _phoneController.text,
+    );
+
+    // 콘솔 출력
+    print(">>> Step1 marketingOptIn: ${signupState.marketingOptIn}");
+    print(">>> Step2 입력값: name=${signupState.name}, birthDate=${signupState.birthDate}, phoneNumber=${signupState.phoneNumber}");
+
     Navigator.pushNamed(context, '/signup/step3');
   }
 
@@ -65,7 +47,6 @@ class _SignupStep2UserInfoScreenState extends State<SignupStep2UserInfoScreen> {
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      extendBodyBehindAppBar: false,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
@@ -120,57 +101,13 @@ class _SignupStep2UserInfoScreenState extends State<SignupStep2UserInfoScreen> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       _buildLabel('이름'),
-                      _buildTextField(_nameController, '이름을 입력해주세요.'),
+                      _buildTextField(_nameController, '이름을 입력해주세요.', onChanged: (_) => setState(() {})),
                       const SizedBox(height: 15),
                       _buildLabel('생년월일'),
-                      _buildTextField(_birthController, '예: 19990101'),
+                      _buildTextField(_birthController, '예: 19990101', onChanged: (_) => setState(() {})),
                       const SizedBox(height: 15),
                       _buildLabel('전화번호'),
-                      _buildTextField(_phoneController, '예: 01012345678', isPhone: true),
-                      const SizedBox(height: 15),
-                      _buildLabel('전화번호 인증번호'),
-                      Stack(
-                        alignment: Alignment.centerRight,
-                        children: [
-                          _buildTextField(_authCodeController, '인증번호를 입력해주세요.'),
-                          if (_remainingSeconds > 0)
-                            Padding(
-                              padding: EdgeInsets.zero,
-                              child: Text(
-                                _formatTime(_remainingSeconds),
-                                style: const TextStyle(
-                                  color: Color(0xFFCD0505),
-                                  fontSize: 13,
-                                  fontFamily: 'SpoqaHanSansNeo',
-                                  fontWeight: FontWeight.w200,
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-                      SizedBox(
-                        height: 52,
-                        child: OutlinedButton(
-                          onPressed: _sendAuthCode,
-                          style: OutlinedButton.styleFrom(
-                            side: const BorderSide(color: Color(0xFF50A12E)),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15),
-                            ),
-                            backgroundColor: Colors.white,
-                          ),
-                          child: const Text(
-                            '인증번호 보내기',
-                            style: TextStyle(
-                              color: Color(0xFF50A12E),
-                              fontSize: 14,
-                              fontFamily: 'SpoqaHanSansNeo',
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                      ),
+                      _buildTextField(_phoneController, '예: 01012345678', isPhone: true, onChanged: (_) => setState(() {})),
                       if (isKeyboardVisible) const SizedBox(height: 100),
                     ],
                   ),
@@ -183,7 +120,7 @@ class _SignupStep2UserInfoScreenState extends State<SignupStep2UserInfoScreen> {
                 width: buttonWidth,
                 height: 52,
                 child: ElevatedButton(
-                  onPressed: _nextStep,
+                  onPressed: _allFieldsFilled() ? _nextStep : null,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF50A12E),
                     shadowColor: Colors.transparent,
@@ -209,19 +146,22 @@ class _SignupStep2UserInfoScreenState extends State<SignupStep2UserInfoScreen> {
     );
   }
 
-  Widget _buildLabel(String text) {
-    return Text(
-      text,
-      style: const TextStyle(
-        color: Color(0xFF525252),
-        fontWeight: FontWeight.w400,
-        fontSize: 10,
-        fontFamily: 'SpoqaHanSansNeo',
-      ),
-    );
-  }
+  Widget _buildLabel(String text) => Text(
+    text,
+    style: const TextStyle(
+      color: Color(0xFF525252),
+      fontWeight: FontWeight.w400,
+      fontSize: 10,
+      fontFamily: 'SpoqaHanSansNeo',
+    ),
+  );
 
-  Widget _buildTextField(TextEditingController controller, String hintText, {bool isPhone = false}) {
+  Widget _buildTextField(
+      TextEditingController controller,
+      String hintText, {
+        bool isPhone = false,
+        Function(String)? onChanged,
+      }) {
     return TextField(
       controller: controller,
       keyboardType: isPhone ? TextInputType.phone : TextInputType.text,
@@ -246,6 +186,7 @@ class _SignupStep2UserInfoScreenState extends State<SignupStep2UserInfoScreen> {
           borderSide: BorderSide(color: Color(0xFFD6E1D1), width: 1.5),
         ),
       ),
+      onChanged: onChanged,
     );
   }
 }

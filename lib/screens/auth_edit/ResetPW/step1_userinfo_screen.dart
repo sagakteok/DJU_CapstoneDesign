@@ -1,18 +1,53 @@
+// lib/screens/auth_edit/ResetPW/step1_userinfo_screen.dart
 import 'package:flutter/material.dart';
+import '../../../services/auth_service.dart';
+import './step2_email_verify_screen.dart';
 
 class ResetPWStep1UserInfoScreen extends StatefulWidget {
   const ResetPWStep1UserInfoScreen({super.key});
 
   @override
-  State<ResetPWStep1UserInfoScreen> createState() => _ResetPWStep1UserInfoScreenState();
+  State<ResetPWStep1UserInfoScreen> createState() =>
+      _ResetPWStep1UserInfoScreenState();
 }
 
 class _ResetPWStep1UserInfoScreenState extends State<ResetPWStep1UserInfoScreen> {
   final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
+  final _authService = AuthService();
+  bool _isLoading = false;
 
-  void _nextStep() {
-    Navigator.pushNamed(context, '/auth_edit/ResetPW/step2');
+  Future<void> _nextStep() async {
+    final email = _emailController.text.trim();
+    final phone = _phoneController.text.trim();
+
+    if (email.isEmpty || phone.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('이메일과 전화번호를 모두 입력해주세요.')),
+      );
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+    final result = await _authService.checkUserExists(email, phone);
+    setState(() {
+      _isLoading = false;
+    });
+
+    if (result['success'] == true) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ResetPWStep2EmailVerifyScreen(email: email),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(result['message'] ?? '회원 정보를 확인할 수 없습니다.')),
+      );
+    }
   }
 
   final _labelStyle = const TextStyle(
@@ -121,7 +156,6 @@ class _ResetPWStep1UserInfoScreenState extends State<ResetPWStep1UserInfoScreen>
                 ],
               ),
             ),
-
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.only(top: 60, bottom: 60),
@@ -130,21 +164,26 @@ class _ResetPWStep1UserInfoScreenState extends State<ResetPWStep1UserInfoScreen>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      buildTextField('이메일', _emailController, '이메일을 입력해주세요.', keyboardType: TextInputType.emailAddress),
-                      buildTextField('전화번호', _phoneController, '예: 01012345678', keyboardType: TextInputType.phone),
+                      buildTextField(
+                          '이메일', _emailController, '이메일을 입력해주세요.',
+                          keyboardType: TextInputType.emailAddress),
+                      buildTextField(
+                          '전화번호', _phoneController, '예: 01012345678',
+                          keyboardType: TextInputType.phone),
                       if (isKeyboardVisible) const SizedBox(height: 170),
                     ],
                   ),
                 ),
               ),
             ),
-
             Padding(
               padding: const EdgeInsets.only(bottom: 50),
               child: SizedBox(
                 width: buttonWidth,
                 height: 52,
-                child: ElevatedButton(
+                child: _isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : ElevatedButton(
                   onPressed: _nextStep,
                   style: ElevatedButton.styleFrom(
                     padding: EdgeInsets.zero,

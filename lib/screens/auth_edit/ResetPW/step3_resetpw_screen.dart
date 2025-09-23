@@ -1,7 +1,11 @@
+// lib/screens/auth_edit/ResetPW/step3_resetpw_screen.dart
 import 'package:flutter/material.dart';
+import '../../../services/auth_service.dart';
 
 class ResetPWStep3ResetPWScreen extends StatefulWidget {
-  const ResetPWStep3ResetPWScreen({super.key});
+  final String email; // step2에서 전달받은 이메일
+
+  const ResetPWStep3ResetPWScreen({super.key, required this.email});
 
   @override
   State<ResetPWStep3ResetPWScreen> createState() => _ResetPWStep3ResetPWScreenState();
@@ -10,15 +14,40 @@ class ResetPWStep3ResetPWScreen extends StatefulWidget {
 class _ResetPWStep3ResetPWScreenState extends State<ResetPWStep3ResetPWScreen> {
   final _passwordController = TextEditingController();
   final _passwordConfirmController = TextEditingController();
+  final AuthService _authService = AuthService();
+  bool _isLoading = false;
 
-  void _nextStep() {
-    if (_passwordController.text != _passwordConfirmController.text) {
+  Future<void> _nextStep() async {
+    final password = _passwordController.text.trim();
+    final confirm = _passwordConfirmController.text.trim();
+
+    if (password != confirm) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('비밀번호가 일치하지 않습니다.')),
       );
       return;
     }
-    Navigator.pushNamed(context, '/auth_edit/ResetPW/step4');
+
+    setState(() => _isLoading = true);
+    try {
+      final result = await _authService.resetPassword(widget.email, password);
+      if (result['success'] == true) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('비밀번호 재설정 완료!')),
+        );
+        Navigator.pushNamed(context, '/auth_edit/ResetPW/step4');
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(result['message'] ?? '비밀번호 재설정 실패')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('오류 발생: $e')),
+      );
+    } finally {
+      setState(() => _isLoading = false);
+    }
   }
 
   final _labelStyle = const TextStyle(
@@ -79,6 +108,7 @@ class _ResetPWStep3ResetPWScreenState extends State<ResetPWStep3ResetPWScreen> {
     final buttonWidth = MediaQuery.of(context).size.width * 0.85;
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
     final isKeyboardVisible = bottomInset > 0;
+    final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -151,7 +181,7 @@ class _ResetPWStep3ResetPWScreenState extends State<ResetPWStep3ResetPWScreen> {
                 width: buttonWidth,
                 height: 52,
                 child: ElevatedButton(
-                  onPressed: _nextStep,
+                  onPressed: _isLoading ? null : _nextStep,
                   style: ElevatedButton.styleFrom(
                     padding: EdgeInsets.zero,
                     backgroundColor: const Color(0xFF50A12E),
@@ -160,7 +190,9 @@ class _ResetPWStep3ResetPWScreenState extends State<ResetPWStep3ResetPWScreen> {
                       borderRadius: BorderRadius.circular(15),
                     ),
                   ),
-                  child: const Text(
+                  child: _isLoading
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : const Text(
                     '다음 단계로 이동',
                     style: TextStyle(
                       color: Colors.white,

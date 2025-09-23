@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 // 화면 import
@@ -8,8 +9,10 @@ import 'screens/bottom_navigation.dart';
 import 'screens/login_screen.dart';
 import 'screens/NoticeItem.dart';
 import 'screens/ViewParkingCam.dart';
+import 'screens/BottomNavPages/HomeScreen/logouted_home_screen.dart';
 
 // 회원가입 단계별 화면
+import 'package:dju_parking_project/services/signup_state.dart';
 import 'screens/signup/step1_terms_screen.dart';
 import 'screens/signup/step2_userinfo_screen.dart';
 import 'screens/signup/step3_account_screen.dart';
@@ -59,7 +62,12 @@ void main() async {
     ),
   );
 
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => SignupState(),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatefulWidget {
@@ -115,6 +123,7 @@ class _MyAppState extends State<MyApp> {
         '/appstart': (_) => const AppStart(),
         '/login': (_) => const LoginScreen(),
         '/home': (_) => const BottomNavigation(),
+        '/logoutedhome': (_) => const LogoutedHomeScreen(),
         '/NoticeItem': (_) => const NoticeItem(),
         '/ViewParkingCam': (_) => const ViewParkingCam(),
         '/signup/step1': (_) => const SignupStep1TermsScreen(),
@@ -126,8 +135,6 @@ class _MyAppState extends State<MyApp> {
         '/auth_edit/FindID/step1': (_) => const FindIDStep1EmailVerifyScreen(),
         '/auth_edit/FindID/step2': (_) => const FindIDStep2CompleteScreen(),
         '/auth_edit/ResetPW/step1': (_) => const ResetPWStep1UserInfoScreen(),
-        '/auth_edit/ResetPW/step2': (_) => const ResetPWStep2EmailVerifyScreen(),
-        '/auth_edit/ResetPW/step3': (_) => const ResetPWStep3ResetPWScreen(),
         '/auth_edit/ResetPW/step4': (_) => const ResetPWStep4ResetCompleteScreen(),
         '/auth_edit/UserInfoEdit': (_) => const UserInfoEditScreen(),
         '/auth_edit/EmailEdit': (_) => const EmailEditScreen(),

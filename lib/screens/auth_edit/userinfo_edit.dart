@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import '../../services/auth_service.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 
 class UserInfoEditScreen extends StatefulWidget {
   const UserInfoEditScreen({super.key});
@@ -12,55 +14,98 @@ class _UserInfoEditScreenState extends State<UserInfoEditScreen> {
   final _nameController = TextEditingController();
   final _birthController = TextEditingController();
   final _phoneController = TextEditingController();
-  final _authCodeController = TextEditingController();
+  final AuthService _authService = AuthService();
+  bool _isLoading = false;
 
-  Timer? _timer;
-  int _remainingSeconds = 0;
+  void _EditComplete() async {
+    setState(() => _isLoading = true);
 
-  void _sendAuthCode() {
-    setState(() {
-      _remainingSeconds = 420; // 7 minutes
-    });
-    _startTimer();
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('인증번호가 발송되었습니다.')),
+    try {
+      String name = _nameController.text.trim();
+      String birth = _birthController.text.trim();
+      String phone = _phoneController.text.trim();
+
+      // birth를 서버 요구 포맷으로 변환 (예: YYYYMMDD)
+      birth = birth.replaceAll('.', '').replaceAll('-', '');
+
+      final result = await _authService.updateUserInfo(
+        name: name,
+        birthDate: birth,
+        phoneNumber: phone,
+      );
+
+      if (result['success'] == true) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('회원정보가 성공적으로 수정되었습니다.')),
+        );
+        Navigator.pushReplacementNamed(context, '/auth_edit/UserInfoEditComplete');
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(result['message'] ?? '회원정보 수정 실패')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('에러 발생: $e')),
+      );
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  final _labelStyle = const TextStyle(
+    color: Color(0xFF525252),
+    fontWeight: FontWeight.w400,
+    fontSize: 10,
+    fontFamily: 'SpoqaHanSansNeo',
+  );
+
+  final _textStyle = const TextStyle(
+    color: Color(0xFF000000),
+    fontSize: 13,
+    fontFamily: 'SpoqaHanSansNeo',
+    fontWeight: FontWeight.w400,
+  );
+
+  InputDecoration buildInputDecoration(String hint) {
+    return InputDecoration(
+      hintText: hint,
+      hintStyle: const TextStyle(
+        color: Color(0xFFD6E1D1),
+        fontSize: 13,
+        fontFamily: 'SpoqaHanSansNeo',
+        fontWeight: FontWeight.w400,
+      ),
+      enabledBorder: const UnderlineInputBorder(
+        borderSide: BorderSide(color: Color(0xFFD6E1D1)),
+      ),
+      focusedBorder: const UnderlineInputBorder(
+        borderSide: BorderSide(color: Color(0xFFD6E1D1), width: 1.5),
+      ),
     );
   }
 
-  void _startTimer() {
-    _timer?.cancel();
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (_remainingSeconds == 0) {
-        timer.cancel();
-      } else {
-        setState(() {
-          _remainingSeconds--;
-        });
-      }
-    });
+  Widget buildTextField(TextEditingController controller, String hintText, {bool isPhone = false}) {
+    return TextField(
+      controller: controller,
+      keyboardType: isPhone ? TextInputType.phone : TextInputType.text,
+      style: _textStyle,
+      decoration: buildInputDecoration(hintText),
+    );
   }
 
-  String _formatTime(int seconds) {
-    final minutes = (seconds ~/ 60).toString().padLeft(2, '0');
-    final secs = (seconds % 60).toString().padLeft(2, '0');
-    return "$minutes:$secs";
-  }
-
-  @override
-  void dispose() {
-    _timer?.cancel();
-    super.dispose();
-  }
-
-  void _EditComplete() {
-    Navigator.pushNamed(context, '/auth_edit/UserInfoEditComplete');
+  Widget _buildLabel(String text) {
+    return Text(
+      text,
+      style: _labelStyle,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final buttonWidth = MediaQuery.of(context).size.width * 0.85;
-    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
     final screenHeight = MediaQuery.of(context).size.height;
+    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
     final isKeyboardVisible = bottomInset > 0;
 
     return Scaffold(
@@ -135,57 +180,14 @@ class _UserInfoEditScreenState extends State<UserInfoEditScreen> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       _buildLabel('이름'),
-                      _buildTextField(_nameController, '이름을 입력해주세요.'),
+                      buildTextField(_nameController, '이름을 입력해주세요.'),
                       const SizedBox(height: 15),
                       _buildLabel('생년월일'),
-                      _buildTextField(_birthController, '예: 19990101'),
+                      buildTextField(_birthController, '예: 19990101'),
                       const SizedBox(height: 15),
                       _buildLabel('전화번호'),
-                      _buildTextField(_phoneController, '예: 01012345678', isPhone: true),
+                      buildTextField(_phoneController, '예: 01012345678', isPhone: true),
                       const SizedBox(height: 15),
-                      _buildLabel('전화번호 인증번호'),
-                      Stack(
-                        alignment: Alignment.centerRight,
-                        children: [
-                          _buildTextField(_authCodeController, '인증번호를 입력해주세요.'),
-                          if (_remainingSeconds > 0)
-                            Padding(
-                              padding: EdgeInsets.zero,
-                              child: Text(
-                                _formatTime(_remainingSeconds),
-                                style: const TextStyle(
-                                  color: Color(0xFFCD0505),
-                                  fontSize: 13,
-                                  fontFamily: 'SpoqaHanSansNeo',
-                                  fontWeight: FontWeight.w200,
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-                      SizedBox(
-                        height: 52,
-                        child: OutlinedButton(
-                          onPressed: _sendAuthCode,
-                          style: OutlinedButton.styleFrom(
-                            side: const BorderSide(color: Color(0xFF50A12E)),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15),
-                            ),
-                            backgroundColor: Colors.white,
-                          ),
-                          child: const Text(
-                            '인증번호 보내기',
-                            style: TextStyle(
-                              color: Color(0xFF50A12E),
-                              fontSize: 14,
-                              fontFamily: 'SpoqaHanSansNeo',
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                      ),
                       if (isKeyboardVisible) const SizedBox(height: 100),
                     ],
                   ),
@@ -206,59 +208,23 @@ class _UserInfoEditScreenState extends State<UserInfoEditScreen> {
                       borderRadius: BorderRadius.circular(15),
                     ),
                   ),
-                  child: const Text(
-                    '변경 완료',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontFamily: 'SpoqaHanSansNeo',
-                      fontWeight: FontWeight.w600,
-                      fontSize: 14,
-                    ),
-                  ),
+                  child: _isLoading
+                      ? const CircularProgressIndicator(
+                          color: Colors.white,
+                        )
+                      : const Text(
+                          '변경 완료',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontFamily: 'SpoqaHanSansNeo',
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                          ),
+                        ),
                 ),
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLabel(String text) {
-    return Text(
-      text,
-      style: const TextStyle(
-        color: Color(0xFF525252),
-        fontWeight: FontWeight.w400,
-        fontSize: 10,
-        fontFamily: 'SpoqaHanSansNeo',
-      ),
-    );
-  }
-
-  Widget _buildTextField(TextEditingController controller, String hintText, {bool isPhone = false}) {
-    return TextField(
-      controller: controller,
-      keyboardType: isPhone ? TextInputType.phone : TextInputType.text,
-      style: const TextStyle(
-        color: Color(0xFF000000),
-        fontSize: 13,
-        fontFamily: 'SpoqaHanSansNeo',
-        fontWeight: FontWeight.w400,
-      ),
-      decoration: InputDecoration(
-        hintText: hintText,
-        hintStyle: const TextStyle(
-          color: Color(0xFFD6E1D1),
-          fontSize: 13,
-          fontFamily: 'SpoqaHanSansNeo',
-          fontWeight: FontWeight.w400,
-        ),
-        enabledBorder: const UnderlineInputBorder(
-          borderSide: BorderSide(color: Color(0xFFD6E1D1)),
-        ),
-        focusedBorder: const UnderlineInputBorder(
-          borderSide: BorderSide(color: Color(0xFFD6E1D1), width: 1.5),
         ),
       ),
     );

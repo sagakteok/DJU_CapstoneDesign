@@ -12,23 +12,38 @@ class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isLoading = false;
+
   final _authService = AuthService();
 
   Future<void> _login() async {
     setState(() => _isLoading = true);
 
-    final success = await _authService.login(
-      _emailController.text,
-      _passwordController.text,
-    );
+    try {
+      final response = await _authService.login(
+        _emailController.text.trim(),
+        _passwordController.text.trim(),
+      );
 
-    setState(() => _isLoading = false);
+      setState(() => _isLoading = false);
 
-    if (success && mounted) {
-      Navigator.pushReplacementNamed(context, '/home');
-    } else {
+      // 안전하게 Map으로 변환
+      final result = response is Map<String, dynamic> ? response : <String, dynamic>{};
+
+      if (result['token'] != null) {
+        Navigator.pushReplacementNamed(context, '/home');
+      } else if (result['message'] != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(result['message'].toString())),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('로그인 실패')),
+        );
+      }
+    } catch (e) {
+      setState(() => _isLoading = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('로그인 실패')),
+        SnackBar(content: Text('에러 발생: $e')),
       );
     }
   }
@@ -40,7 +55,6 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  // 스타일 상수 분리
   static const labelTextStyle = TextStyle(
     color: Color(0xFF525252),
     fontWeight: FontWeight.w400,
@@ -79,8 +93,12 @@ class _LoginScreenState extends State<LoginScreen> {
     return Text(text, style: labelTextStyle);
   }
 
-  Widget buildTextField(TextEditingController controller, String hintText,
-      {bool obscureText = false, TextInputType? keyboardType}) {
+  Widget buildTextField(
+      TextEditingController controller,
+      String hintText, {
+        bool obscureText = false,
+        TextInputType? keyboardType,
+      }) {
     return TextField(
       controller: controller,
       obscureText: obscureText,
@@ -162,7 +180,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 textAlign: TextAlign.start,
               ),
             ),
-
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.only(top: 60, bottom: 60),
@@ -190,38 +207,45 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
+                            // ✅ 이메일 찾기 비활성화
+                            // GestureDetector(
+                            //   onTap: () {
+                            //     Navigator.pushReplacementNamed(
+                            //       context,
+                            //       '/auth_edit/FindID/step1',
+                            //     );
+                            //   },
+                            //   child: const Padding(
+                            //     padding: EdgeInsets.only(right: 5),
+                            //     child: Text(
+                            //       '이메일 찾기',
+                            //       style: TextStyle(
+                            //         color: Color(0xFF424242),
+                            //         fontFamily: 'SpoqaHanSansNeo',
+                            //         fontWeight: FontWeight.w500,
+                            //         fontSize: 11,
+                            //       ),
+                            //     ),
+                            //   ),
+                            // ),
+                            // const Padding(
+                            //   padding: EdgeInsets.symmetric(horizontal: 5),
+                            //   child: Text(
+                            //     '|',
+                            //     style: TextStyle(
+                            //       color: Color(0xFFADB5CA),
+                            //       fontFamily: 'SpoqaHanSansNeo',
+                            //       fontWeight: FontWeight.w600,
+                            //       fontSize: 11,
+                            //     ),
+                            //   ),
+                            // ),
                             GestureDetector(
                               onTap: () {
-                                Navigator.pushReplacementNamed(context, '/auth_edit/FindID/step1');
-                              },
-                              child: const Padding(
-                                padding: EdgeInsets.only(right: 5),
-                                child: Text(
-                                  '이메일 찾기',
-                                  style: TextStyle(
-                                    color: Color(0xFF424242),
-                                    fontFamily: 'SpoqaHanSansNeo',
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: 11,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 5),
-                              child: Text(
-                                '|',
-                                style: TextStyle(
-                                  color: Color(0xFFADB5CA),
-                                  fontFamily: 'SpoqaHanSansNeo',
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 11,
-                                ),
-                              ),
-                            ),
-                            GestureDetector(
-                              onTap: () {
-                                Navigator.pushReplacementNamed(context, '/auth_edit/ResetPW/step1');
+                                Navigator.pushReplacementNamed(
+                                  context,
+                                  '/auth_edit/ResetPW/step1',
+                                );
                               },
                               child: const Padding(
                                 padding: EdgeInsets.only(left: 5),
@@ -245,8 +269,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
             ),
-
-            // 하단 고정 버튼 영역
             Padding(
               padding: const EdgeInsets.only(bottom: 50),
               child: Column(

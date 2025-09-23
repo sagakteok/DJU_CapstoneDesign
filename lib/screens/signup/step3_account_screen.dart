@@ -1,4 +1,7 @@
+// step3_account_screen.dart
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:dju_parking_project/services/signup_state.dart';
 
 class SignupStep3AccountScreen extends StatefulWidget {
   const SignupStep3AccountScreen({super.key});
@@ -8,71 +11,72 @@ class SignupStep3AccountScreen extends StatefulWidget {
 }
 
 class _SignupStep3AccountScreenState extends State<SignupStep3AccountScreen> {
+  late final SignupState signupState;
+
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _passwordConfirmController = TextEditingController();
 
-  void _nextStep() {
-    if (_passwordController.text != _passwordConfirmController.text) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('비밀번호가 일치하지 않습니다.')),
-      );
-      return;
+  bool _isButtonEnabled = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      signupState = Provider.of<SignupState>(context, listen: false);
+
+      // 이전 단계 정보 콘솔 출력
+      print('>>> Step1 marketingOptIn: ${signupState.marketingOptIn}');
+      print('>>> Step2 입력값: name=${signupState.name}, birthDate=${signupState.birthDate}, phoneNumber=${signupState.phoneNumber}');
+
+      _emailController.text = signupState.email;
+      _passwordController.text = signupState.password;
+
+      _emailController.addListener(_validateInputs);
+      _passwordController.addListener(_validateInputs);
+      _passwordConfirmController.addListener(_validateInputs);
+    });
+  }
+
+  @override
+  void dispose() {
+    _emailController.removeListener(_validateInputs);
+    _passwordController.removeListener(_validateInputs);
+    _passwordConfirmController.removeListener(_validateInputs);
+
+    _emailController.dispose();
+    _passwordController.dispose();
+    _passwordConfirmController.dispose();
+    super.dispose();
+  }
+
+  void _validateInputs() {
+    final email = _emailController.text;
+    final password = _passwordController.text;
+    final confirm = _passwordConfirmController.text;
+
+    final isEnabled = email.isNotEmpty && password.isNotEmpty && confirm.isNotEmpty && password == confirm;
+
+    if (isEnabled != _isButtonEnabled) {
+      setState(() {
+        _isButtonEnabled = isEnabled;
+      });
     }
-    Navigator.pushNamed(context, '/signup/step4');
   }
 
-  final _labelStyle = const TextStyle(
-    color: Color(0xFF525252),
-    fontWeight: FontWeight.w400,
-    fontSize: 10,
-    fontFamily: 'SpoqaHanSansNeo',
-  );
+  void _nextStep() {
+    if (!_isButtonEnabled) return;
 
-  final _textStyle = const TextStyle(
-    color: Color(0xFF000000),
-    fontSize: 13,
-    fontFamily: 'SpoqaHanSansNeo',
-    fontWeight: FontWeight.w400,
-  );
-
-  InputDecoration buildInputDecoration(String hint) {
-    return InputDecoration(
-      hintText: hint,
-      hintStyle: const TextStyle(
-        color: Color(0xFFD6E1D1),
-        fontSize: 13,
-        fontFamily: 'SpoqaHanSansNeo',
-        fontWeight: FontWeight.w400,
-      ),
-      enabledBorder: const UnderlineInputBorder(
-        borderSide: BorderSide(color: Color(0xFFD6E1D1)),
-      ),
-      focusedBorder: const UnderlineInputBorder(
-        borderSide: BorderSide(color: Color(0xFFD6E1D1), width: 1.5),
-      ),
+    signupState.updateStep3(
+      email: _emailController.text,
+      password: _passwordController.text,
     );
-  }
 
-  Widget buildTextField(String label, TextEditingController controller,
-      String hintText, {
-        bool obscure = false,
-        TextInputType keyboardType = TextInputType.text,
-      }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: _labelStyle),
-        TextField(
-          controller: controller,
-          obscureText: obscure,
-          keyboardType: keyboardType,
-          style: _textStyle,
-          decoration: buildInputDecoration(hintText),
-        ),
-        const SizedBox(height: 15),
-      ],
-    );
+    // Step3 입력값 콘솔 출력
+    print('>>> Step3 입력값: email=${signupState.email}, password=${signupState.password}');
+
+    Navigator.pushNamed(context, '/signup/step4', arguments: signupState);
   }
 
   @override
@@ -129,7 +133,6 @@ class _SignupStep3AccountScreenState extends State<SignupStep3AccountScreen> {
                 ],
               ),
             ),
-
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.only(top: 60, bottom: 60),
@@ -147,14 +150,13 @@ class _SignupStep3AccountScreenState extends State<SignupStep3AccountScreen> {
                 ),
               ),
             ),
-
             Padding(
               padding: const EdgeInsets.only(bottom: 50),
               child: SizedBox(
                 width: buttonWidth,
                 height: 52,
                 child: ElevatedButton(
-                  onPressed: _nextStep,
+                  onPressed: _isButtonEnabled ? _nextStep : null,
                   style: ElevatedButton.styleFrom(
                     padding: EdgeInsets.zero,
                     backgroundColor: const Color(0xFF50A12E),
@@ -178,6 +180,51 @@ class _SignupStep3AccountScreenState extends State<SignupStep3AccountScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget buildTextField(String label, TextEditingController controller,
+      String hintText, {
+        bool obscure = false,
+        TextInputType keyboardType = TextInputType.text,
+      }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: const TextStyle(
+          color: Color(0xFF525252),
+          fontWeight: FontWeight.w400,
+          fontSize: 10,
+          fontFamily: 'SpoqaHanSansNeo',
+        )),
+        TextField(
+          controller: controller,
+          obscureText: obscure,
+          keyboardType: keyboardType,
+          style: const TextStyle(
+            color: Color(0xFF000000),
+            fontSize: 13,
+            fontFamily: 'SpoqaHanSansNeo',
+            fontWeight: FontWeight.w400,
+          ),
+          decoration: InputDecoration(
+            hintText: hintText,
+            hintStyle: const TextStyle(
+              color: Color(0xFFD6E1D1),
+              fontSize: 13,
+              fontFamily: 'SpoqaHanSansNeo',
+              fontWeight: FontWeight.w400,
+            ),
+            enabledBorder: const UnderlineInputBorder(
+              borderSide: BorderSide(color: Color(0xFFD6E1D1)),
+            ),
+            focusedBorder: const UnderlineInputBorder(
+              borderSide: BorderSide(color: Color(0xFFD6E1D1), width: 1.5),
+            ),
+          ),
+        ),
+        const SizedBox(height: 15),
+      ],
     );
   }
 }

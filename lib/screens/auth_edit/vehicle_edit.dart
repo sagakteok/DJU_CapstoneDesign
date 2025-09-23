@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import '../../services/auth_service.dart';
+import '../../main.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 
 class VehicleEditScreen extends StatefulWidget {
   const VehicleEditScreen({super.key});
@@ -9,9 +12,51 @@ class VehicleEditScreen extends StatefulWidget {
 
 class _VehicleEditScreenState extends State<VehicleEditScreen> {
   final _vehicleNumberController = TextEditingController();
+  final AuthService _authService = AuthService();
+  bool _isLoading = false;
 
-  void _completeSignup() {
-    Navigator.pushNamed(context, '/auth_edit/UserInfoEditComplete');
+  void _completeSignup() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    // 차량번호 한글 뒤 공백 적용
+    String carRaw = _vehicleNumberController.text.trim();
+    String formattedCar = carRaw;
+    final reg = RegExp(r'([0-9]+[가-힣]+)([0-9]+)');
+    if (reg.hasMatch(carRaw)) {
+      formattedCar = carRaw.replaceAllMapped(reg, (m) => '${m[1]} ${m[2]}');
+    }
+
+    // 저장된 토큰 가져오기
+    final token = await _authService.getToken();
+    if (token == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('토큰이 존재하지 않습니다. 다시 로그인해주세요.')),
+      );
+      setState(() {
+        _isLoading = false;
+      });
+      return;
+    }
+
+    // JWT 디코딩하여 user_id 추출 (AuthService 내부에서 이미 처리 가능)
+    final result = await _authService.updateCarNumber(formattedCar);
+
+    setState(() {
+      _isLoading = false;
+    });
+
+    if (result['success'] == true) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('차량번호가 성공적으로 수정되었습니다.')),
+      );
+      Navigator.pushReplacementNamed(context, '/auth_edit/UserInfoEditComplete');
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(result['message'] ?? '차량번호 수정 실패')),
+      );
+    }
   }
 
   final _labelStyle = const TextStyle(
@@ -153,15 +198,19 @@ class _VehicleEditScreenState extends State<VehicleEditScreen> {
                       borderRadius: BorderRadius.circular(15),
                     ),
                   ),
-                  child: const Text(
-                    '변경 완료',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontFamily: 'SpoqaHanSansNeo',
-                      fontWeight: FontWeight.w600,
-                      fontSize: 14,
-                    ),
-                  ),
+                  child: _isLoading
+                      ? const CircularProgressIndicator(
+                          color: Colors.white,
+                        )
+                      : const Text(
+                          '변경 완료',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontFamily: 'SpoqaHanSansNeo',
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                          ),
+                        ),
                 ),
               ),
             ),

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:dju_parking_project/services/signup_state.dart';
 
 class SignupStep1TermsScreen extends StatefulWidget {
   const SignupStep1TermsScreen({super.key});
@@ -41,6 +43,15 @@ class _SignupStep1TermsScreenState extends State<SignupStep1TermsScreen> {
       }
       allChecked = termsChecked && privacyChecked && marketingChecked;
     });
+  }
+
+  void _nextStep() {
+    if (termsChecked && privacyChecked) {
+      final signupState = Provider.of<SignupState>(context, listen: false);
+      signupState.updateStep1(marketingOptIn: marketingChecked);
+
+      Navigator.pushNamed(context, '/signup/step2');
+    }
   }
 
   @override
@@ -153,9 +164,7 @@ class _SignupStep1TermsScreenState extends State<SignupStep1TermsScreen> {
                 width: buttonWidth,
                 height: 52,
                 child: ElevatedButton(
-                  onPressed: termsChecked && privacyChecked
-                      ? () => Navigator.pushNamed(context, '/signup/step2')
-                      : null,
+                  onPressed: termsChecked && privacyChecked ? _nextStep : null,
                   style: ElevatedButton.styleFrom(
                     padding: EdgeInsets.zero,
                     backgroundColor: const Color(0xFF50A12E),

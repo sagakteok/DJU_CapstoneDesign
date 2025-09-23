@@ -3,20 +3,61 @@ import '../../../services/auth_service.dart';
 import '../../../main.dart';
 import '../../ViewParkingCam.dart';
 
-class LoginedHomeScreen extends StatelessWidget {
+class LoginedHomeScreen extends StatefulWidget {
   const LoginedHomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final authService = AuthService();
-    final screenWidth = MediaQuery
-        .of(context)
-        .size
-        .width;
+  State<LoginedHomeScreen> createState() => _LoginedHomeScreenState();
+}
 
-    // TODO: 실제 사용자 정보로 대체 예정
-    const String userName = '신용범';
-    const String carNumber = '372머 9480';
+class _LoginedHomeScreenState extends State<LoginedHomeScreen> {
+  String userName = '';
+  String carNumber = '';
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserInfo();
+  }
+
+  Future<void> _fetchUserInfo() async {
+    final userInfo = await AuthService().getUserInfo();
+    if (userInfo['success'] == true && userInfo['user'] != null) {
+      final user = userInfo['user'];
+
+      // 차량번호 한글 뒤 공백 적용
+      String carRaw = user['car_number'] ?? '';
+      String formattedCar = carRaw;
+      final reg = RegExp(r'([0-9]+[가-힣]+)([0-9]+)');
+      if (reg.hasMatch(carRaw)) {
+        formattedCar = carRaw.replaceAllMapped(reg, (m) => '${m[1]} ${m[2]}');
+      }
+
+      setState(() {
+        userName = user['name'] ?? '';
+        carNumber = formattedCar;
+        _isLoading = false;
+      });
+    } else {
+      setState(() {
+        _isLoading = false;
+      });
+      debugPrint('사용자 정보 로드 실패: ${userInfo['message'] ?? userInfo['error']}');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    if (_isLoading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    // 기존 하드코딩된 entryDate, entryTime, duration 등
     const String entryDate = '2025.06.05 (목)';
     const String entryTime = '오전 11:26';
     const String duration = '2분 10초';
