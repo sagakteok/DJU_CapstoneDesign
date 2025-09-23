@@ -124,7 +124,6 @@ class _MyAppState extends State<MyApp> {
         '/login': (_) => const LoginScreen(),
         '/home': (_) => const BottomNavigation(),
         '/logoutedhome': (_) => const LogoutedHomeScreen(),
-        '/NoticeItem': (_) => const NoticeItem(),
         '/ViewParkingCam': (_) => const ViewParkingCam(),
         '/signup/step1': (_) => const SignupStep1TermsScreen(),
         '/signup/step2': (_) => const SignupStep2UserInfoScreen(),

@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import '../../../services/auth_service.dart';
 import '../../../main.dart';
 import '../../ViewParkingCam.dart';
+import '../../NoticeItem.dart';
 
 class LoginedHomeScreen extends StatefulWidget {
   const LoginedHomeScreen({super.key});
@@ -14,6 +18,8 @@ class _LoginedHomeScreenState extends State<LoginedHomeScreen> {
   String userName = '';
   String carNumber = '';
   bool _isLoading = true;
+
+  List<Map<String, dynamic>> _notices = [];
 
   @override
   void initState() {
@@ -47,6 +53,31 @@ class _LoginedHomeScreenState extends State<LoginedHomeScreen> {
     }
   }
 
+  Future<void> fetchNotices() async {
+    final response = await http.get(Uri.parse('http://192.168.75.57:3000/api/notices'));
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      final items = data['items'] as List<dynamic>;
+
+      // 최신순 정렬
+      items.sort((a, b) {
+        final da = DateTime.tryParse(a['created_at'] ?? '') ?? DateTime(2000);
+        final db = DateTime.tryParse(b['created_at'] ?? '') ?? DateTime(2000);
+        return db.compareTo(da);
+      });
+
+      setState(() {
+        _notices.clear();
+        _notices.addAll(items.map((item) => {
+          'title': item['title'],
+        }).toList());
+      });
+    } else {
+      print('Failed to load notices: ${response.statusCode}');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -70,7 +101,7 @@ class _LoginedHomeScreenState extends State<LoginedHomeScreen> {
         backgroundColor: const Color(0xFF76B55C),
         elevation: 0,
         scrolledUnderElevation: 0,
-        // ✅ 스크롤 시 색 변화 방지
+        centerTitle: false,
         automaticallyImplyLeading: false,
         title: const Text(
           'Lot Bot',
@@ -749,125 +780,184 @@ Color _getStatusColor(congestionText) {
   }
 }
 
-// 최근 공지사항 섹션 (제목 제거)
+// 최근 공지사항 섹션 (API 연동, 제목 제거)
 Widget _buildNoticeSection(BuildContext context, double screenWidth) {
-  final List<String> notices = [
-    '주차장 이용 시간 안내',
-    '정기권 할인 이벤트',
-    '앱 업데이트 공지',
-  ];
+  Future<List<Map<String, dynamic>>> fetchNotices() async {
+    final uri = Uri.parse('http://192.168.75.57:3000/api/notices');
+    final res = await http.get(uri);
 
-  return Container(
-    width: screenWidth * 0.92,
-    padding: const EdgeInsets.only(top: 20, left: 15, right: 15, bottom: 30),
-    decoration: BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(20),
-      boxShadow: const [
-        BoxShadow(
-          color: Color(0x08000000),
-          offset: Offset(0, 0),
-          blurRadius: 7,
-          spreadRadius: 3,
+    if (res.statusCode == 200) {
+      final decoded = json.decode(res.body);
+      if (decoded['items'] != null) {   // 여기 items로 바꿔야 함
+        List<dynamic> notices = decoded['items'];
+        // 최신순 정렬, 최대 3개만
+        notices.sort((a, b) {
+          final da = DateTime.tryParse(a['created_at'] ?? '') ?? DateTime(2000);
+          final db = DateTime.tryParse(b['created_at'] ?? '') ?? DateTime(2000);
+          return db.compareTo(da);
+        });
+        return notices.take(3).map<Map<String, dynamic>>((n) => n as Map<String, dynamic>).toList();
+      }
+    }
+    return [];
+  }
+
+  return FutureBuilder<List<Map<String, dynamic>>>(
+    future: fetchNotices(),
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return Container(
+          width: screenWidth * 0.92,
+          height: 120,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0x08000000),
+                offset: Offset(0, 0),
+                blurRadius: 7,
+                spreadRadius: 3,
+              ),
+            ],
+          ),
+          child: const CircularProgressIndicator(),
+        );
+      }
+      final notices = snapshot.data ?? [];
+      return Container(
+        width: screenWidth * 0.92,
+        padding: const EdgeInsets.only(top: 20, left: 15, right: 15, bottom: 30),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x08000000),
+              offset: Offset(0, 0),
+              blurRadius: 7,
+              spreadRadius: 3,
+            ),
+          ],
         ),
-      ],
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // 공지사항 리스트만 남김
-        ...notices.map((title) {
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 10),
-            child: SizedBox(
-              width: double.infinity,
-              height: 45,
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pushNamed(context, '/NoticeItem');
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFFFFFFF), // 배경 흰톤 유지
-                  shadowColor: Colors.transparent,
-                  elevation: 0, // 그림자 제거
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  alignment: Alignment.centerLeft, // 텍스트 왼쪽 정렬
-                  padding: const EdgeInsets.only(left: 15, right: 5),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        title,
-                        style: const TextStyle(
-                          fontFamily: 'SpoqaHanSansNeo',
-                          fontSize: 15,
-                          fontWeight: FontWeight.w500,
-                          color: Color(0xFF414B6A),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // 공지사항 리스트
+            ...notices.map((notice) {
+              final String title = notice['title'] ?? '';
+              final String content = notice['content'] ?? '';
+              final String category = notice['category'] ?? '';
+              final String dateRaw = notice['created_at'] ?? '';
+              String formattedDate = '';
+              try {
+                final dt = DateTime.parse(dateRaw).toLocal();
+                formattedDate = DateFormat('yyyy.MM.dd (E) a h:mm', 'ko_KR').format(dt);
+              } catch (_) {
+                formattedDate = dateRaw;
+              }
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 45,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => NoticeItem(
+                            title: notice['title'] ?? '',
+                            content: notice['content'] ?? '',
+                            date: notice['date'] ?? '',
+                            category: notice['category'] ?? '전체',
+                          ),
                         ),
-                        overflow: TextOverflow.ellipsis,
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFFFFFFF),
+                      shadowColor: Colors.transparent,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      alignment: Alignment.centerLeft,
+                      padding: const EdgeInsets.only(left: 15, right: 5),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            title,
+                            style: const TextStyle(
+                              fontFamily: 'SpoqaHanSansNeo',
+                              fontSize: 15,
+                              fontWeight: FontWeight.w500,
+                              color: Color(0xFF414B6A),
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        const Icon(
+                          Icons.keyboard_arrow_right,
+                          size: 20,
+                          color: Color(0xFFC0C3CD),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+            const SizedBox(height: 20),
+            // 하단 "더 읽어보러 가기" 버튼
+            Center(
+              child: SizedBox(
+                width: screenWidth * 0.8,
+                height: 45,
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        offset: const Offset(0, 3),
+                        blurRadius: 7,
+                        spreadRadius: 2,
+                      ),
+                    ],
+                  ),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      bottomNavIndex.value = 3;
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF50A12E),
+                      shadowColor: Colors.transparent,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: const Text(
+                      '더 읽어보러 가기',
+                      style: TextStyle(
+                        fontFamily: 'SpoqaHanSansNeo',
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                        color: Colors.white,
                       ),
                     ),
-                    const Icon(
-                      Icons.keyboard_arrow_right,
-                      size: 20,
-                      color: Color(0xFFC0C3CD),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          );
-        }).toList(),
-
-        const SizedBox(height: 20),
-
-        // 하단 "더 읽어보러 가기" 버튼
-        Center(
-          child: SizedBox(
-            width: screenWidth * 0.8,
-            height: 45,
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    offset: const Offset(0, 3),
-                    blurRadius: 7,
-                    spreadRadius: 2,
-                  ),
-                ],
-              ),
-              child: ElevatedButton(
-                onPressed: () {
-                  bottomNavIndex.value = 3;
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF50A12E),
-                  shadowColor: Colors.transparent,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  elevation: 0, // 버튼 자체 elevation 제거 (Container의 boxShadow만 사용)
-                ),
-                child: const Text(
-                  '더 읽어보러 가기',
-                  style: TextStyle(
-                    fontFamily: 'SpoqaHanSansNeo',
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14,
-                    color: Colors.white,
                   ),
                 ),
               ),
             ),
-          ),
-        )
-      ],
-    ),
+          ],
+        ),
+      );
+    },
   );
 }

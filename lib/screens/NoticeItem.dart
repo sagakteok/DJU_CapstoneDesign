@@ -8,10 +8,10 @@ class NoticeItem extends StatelessWidget {
 
   const NoticeItem({
     super.key,
-    this.title = '대전대학교 주차장 앱 LotBot 출시',
-    this.content = '대전대학교 주차장 앱 LotBot 출시\n공지사항 내용 예시 줄바꿈입니다.\n여러 줄을 확인할 수 있습니다.',
-    this.date = '2025.09.16 오후 12:45',
-    this.category = '앱 공지',
+    required this.title,
+    required this.content,
+    required this.date,
+    required this.category,
   });
 
   @override
@@ -32,7 +32,7 @@ class NoticeItem extends StatelessWidget {
         iconTheme: const IconThemeData(color: Colors.black),
         centerTitle: true,
       ),
-      body: SingleChildScrollView( // ✅ 화면 전체 스크롤
+      body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(20),
           child: Column(
@@ -67,14 +67,14 @@ class NoticeItem extends StatelessWidget {
                   color: Color(0xFFADB5CA),
                 ),
               ),
-              const SizedBox(height: 40), // ✅ 날짜와 내용 사이 간격
+              const SizedBox(height: 40),
               Text(
                 content,
                 style: const TextStyle(
                   fontFamily: 'SpoqaHanSansNeo',
                   fontSize: 12,
                   fontWeight: FontWeight.w400,
-                  height: 2.0, // ✅ 줄 간격 (기본 폰트크기 12 → 약 18px = 15 정도)
+                  height: 2.0,
                   color: Color(0xFF1E1E1E),
                 ),
               ),

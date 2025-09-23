@@ -1,14 +1,30 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import '../../../services/auth_service.dart';
 import '../../../main.dart';
 import '../../ViewParkingCam.dart';
+import '../../NoticeItem.dart';
+
+void _showLoginAlertAndRedirect(BuildContext context) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(
+      content: Text('로그인 후 서비스 이용해주세요.'),
+      duration: Duration(seconds: 2),
+    ),
+  );
+  Future.delayed(const Duration(seconds: 2), () {
+    Navigator.pushNamed(context, '/appstart');
+  });
+}
+
 
 class LogoutedHomeScreen extends StatelessWidget {
   const LogoutedHomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final authService = AuthService();
     final screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
@@ -18,6 +34,7 @@ class LogoutedHomeScreen extends StatelessWidget {
         elevation: 0,
         scrolledUnderElevation: 0,
         automaticallyImplyLeading: false,
+        centerTitle: false,
         title: const Text(
           'Lot Bot',
           style: TextStyle(
@@ -30,6 +47,7 @@ class LogoutedHomeScreen extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
+            // 상단 차량번호 조회 박스
             Container(
               height: 300,
               width: double.infinity,
@@ -103,8 +121,6 @@ class LogoutedHomeScreen extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 17),
-
-                          // ✅ 추가된 가운데 텍스트
                           const Center(
                             child: Text(
                               '조회하실 차량번호를\n입력해주세요',
@@ -117,9 +133,7 @@ class LogoutedHomeScreen extends StatelessWidget {
                               ),
                             ),
                           ),
-
                           const SizedBox(height: 12),
-
                           SizedBox(
                             width: double.infinity,
                             child: TextField(
@@ -129,27 +143,24 @@ class LogoutedHomeScreen extends StatelessWidget {
                                   fontFamily: 'SpoqaHanSansNeo',
                                   fontWeight: FontWeight.w500,
                                   fontSize: 11,
-                                  color: Color(0xFFD6E1D1), // 힌트 색상
+                                  color: Color(0xFFD6E1D1),
                                 ),
                                 enabledBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(color: Color(0xFFD6E1D1), width: 1), // 비활성 밑줄
+                                  borderSide: BorderSide(color: Color(0xFFD6E1D1), width: 1),
                                 ),
                                 focusedBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(color: Color(0xFF76B55C), width: 1), // 포커스 밑줄
+                                  borderSide: BorderSide(color: Color(0xFF76B55C), width: 1),
                                 ),
                               ),
                               style: const TextStyle(
                                 fontFamily: 'SpoqaHanSansNeo',
                                 fontWeight: FontWeight.w600,
                                 fontSize: 13,
-                                color: Color(0xFF2F3644), // 입력 시 텍스트 색상
+                                color: Color(0xFF2F3644),
                               ),
                             ),
                           ),
-
                           const Spacer(),
-
-                          // 조회하기 버튼
                           Center(
                             child: SizedBox(
                               width: 160,
@@ -187,6 +198,7 @@ class LogoutedHomeScreen extends StatelessWidget {
 
             const SizedBox(height: 25),
 
+            // 정기권 구매 박스
             Center(
               child: SizedBox(
                 width: screenWidth * 0.92,
@@ -213,11 +225,11 @@ class LogoutedHomeScreen extends StatelessWidget {
                   ),
                   child: ElevatedButton(
                     onPressed: () {
-                      Navigator.pushNamed(context, '/payment/BuyPass');
+                      _showLoginAlertAndRedirect(context);
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.transparent, // Container 배경 보이게
-                      shadowColor: Colors.transparent,     // 버튼 그림자 제거
+                      backgroundColor: Colors.transparent,
+                      shadowColor: Colors.transparent,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20),
                       ),
@@ -228,7 +240,6 @@ class LogoutedHomeScreen extends StatelessWidget {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          // 왼쪽 텍스트
                           Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -261,7 +272,6 @@ class LogoutedHomeScreen extends StatelessWidget {
                               ),
                             ],
                           ),
-                          // 오른쪽 더보기
                           Row(
                             children: const [
                               Text(
@@ -288,8 +298,10 @@ class LogoutedHomeScreen extends StatelessWidget {
                 ),
               ),
             ),
+
             const SizedBox(height: 25),
-            // ✅ 건물 별 잔여석 박스 (이 블록으로 기존 해당 Container 대체)
+
+            // 건물별 잔여석
             Container(
               width: screenWidth * 0.92,
               padding: const EdgeInsets.all(20),
@@ -308,7 +320,6 @@ class LogoutedHomeScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // 타이틀 (왼쪽 상단)
                   const Text(
                     '건물 별 잔여석',
                     style: TextStyle(
@@ -318,7 +329,6 @@ class LogoutedHomeScreen extends StatelessWidget {
                       color: Color(0xFF4B7C76),
                     ),
                   ),
-                  // 서브타이틀 (왼쪽)
                   const Text(
                     '실시간 주차칸도 확인해보세요.',
                     style: TextStyle(
@@ -328,13 +338,12 @@ class LogoutedHomeScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 20),
-
                   _buildBuildingStatus(
                     context: context,
                     buildingName: '융합과학관',
                     available: 200,
                     total: 250,
-                    buildingIndex: 0, // index 추가
+                    buildingIndex: 0,
                   ),
                   _buildBuildingStatus(
                     context: context,
@@ -356,6 +365,7 @@ class LogoutedHomeScreen extends StatelessWidget {
 
             const SizedBox(height: 25),
 
+            // 최근 공지사항 타이틀
             Padding(
               padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
               child: const Align(
@@ -372,6 +382,7 @@ class LogoutedHomeScreen extends StatelessWidget {
             ),
             const SizedBox(height: 15),
 
+            // ✅ 동적 공지사항 섹션
             _buildNoticeSection(context, screenWidth),
 
             const SizedBox(height: 30),
@@ -381,7 +392,7 @@ class LogoutedHomeScreen extends StatelessWidget {
     );
   }
 
-  /// ✅ 건물 별 잔여석 UI 요소 (주차칸 보기 버튼 세로 가운데 정렬)
+  /// 건물 별 잔여석 UI
   Widget _buildBuildingStatus({
     required BuildContext context,
     required String buildingName,
@@ -411,9 +422,8 @@ class LogoutedHomeScreen extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 15),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.center, // ✅ 버튼과 그룹 세로 정렬
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // ⬅️ 왼쪽 그룹 (건물명 + 혼잡도, 잔여석 숫자)
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -459,7 +469,7 @@ class LogoutedHomeScreen extends StatelessWidget {
                         fontFamily: 'SpoqaHanSansNeo',
                         fontWeight: FontWeight.w500,
                         fontSize: 10,
-                        color: Color(0xFF38A48E),
+                        color: const Color(0xFF38A48E),
                       ),
                     ),
                     TextSpan(
@@ -485,13 +495,11 @@ class LogoutedHomeScreen extends StatelessWidget {
               ),
             ],
           ),
-
           SizedBox(
             width: 70,
             height: 35,
             child: ElevatedButton(
               onPressed: () {
-                // 건물별 주차칸 보기 눌렀을 때 해당 인덱스 전달
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -525,140 +533,196 @@ class LogoutedHomeScreen extends StatelessWidget {
   }
 }
 
-Color _getStatusColor(congestionText) {
+Color _getStatusColor(String congestionText) {
   switch (congestionText) {
     case '여유':
-      return const Color(0xFF76B55C); // 녹색
+      return const Color(0xFF76B55C);
     case '보통':
-      return const Color(0xFFD7D139); // 노란색
+      return const Color(0xFFD7D139);
     case '혼잡':
-      return const Color(0xFFCD0505); // 주황
+      return const Color(0xFFCD0505);
     case '만차':
-      return const Color(0xFF757575); // 빨강
+      return const Color(0xFF757575);
     default:
-      return const Color(0xFF414B6A); // 기본색
+      return const Color(0xFF414B6A);
   }
 }
 
-// 최근 공지사항 섹션 (제목 제거)
+/// 최근 공지사항 동적 섹션
 Widget _buildNoticeSection(BuildContext context, double screenWidth) {
-  final List<String> notices = [
-    '주차장 이용 시간 안내',
-    '정기권 할인 이벤트',
-    '앱 업데이트 공지',
-  ];
+  Future<List<Map<String, dynamic>>> fetchNotices() async {
+    final uri = Uri.parse('http://192.168.75.57:3000/api/notices');
+    final res = await http.get(uri);
 
-  return Container(
-    width: screenWidth * 0.92,
-    padding: const EdgeInsets.only(top: 20, left: 15, right: 15, bottom: 30),
-    decoration: BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(20),
-      boxShadow: const [
-        BoxShadow(
-          color: Color(0x08000000),
-          offset: Offset(0, 0),
-          blurRadius: 7,
-          spreadRadius: 3,
+    if (res.statusCode == 200) {
+      final decoded = json.decode(res.body);
+      if (decoded['items'] != null) {
+        List<dynamic> notices = decoded['items'];
+        notices.sort((a, b) {
+          final da = DateTime.tryParse(a['created_at'] ?? '') ?? DateTime(2000);
+          final db = DateTime.tryParse(b['created_at'] ?? '') ?? DateTime(2000);
+          return db.compareTo(da);
+        });
+        return notices.take(3).map<Map<String, dynamic>>((n) => n as Map<String, dynamic>).toList();
+      }
+    }
+    return [];
+  }
+
+  return FutureBuilder<List<Map<String, dynamic>>>(
+    future: fetchNotices(),
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return Container(
+          width: screenWidth * 0.92,
+          height: 120,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0x08000000),
+                offset: Offset(0, 0),
+                blurRadius: 7,
+                spreadRadius: 3,
+              ),
+            ],
+          ),
+          child: const CircularProgressIndicator(),
+        );
+      }
+
+      final notices = snapshot.data ?? [];
+      return Container(
+        width: screenWidth * 0.92,
+        padding: const EdgeInsets.only(top: 20, left: 15, right: 15, bottom: 30),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x08000000),
+              offset: Offset(0, 0),
+              blurRadius: 7,
+              spreadRadius: 3,
+            ),
+          ],
         ),
-      ],
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // 공지사항 리스트만 남김
-        ...notices.map((title) {
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 10),
-            child: SizedBox(
-              width: double.infinity,
-              height: 45,
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pushNamed(context, '/NoticeItem');
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFFFFFFF), // 배경 흰톤 유지
-                  shadowColor: Colors.transparent,
-                  elevation: 0, // 그림자 제거
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  alignment: Alignment.centerLeft, // 텍스트 왼쪽 정렬
-                  padding: const EdgeInsets.only(left: 15, right: 5),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        title,
-                        style: const TextStyle(
-                          fontFamily: 'SpoqaHanSansNeo',
-                          fontSize: 15,
-                          fontWeight: FontWeight.w500,
-                          color: Color(0xFF414B6A),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ...notices.map((notice) {
+              final date = DateTime.tryParse(notice['created_at'] ?? '');
+              final dateString = date != null ? DateFormat('yyyy.MM.dd').format(date) : '';
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 45,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => NoticeItem(
+                            title: notice['title'] ?? '',
+                            content: notice['content'] ?? '',
+                            date: notice['date'] ?? '',
+                            category: notice['category'] ?? '전체',
+                          ),
                         ),
-                        overflow: TextOverflow.ellipsis,
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFFFFFFF),
+                      shadowColor: Colors.transparent,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      alignment: Alignment.centerLeft,
+                      padding: const EdgeInsets.only(left: 15, right: 5),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            '${notice['title']}',
+                            style: const TextStyle(
+                              fontFamily: 'SpoqaHanSansNeo',
+                              fontSize: 15,
+                              fontWeight: FontWeight.w500,
+                              color: Color(0xFF414B6A),
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        Text(
+                          dateString,
+                          style: const TextStyle(
+                            fontFamily: 'VitroPride',
+                            fontSize: 10,
+                            color: Color(0xFF757575),
+                          ),
+                        ),
+                        const Icon(
+                          Icons.keyboard_arrow_right,
+                          size: 20,
+                          color: Color(0xFFC0C3CD),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+            const SizedBox(height: 20),
+            Center(
+              child: SizedBox(
+                width: screenWidth * 0.8,
+                height: 45,
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        offset: const Offset(0, 3),
+                        blurRadius: 7,
+                        spreadRadius: 2,
+                      ),
+                    ],
+                  ),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      _showLoginAlertAndRedirect(context);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF50A12E),
+                      shadowColor: Colors.transparent,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: const Text(
+                      '더 읽어보러 가기',
+                      style: TextStyle(
+                        fontFamily: 'SpoqaHanSansNeo',
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                        color: Colors.white,
                       ),
                     ),
-                    const Icon(
-                      Icons.keyboard_arrow_right,
-                      size: 20,
-                      color: Color(0xFFC0C3CD),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          );
-        }).toList(),
-
-        const SizedBox(height: 20),
-
-        // 하단 "더 읽어보러 가기" 버튼
-        Center(
-          child: SizedBox(
-            width: screenWidth * 0.8,
-            height: 45,
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    offset: const Offset(0, 3),
-                    blurRadius: 7,
-                    spreadRadius: 2,
-                  ),
-                ],
-              ),
-              child: ElevatedButton(
-                onPressed: () {
-                  bottomNavIndex.value = 3;
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF50A12E),
-                  shadowColor: Colors.transparent,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  elevation: 0, // 버튼 자체 elevation 제거 (Container의 boxShadow만 사용)
-                ),
-                child: const Text(
-                  '더 읽어보러 가기',
-                  style: TextStyle(
-                    fontFamily: 'SpoqaHanSansNeo',
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14,
-                    color: Colors.white,
                   ),
                 ),
               ),
             ),
-          ),
-        )
-      ],
-    ),
+          ],
+        ),
+      );
+    },
   );
 }

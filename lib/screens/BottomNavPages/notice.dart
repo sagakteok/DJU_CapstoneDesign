@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:intl/intl.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import '../NoticeItem.dart';
 import '../../main.dart';
 
@@ -12,27 +16,51 @@ class Notice extends StatefulWidget {
 
 class _NoticeState extends State<Notice> {
   String _selectedCategory = '전체';
+  List<Map<String, dynamic>> _notices = [];
 
-  final List<Map<String, String>> _notices = [
-    {
-      'title': '대전대학교 주차장 앱 LotBot 출시',
-      'content': '공지사항 내용 미리보기 텍스트입니다.',
-      'date': '2025.09.16 오후 12:45',
-      'category': '앱 공지',
-    },
-    {
-      'title': '혜화문화관 주차장 폐쇄 안내',
-      'content': '공지사항 내용 미리보기 텍스트입니다.',
-      'date': '2025.09.16 오후 12:45',
-      'category': '건물 공지',
-    },
-    {
-      'title': '2025학년도 2학기 조기 종강 안내',
-      'content': '공지사항 내용 미리보기 텍스트입니다.',
-      'date': '2025.09.16 오후 12:45',
-      'category': '학사 공지',
-    },
-  ];
+  @override
+  void initState() {
+    super.initState();
+    initializeDateFormatting('ko').then((_) {
+      fetchNotices();
+    });
+  }
+
+  // API에서 받은 날짜를 'YYYY.MM.DD (오전/오후)'로 변환
+  String formatDate(String rawDate) {
+    try {
+      // GMT 문자열 파싱 후 한국 시간으로 변환
+      DateTime dateTime = DateFormat('EEE, dd MMM yyyy HH:mm:ss', 'en')
+          .parse(rawDate, true)
+          .toLocal();
+      return DateFormat("yyyy.MM.dd (E)", 'ko').format(dateTime);
+    } catch (e) {
+      print('Date parsing error: $e');
+      return rawDate;
+    }
+  }
+
+  Future<void> fetchNotices() async {
+    final response =
+    await http.get(Uri.parse('http://192.168.75.57:3000/api/notices'));
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      final items = data['items'] as List<dynamic>;
+
+      setState(() {
+        _notices.clear();
+        _notices.addAll(items.map((item) => {
+          'title': item['title'],
+          'content': item['content'],
+          'date': formatDate(item['created_at']), // 날짜 포맷 적용
+          'category': '전체', // API에 카테고리 없으므로 임시값
+        }).toList());
+      });
+    } else {
+      print('Failed to load notices: ${response.statusCode}');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,6 +91,7 @@ class _NoticeState extends State<Notice> {
       body: SingleChildScrollView(
         child: Column(
           children: [
+            // 카테고리 드롭다운
             Padding(
               padding: const EdgeInsets.only(left: 20, top: 12, bottom: 12),
               child: Row(
@@ -75,7 +104,8 @@ class _NoticeState extends State<Notice> {
                       child: DropdownButton<String>(
                         isExpanded: false,
                         value: _selectedCategory,
-                        icon: const Icon(Icons.expand_more, color: Color(0xFFD6E1D1)),
+                        icon: const Icon(Icons.expand_more,
+                            color: Color(0xFFD6E1D1)),
                         style: const TextStyle(
                           fontFamily: 'SpoqaHanSansNeo',
                           fontWeight: FontWeight.w400,
@@ -85,7 +115,8 @@ class _NoticeState extends State<Notice> {
                         items: const [
                           DropdownMenuItem(value: '전체', child: Text('전체')),
                           DropdownMenuItem(value: '앱공지', child: Text('앱공지')),
-                          DropdownMenuItem(value: '건물공지', child: Text('건물공지')),
+                          DropdownMenuItem(
+                              value: '건물공지', child: Text('건물공지')),
                         ],
                         onChanged: (value) {
                           setState(() {
@@ -98,6 +129,7 @@ class _NoticeState extends State<Notice> {
                 ],
               ),
             ),
+            // 공지사항 목록
             Column(
               children: _notices.map((notice) {
                 return Padding(
@@ -129,7 +161,17 @@ class _NoticeState extends State<Notice> {
                           padding: const EdgeInsets.all(16),
                         ),
                         onPressed: () {
-                          Navigator.pushNamed(context, '/NoticeItem');
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => NoticeItem(
+                                title: notice['title'] ?? '',
+                                content: notice['content'] ?? '',
+                                date: notice['date'] ?? '',
+                                category: notice['category'] ?? '전체',
+                              ),
+                            ),
+                          );
                         },
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -139,7 +181,8 @@ class _NoticeState extends State<Notice> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                  MainAxisAlignment.spaceBetween,
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
                                     Expanded(
