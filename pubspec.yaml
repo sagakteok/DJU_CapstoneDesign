@@ -22,6 +22,9 @@ dependencies:
   mailer: ^6.2.5
   flutter_dotenv: ^5.0.2
   provider: ^6.0.5
+  tosspayments_widget_sdk_flutter: ^2.1.2
+  flutter_inappwebview: any
+  url_launcher: any
 
 dev_dependencies:
   flutter_launcher_icons: ^0.13.1
