@@ -98,94 +98,78 @@ class _LoginedHomeScreenState extends State<LoginedHomeScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF9FCFB),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF76B55C),
+        backgroundColor: const Color(0xFFF9FCFB),
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: false,
         automaticallyImplyLeading: false,
-        title: const Text(
-          'Lot Bot',
-          style: TextStyle(
-            fontFamily: 'VitroCore',
-            fontSize: 20,
-            color: Colors.white,
+        title: ShaderMask(
+          shaderCallback: (bounds) => const LinearGradient(
+            colors: [Color(0xFF76B55C), Color(0xFF15C3AF)],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ).createShader(Rect.fromLTWH(0, 0, bounds.width, bounds.height)),
+          child: const Text(
+            'Lot Bot',
+            style: TextStyle(
+              fontFamily: 'VitroCore',
+              fontSize: 20,
+              color: Colors.white, // 반드시 지정해야 함 (실제 그라데이션으로 덮어씌워짐)
+            ),
           ),
         ),
       ),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // 상단 영역
-            Container(
-              height: 300,
-              width: double.infinity,
-              decoration: const BoxDecoration(
-                color: Color(0xFF76B55C),
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(20),
-                  bottomRight: Radius.circular(20),
-                ),
-              ),
-              child: Column(
+            Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 15),
+                  const SizedBox(height: 20),
                   Padding(
-                    padding: EdgeInsets.symmetric(
-                        horizontal: screenWidth * 0.05),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            Text(
-                              '$userName의 ',
-                              style: TextStyle(
-                                fontFamily: 'SpoqaHanSansNeo',
-                                fontSize: 15,
-                                fontWeight: FontWeight.w500,
-                                color: Color(0xFFECF2E9),
+                    padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+                    child: RichText(
+                      text: TextSpan(
+                        children: [
+                          TextSpan(
+                            text: '$userName의 ',
+                            style: const TextStyle(
+                              fontFamily: 'SpoqaHanSansNeo',
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: Color(0xFF414B6A),
+                            ),
+                          ),
+                          WidgetSpan(
+                            alignment: PlaceholderAlignment.baseline,
+                            baseline: TextBaseline.alphabetic,
+                            child: ShaderMask(
+                              shaderCallback: (bounds) => const LinearGradient(
+                                colors: [Color(0xFF76B55C), Color(0xFF15C3AF)],
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                              ).createShader(Rect.fromLTWH(0, 0, bounds.width, bounds.height)),
+                              child: Text(
+                                '$carNumber', // ✅ 실제 변수 사용
+                                style: const TextStyle(
+                                  fontFamily: 'SpoqaHanSansNeo',
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white, // ShaderMask 덮어쓰기용
+                                ),
                               ),
                             ),
-                            Text(
-                              '$carNumber',
-                              style: TextStyle(
-                                fontFamily: 'SpoqaHanSansNeo',
-                                fontSize: 15,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ],
-                        ),
-                        Row(
-                          children: const [
-                            Text(
-                              '요금표 보기',
-                              style: TextStyle(
-                                fontFamily: 'SpoqaHanSansNeo',
-                                fontWeight: FontWeight.w600,
-                                fontSize: 9,
-                                color: Color(0xFFD6E1D1),
-                              ),
-                            ),
-                            SizedBox(width: 3),
-                            Icon(
-                              Icons.keyboard_arrow_right,
-                              size: 12,
-                              color: Color(0xFFD6E1D1),
-                            ),
-                          ],
-                        ),
-                      ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                   const SizedBox(height: 15),
                   Center(
                     child: Container(
                       width: screenWidth * 0.92,
-                      height: 225,
-                      padding: const EdgeInsets.all(15),
+                      height: 235,
+                      padding: const EdgeInsets.only(left: 17, right: 17, top: 20, bottom: 15),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(15),
@@ -201,21 +185,45 @@ class _LoginedHomeScreenState extends State<LoginedHomeScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            '주차 현황',
-                            style: TextStyle(
-                              fontFamily: 'VitroPride',
-                              fontWeight: FontWeight.w400,
-                              fontSize: 11,
-                              color: Color(0xFF61984A),
-                            ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              const Text(
+                                '주차 현황',
+                                style: TextStyle(
+                                  fontFamily: 'SpoqaHanSansNeo',
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xFF4B7C76),
+                                ),
+                              ),
+                              Row(
+                                children: const [
+                                  Text(
+                                    '요금표 보기',
+                                    style: TextStyle(
+                                      fontFamily: 'SpoqaHanSansNeo',
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 9,
+                                      color: Color(0xFFADB5CA),
+                                    ),
+                                  ),
+                                  Icon(
+                                    Icons.keyboard_arrow_right,
+                                    size: 12,
+                                    color: Color(0xFFADB5CA),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
                           const SizedBox(height: 15),
                           const Text(
                             entryDate,
                             style: TextStyle(
                               fontFamily: 'SpoqaHanSansNeo',
-                              fontWeight: FontWeight.w500,
+                              fontWeight: FontWeight.w400,
                               fontSize: 9,
                               color: Color(0xFF6B907F),
                             ),
@@ -239,7 +247,7 @@ class _LoginedHomeScreenState extends State<LoginedHomeScreen> {
                                       text: '입차',
                                       style: TextStyle(
                                         fontFamily: 'SpoqaHanSansNeo',
-                                        fontWeight: FontWeight.w600,
+                                        fontWeight: FontWeight.w500,
                                         fontSize: 13,
                                         color: Color(0xFF414B6A),
                                       ),
@@ -423,7 +431,6 @@ class _LoginedHomeScreenState extends State<LoginedHomeScreen> {
                   ),
                 ],
               ),
-            ),
 
             const SizedBox(height: 25),
 

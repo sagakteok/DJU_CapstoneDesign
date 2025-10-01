@@ -30,110 +30,109 @@ class LogoutedHomeScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFF9FCFB),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF76B55C),
+        backgroundColor: const Color(0xFFF9FCFB),
         elevation: 0,
         scrolledUnderElevation: 0,
-        automaticallyImplyLeading: false,
         centerTitle: false,
-        title: const Text(
-          'Lot Bot',
-          style: TextStyle(
-            fontFamily: 'VitroCore',
-            fontSize: 20,
-            color: Colors.white,
+        automaticallyImplyLeading: false,
+        title: ShaderMask(
+          shaderCallback: (bounds) => const LinearGradient(
+            colors: [Color(0xFF76B55C), Color(0xFF15C3AF)],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ).createShader(Rect.fromLTWH(0, 0, bounds.width, bounds.height)),
+          child: const Text(
+            'Lot Bot',
+            style: TextStyle(
+              fontFamily: 'VitroCore',
+              fontSize: 20,
+              color: Colors.white, // 반드시 지정해야 함 (실제 그라데이션으로 덮어씌워짐)
+            ),
           ),
         ),
       ),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // 상단 차량번호 조회 박스
-            Container(
-              height: 300,
-              width: double.infinity,
-              decoration: const BoxDecoration(
-                color: Color(0xFF76B55C),
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(20),
-                  bottomRight: Radius.circular(20),
-                ),
-              ),
-              child: Column(
+            Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 15),
+                  const SizedBox(height: 20),
                   Padding(
-                    padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.06),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          '로그인 해주세요.',
-                          style: TextStyle(
-                            fontFamily: 'SpoqaHanSansNeo',
-                            fontWeight: FontWeight.w700,
-                            fontSize: 15,
-                            color: Colors.white,
-                          ),
-                        ),
-                        Row(
-                          children: const [
-                            Text(
-                              '요금표 보기',
-                              style: TextStyle(
-                                fontFamily: 'SpoqaHanSansNeo',
-                                fontWeight: FontWeight.w600,
-                                fontSize: 9,
-                                color: Color(0xFFD6E1D1),
-                              ),
-                            ),
-                            SizedBox(width: 3),
-                            Icon(
-                              Icons.keyboard_arrow_right,
-                              size: 12,
-                              color: Color(0xFFD6E1D1),
-                            ),
-                          ],
-                        ),
-                      ],
+                    padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+                    child: const Text(
+                      '로그인 해주세요.',
+                      style: TextStyle(
+                        fontFamily: 'SpoqaHanSansNeo',
+                        fontWeight: FontWeight.w500,
+                        fontSize: 14,
+                        color: Color(0xFFB8C8B1),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 15),
                   Center(
                     child: Container(
                       width: screenWidth * 0.92,
-                      height: 225,
-                      padding: const EdgeInsets.all(15),
+                      height: 200,
+                      padding: const EdgeInsets.only(left: 17, right: 17, top: 20, bottom: 15),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(15),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            offset: const Offset(0, 0),
+                            blurRadius: 7,
+                            spreadRadius: 2,
+                          )
+                        ],
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              const Text(
+                                '차량 번호 조회',
+                                style: TextStyle(
+                                  fontFamily: 'SpoqaHanSansNeo',
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xFF4B7C76),
+                                ),
+                              ),
+                              Row(
+                                children: const [
+                                  Text(
+                                    '요금표 보기',
+                                    style: TextStyle(
+                                      fontFamily: 'SpoqaHanSansNeo',
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 9,
+                                      color: Color(0xFFADB5CA),
+                                    ),
+                                  ),
+                                  Icon(
+                                    Icons.keyboard_arrow_right,
+                                    size: 12,
+                                    color: Color(0xFFADB5CA),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                           const Text(
-                            '차량 번호 조회',
+                            '조회하실 차량 번호를 입력해주세요.',
                             style: TextStyle(
                               fontFamily: 'VitroPride',
-                              fontWeight: FontWeight.w400,
-                              fontSize: 11,
-                              color: Color(0xFF61984A),
+                              fontSize: 10,
+                              color: Color(0xFF414B6A),
                             ),
                           ),
-                          const SizedBox(height: 17),
-                          const Center(
-                            child: Text(
-                              '조회하실 차량번호를\n입력해주세요',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontFamily: 'SpoqaHanSansNeo',
-                                fontSize: 12,
-                                fontWeight: FontWeight.w700,
-                                color: Color(0xFF414B6A),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 12),
+                          const SizedBox(height: 25),
                           SizedBox(
                             width: double.infinity,
                             child: TextField(
@@ -194,7 +193,6 @@ class LogoutedHomeScreen extends StatelessWidget {
                   ),
                 ],
               ),
-            ),
 
             const SizedBox(height: 25),
 

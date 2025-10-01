@@ -38,6 +38,7 @@ flutter:
   assets:
     - assets/fonts/
     - assets/splash/splash_logo.png
+    - .env
 
   fonts:
     - family: SpoqaHanSansNeo

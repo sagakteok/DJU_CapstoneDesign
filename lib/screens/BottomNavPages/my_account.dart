@@ -230,44 +230,38 @@ class _MyAccountState extends State<MyAccount> {
                         children: [
                           const SizedBox(height: 10),
                           infoRow('이름', userName ?? ''),
-                          const SizedBox(height: 10),
-                          const Divider(thickness: 1, color: Color(0xFFECF2E9)),
+                          const SizedBox(height: 25),
                           const SizedBox(height: 10),
                           infoRow('생년월일', userBirth ?? ''),
-                          const SizedBox(height: 10),
-                          const Divider(thickness: 1, color: Color(0xFFECF2E9)),
+                          const SizedBox(height: 25),
                           const SizedBox(height: 10),
                           infoRow('전화번호', userPhone ?? '', showArrow: true,
                             onTap: () {
                               Navigator.pushNamed(context, '/auth_edit/UserInfoEdit');
                             },
                           ),
-                          const SizedBox(height: 10),
-                          const Divider(thickness: 1, color: Color(0xFFECF2E9)),
+                          const SizedBox(height: 25),
                           const SizedBox(height: 10),
                           infoRow('이메일', userEmail ?? '', showArrow: true,
                             onTap: () {
                               Navigator.pushNamed(context, '/auth_edit/EmailEdit');
                             },
                           ),
-                          const SizedBox(height: 10),
-                          const Divider(thickness: 1, color: Color(0xFFECF2E9)),
+                          const SizedBox(height: 25),
                           const SizedBox(height: 10),
                           infoRow('비밀번호', '', showArrow: true,
                             onTap: () {
                               Navigator.pushNamed(context, '/auth_edit/PasswordEdit');
                             },
                           ),
-                          const SizedBox(height: 10),
-                          const Divider(thickness: 1, color: Color(0xFFECF2E9)),
+                          const SizedBox(height: 25),
                           const SizedBox(height: 10),
                           infoRow('차량번호', carNumber ?? '', showArrow: true,
                             onTap: () {
                               Navigator.pushNamed(context, '/auth_edit/VehicleEdit');
                             },
                           ),
-                          const SizedBox(height: 10),
-                          const Divider(thickness: 1, color: Color(0xFFECF2E9)),
+                          const SizedBox(height: 25),
                           SizedBox(height: screenHeight * 0.06),
                         ],
                       ),
