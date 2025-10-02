@@ -5,6 +5,7 @@ class PaymentCompleteScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
     final buttonWidth = MediaQuery.of(context).size.width * 0.85;
     final screenHeight = MediaQuery.of(context).size.height;
 
@@ -19,40 +20,37 @@ class PaymentCompleteScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            SizedBox(height: screenHeight * 0.05),
+            SizedBox(height: screenHeight * 0.03),
             SizedBox(
-              width: buttonWidth,
+              width: screenWidth * 0.88,
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: const [
                   Text(
                     '결제 완료',
                     style: TextStyle(
-                      fontSize: 33,
+                      fontSize: 27,
                       fontFamily: 'VitroPride',
                       color: Color(0xFF1E1E1E),
                     ),
-                    textAlign: TextAlign.center,
                   ),
-                  SizedBox(height: 20),
+                  SizedBox(height: 12),
                   Text(
                     '메인 화면으로 이동하여',
                     style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 11,
                       fontFamily: 'SpoqaHanSansNeo',
                       fontWeight: FontWeight.w500,
                       color: Color(0xFF000000),
                     ),
-                    textAlign: TextAlign.center,
                   ),
-                  SizedBox(height: 3),
+                  SizedBox(height: 2),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
                         'Lot Bot ',
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: 11,
                           fontFamily: 'VitroCore',
                           color: Color(0xFF65A549),
                         ),
@@ -60,7 +58,7 @@ class PaymentCompleteScreen extends StatelessWidget {
                       Text(
                         '서비스를 이용해보세요!',
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: 11,
                           fontFamily: 'SpoqaHanSansNeo',
                           fontWeight: FontWeight.w500,
                           color: Color(0xFF000000),

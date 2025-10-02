@@ -42,7 +42,7 @@ class _NoticeState extends State<Notice> {
 
   Future<void> fetchNotices() async {
     final response =
-    await http.get(Uri.parse('http://192.168.75.57:3000/api/notices'));
+    await http.get(Uri.parse('http://192.168.75.23:3000/api/notices'));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -143,17 +143,16 @@ class _NoticeState extends State<Notice> {
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
-                            offset: const Offset(0, 3),
+                            color: Colors.black.withOpacity(0.02),
                             blurRadius: 7,
-                            spreadRadius: 2,
+                            spreadRadius: 3,
                           ),
                         ],
                       ),
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.white,
-                          shadowColor: Colors.black.withOpacity(0.05),
+                          shadowColor: Colors.black.withOpacity(0.0),
                           elevation: 0,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20),

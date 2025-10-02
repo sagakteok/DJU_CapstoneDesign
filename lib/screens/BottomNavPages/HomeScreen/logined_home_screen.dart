@@ -6,6 +6,20 @@ import '../../../services/auth_service.dart';
 import '../../../main.dart';
 import '../../ViewParkingCam.dart';
 import '../../NoticeItem.dart';
+import 'package:intl/date_symbol_data_local.dart';
+
+String formatDate(String rawDate) {
+  try {
+    // GMT 문자열 파싱 후 한국 시간으로 변환
+    DateTime dateTime = DateFormat('EEE, dd MMM yyyy HH:mm:ss', 'en')
+        .parse(rawDate, true)
+        .toLocal();
+    return DateFormat("yyyy.MM.dd (E)", 'ko').format(dateTime);
+  } catch (e) {
+    print('Date parsing error: $e');
+    return rawDate; // 파싱 실패 시 원본 문자열 반환
+  }
+}
 
 class LoginedHomeScreen extends StatefulWidget {
   const LoginedHomeScreen({super.key});
@@ -24,6 +38,9 @@ class _LoginedHomeScreenState extends State<LoginedHomeScreen> {
   @override
   void initState() {
     super.initState();
+    initializeDateFormatting('ko').then((_) {
+      fetchNotices();
+    });
     _fetchUserInfo();
   }
 
@@ -54,7 +71,7 @@ class _LoginedHomeScreenState extends State<LoginedHomeScreen> {
   }
 
   Future<void> fetchNotices() async {
-    final response = await http.get(Uri.parse('http://192.168.75.57:3000/api/notices'));
+    final response = await http.get(Uri.parse('http://192.168.75.23:3000/api/notices'));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -460,7 +477,7 @@ class _LoginedHomeScreenState extends State<LoginedHomeScreen> {
                   ),
                   child: ElevatedButton(
                     onPressed: () {
-                      Navigator.pushNamed(context, '/payment/BuyPass');
+                      Navigator.pushNamed(context, '/payment/select_pass');
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.transparent, // Container 배경 보이게
@@ -545,7 +562,7 @@ class _LoginedHomeScreenState extends State<LoginedHomeScreen> {
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: const [
                   BoxShadow(
-                    color: Color(0x08000000),
+                    color: Color(0x05000000),
                     offset: Offset(0, 0),
                     blurRadius: 7,
                     spreadRadius: 3,
@@ -790,7 +807,7 @@ Color _getStatusColor(congestionText) {
 // 최근 공지사항 섹션 (API 연동, 제목 제거)
 Widget _buildNoticeSection(BuildContext context, double screenWidth) {
   Future<List<Map<String, dynamic>>> fetchNotices() async {
-    final uri = Uri.parse('http://192.168.75.57:3000/api/notices');
+    final uri = Uri.parse('http://192.168.75.23:3000/api/notices');
     final res = await http.get(uri);
 
     if (res.statusCode == 200) {
@@ -820,14 +837,6 @@ Widget _buildNoticeSection(BuildContext context, double screenWidth) {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(20),
-            boxShadow: const [
-              BoxShadow(
-                color: Color(0x08000000),
-                offset: Offset(0, 0),
-                blurRadius: 7,
-                spreadRadius: 3,
-              ),
-            ],
           ),
           child: const CircularProgressIndicator(),
         );
@@ -841,7 +850,7 @@ Widget _buildNoticeSection(BuildContext context, double screenWidth) {
           borderRadius: BorderRadius.circular(20),
           boxShadow: const [
             BoxShadow(
-              color: Color(0x08000000),
+              color: Color(0x05000000),
               offset: Offset(0, 0),
               blurRadius: 7,
               spreadRadius: 3,
@@ -857,13 +866,7 @@ Widget _buildNoticeSection(BuildContext context, double screenWidth) {
               final String content = notice['content'] ?? '';
               final String category = notice['category'] ?? '';
               final String dateRaw = notice['created_at'] ?? '';
-              String formattedDate = '';
-              try {
-                final dt = DateTime.parse(dateRaw).toLocal();
-                formattedDate = DateFormat('yyyy.MM.dd (E) a h:mm', 'ko_KR').format(dt);
-              } catch (_) {
-                formattedDate = dateRaw;
-              }
+              final String formattedDate = formatDate(dateRaw);
               return Padding(
                 padding: const EdgeInsets.only(bottom: 10),
                 child: SizedBox(
@@ -877,7 +880,7 @@ Widget _buildNoticeSection(BuildContext context, double screenWidth) {
                           builder: (context) => NoticeItem(
                             title: notice['title'] ?? '',
                             content: notice['content'] ?? '',
-                            date: notice['date'] ?? '',
+                            date: formattedDate,
                             category: notice['category'] ?? '전체',
                           ),
                         ),

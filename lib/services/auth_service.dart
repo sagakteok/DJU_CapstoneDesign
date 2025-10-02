@@ -6,7 +6,7 @@ import 'package:jwt_decoder/jwt_decoder.dart';
 
 class AuthService {
   final storage = FlutterSecureStorage();
-  final baseUrl = 'http://192.168.75.57:3000/api/auth';
+  final baseUrl = 'http://192.168.75.23:3000/api/auth';
 
   Future<Map<String, dynamic>> signup(String name,
       String birthDate,

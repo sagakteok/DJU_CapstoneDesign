@@ -2,10 +2,23 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
-import '../../../services/auth_service.dart';
 import '../../../main.dart';
 import '../../ViewParkingCam.dart';
 import '../../NoticeItem.dart';
+import 'package:intl/date_symbol_data_local.dart';
+
+String formatDate(String rawDate) {
+  try {
+    // GMT 문자열 파싱 후 한국 시간으로 변환
+    DateTime dateTime = DateFormat('EEE, dd MMM yyyy HH:mm:ss', 'en')
+        .parse(rawDate, true)
+        .toLocal();
+    return DateFormat("yyyy.MM.dd (E)", 'ko').format(dateTime);
+  } catch (e) {
+    print('Date parsing error: $e');
+    return rawDate; // 파싱 실패 시 원본 문자열 반환
+  }
+}
 
 void _showLoginAlertAndRedirect(BuildContext context) {
   ScaffoldMessenger.of(context).showSnackBar(
@@ -20,8 +33,22 @@ void _showLoginAlertAndRedirect(BuildContext context) {
 }
 
 
-class LogoutedHomeScreen extends StatelessWidget {
+class LogoutedHomeScreen extends StatefulWidget {
   const LogoutedHomeScreen({super.key});
+
+  @override
+  State<LogoutedHomeScreen> createState() => _LogoutedHomeScreenState();
+}
+
+class _LogoutedHomeScreenState extends State<LogoutedHomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // intl 초기화
+    initializeDateFormatting('ko').then((_) {
+      setState(() {}); // 필요 시 UI 갱신
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -308,7 +335,7 @@ class LogoutedHomeScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: const [
                   BoxShadow(
-                    color: Color(0x08000000),
+                    color: Color(0x05000000),
                     offset: Offset(0, 0),
                     blurRadius: 7,
                     spreadRadius: 3,
@@ -549,7 +576,7 @@ Color _getStatusColor(String congestionText) {
 /// 최근 공지사항 동적 섹션
 Widget _buildNoticeSection(BuildContext context, double screenWidth) {
   Future<List<Map<String, dynamic>>> fetchNotices() async {
-    final uri = Uri.parse('http://192.168.75.57:3000/api/notices');
+    final uri = Uri.parse('http://192.168.75.23:3000/api/notices');
     final res = await http.get(uri);
 
     if (res.statusCode == 200) {
@@ -578,14 +605,6 @@ Widget _buildNoticeSection(BuildContext context, double screenWidth) {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(20),
-            boxShadow: const [
-              BoxShadow(
-                color: Color(0x08000000),
-                offset: Offset(0, 0),
-                blurRadius: 7,
-                spreadRadius: 3,
-              ),
-            ],
           ),
           child: const CircularProgressIndicator(),
         );
@@ -600,7 +619,7 @@ Widget _buildNoticeSection(BuildContext context, double screenWidth) {
           borderRadius: BorderRadius.circular(20),
           boxShadow: const [
             BoxShadow(
-              color: Color(0x08000000),
+              color: Color(0x05000000),
               offset: Offset(0, 0),
               blurRadius: 7,
               spreadRadius: 3,
@@ -611,8 +630,11 @@ Widget _buildNoticeSection(BuildContext context, double screenWidth) {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ...notices.map((notice) {
-              final date = DateTime.tryParse(notice['created_at'] ?? '');
-              final dateString = date != null ? DateFormat('yyyy.MM.dd').format(date) : '';
+              final String title = notice['title'] ?? '';
+              final String content = notice['content'] ?? '';
+              final String category = notice['category'] ?? '';
+              final String dateRaw = notice['created_at'] ?? '';
+              final String formattedDate = formatDate(dateRaw);
               return Padding(
                 padding: const EdgeInsets.only(bottom: 10),
                 child: SizedBox(
@@ -626,7 +648,7 @@ Widget _buildNoticeSection(BuildContext context, double screenWidth) {
                           builder: (context) => NoticeItem(
                             title: notice['title'] ?? '',
                             content: notice['content'] ?? '',
-                            date: notice['date'] ?? '',
+                            date: formattedDate,
                             category: notice['category'] ?? '전체',
                           ),
                         ),
@@ -647,7 +669,7 @@ Widget _buildNoticeSection(BuildContext context, double screenWidth) {
                       children: [
                         Expanded(
                           child: Text(
-                            '${notice['title']}',
+                            title,
                             style: const TextStyle(
                               fontFamily: 'SpoqaHanSansNeo',
                               fontSize: 15,
@@ -655,14 +677,6 @@ Widget _buildNoticeSection(BuildContext context, double screenWidth) {
                               color: Color(0xFF414B6A),
                             ),
                             overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        Text(
-                          dateString,
-                          style: const TextStyle(
-                            fontFamily: 'VitroPride',
-                            fontSize: 10,
-                            color: Color(0xFF757575),
                           ),
                         ),
                         const Icon(

@@ -57,11 +57,33 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
     final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
     final String productName = args?['name'] ?? '정기권';
     final int priceValue = num.tryParse(args?['price']?.toString() ?? '0')?.toInt() ?? 0;
+    // 할인은 args로 받을 수 있게 처리, 없으면 0
+    final int discountValue = num.tryParse(args?['discount']?.toString() ?? '0')?.toInt() ?? 0;
+    final int totalValue = (priceValue - discountValue) >= 0 ? (priceValue - discountValue) : 0;
+
     final String price = NumberFormat('#,###원').format(priceValue);
+    final String discount = NumberFormat('#,###원').format(discountValue);
+    final String totalPrice = NumberFormat('#,###원').format(totalValue);
     final String currentDateTime = DateFormat('yyyy.MM.dd HH:mm').format(DateTime.now());
 
     final double buttonWidth = MediaQuery.of(context).size.width * 0.85;
+    final double screenWidth = MediaQuery.of(context).size.width;
     final double screenHeight = MediaQuery.of(context).size.height;
+
+    // 공용 텍스트 스타일
+    const TextStyle labelStyle = TextStyle(
+      fontSize: 14,
+      fontFamily: 'SpoqaHanSansNeo',
+      fontWeight: FontWeight.w500,
+      color: Color(0xFF2F3644),
+    );
+
+    const TextStyle valueStyle = TextStyle(
+      fontSize: 16,
+      fontFamily: 'SpoqaHanSansNeo',
+      fontWeight: FontWeight.w700,
+      color: Color(0xFF2F3644),
+    );
 
     return Scaffold(
       appBar: AppBar(
@@ -87,35 +109,149 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
         child: Center(
           child: Column(
             children: [
-              SizedBox(height: screenHeight * 0.1),
-              SizedBox(
-                width: buttonWidth,
+              const SizedBox(height: 20),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(productName,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontFamily: 'SpoqaHanSansNeo',
-                          fontWeight: FontWeight.w500,
-                          color: Color(0xFF76B55C),
+                    // 상품명 타이틀(라벨) + 실제 상품명 (스타일 다르게)
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        const Text(
+                          '상품명: ',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontFamily: 'SpoqaHanSansNeo',
+                            fontWeight: FontWeight.w500,
+                            color: Color(0xFF2F3644),
+                          ),
                         ),
-                        textAlign: TextAlign.center),
-                    const SizedBox(height: 2),
-                    Text(price,
-                        style: const TextStyle(
-                          fontSize: 35,
-                          fontFamily: 'SpoqaHanSansNeo',
-                          fontWeight: FontWeight.w700,
-                          color: Color(0xFF2F3644),
+                        const SizedBox(width: 5),
+                        Expanded(
+                          child: Text(
+                            productName,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontFamily: 'SpoqaHanSansNeo',
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF50A12E), // 녹색 강조(원래 의도대로)
+                            ),
+                          ),
                         ),
-                        textAlign: TextAlign.center),
+                      ],
+                    ),
+
+                    const SizedBox(height: 30),
+
+                    // 상품금액 / 할인금액 (width: screenWidth * 0.92, 양 옆 배치)
+                    SizedBox(
+                      width: screenWidth * 0.92,
+                      child: Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                '상품금액',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontFamily: 'SpoqaHanSansNeo',
+                                  fontWeight: FontWeight.w400,
+                                  color: Color(0xFF414B6A),
+                                ),
+                              ),
+                              Text(
+                                price,
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontFamily: 'SpoqaHanSansNeo',
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xFF2F3644),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 15),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                '할인금액',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontFamily: 'SpoqaHanSansNeo',
+                                  fontWeight: FontWeight.w400,
+                                  color: Color(0xFF414B6A),
+                                ),
+                              ),
+                              Text(
+                                discount,
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontFamily: 'SpoqaHanSansNeo',
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xFF2F3644),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 30),
+
+                    // 총 결제 금액 박스 (width: screenWidth * 0.96, height: 50, radius 10, 그라데이션)
+                    Center(
+                      child: Container(
+                        width: screenWidth * 0.92,
+                        height: 55,
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFF15C3AF), Color(0xFF76B55C)],
+                            begin: Alignment.centerLeft,
+                            end: Alignment.centerRight,
+                          ),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            const Text(
+                              '총 결제 금액',
+                              style: TextStyle(
+                                color: Color(0xFFECF2E9),
+                                fontSize: 14,
+                                fontFamily: 'SpoqaHanSansNeo',
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            Text(
+                              totalPrice,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontFamily: 'SpoqaHanSansNeo',
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 30),
                   ],
                 ),
               ),
-              const SizedBox(height: 30),
+              // --------- 변경된 상품 / 금액 UI 끝 ---------
+
               SizedBox(
-                width: buttonWidth,
-                height: 250,
+                width: screenWidth * 0.92,
+                height: 300,
                 child: PaymentMethodWidget(
                   paymentWidget: _paymentWidget,
                   selector: "payment-method-container",
@@ -123,8 +259,8 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
               ),
               const SizedBox(height: 20),
               SizedBox(
-                width: buttonWidth,
-                height: 150,
+                width: screenWidth * 0.92,
+                height: 300,
                 child: AgreementWidget(
                   paymentWidget: _paymentWidget,
                   selector: "agreement-container",
@@ -170,11 +306,10 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
                                 .requestPayment(paymentInfo: paymentInfo);
 
                             if (result.success != null) {
-                              const SnackBar(
-                                  content: Text('결제 성공!')
-                              );
+                              const SnackBar(content: Text('결제 성공!'));
                               // 결제 성공 시 페이지 이동
-                              Navigator.pushReplacementNamed(context, '/payment/PaymentComplete');
+                              Navigator.pushReplacementNamed(
+                                  context, '/payment/PaymentComplete');
                             } else if (result.fail != null) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
@@ -208,8 +343,8 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
                           ),
                           child: Container(
                             alignment: Alignment.center,
-                            child: const Text(
-                              '결제하기',
+                            child: Text(
+                              '$totalPrice 결제하기',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontFamily: 'SpoqaHanSansNeo',
