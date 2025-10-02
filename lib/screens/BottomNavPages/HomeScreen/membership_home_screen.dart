@@ -21,27 +21,58 @@ String formatDate(String rawDate) {
   }
 }
 
-class LoginedHomeScreen extends StatefulWidget {
-  const LoginedHomeScreen({super.key});
+class MembershipHomeScreen extends StatefulWidget {
+  const MembershipHomeScreen({super.key});
 
   @override
-  State<LoginedHomeScreen> createState() => _LoginedHomeScreenState();
+  State<MembershipHomeScreen> createState() => _MembershipHomeScreenState();
 }
 
-class _LoginedHomeScreenState extends State<LoginedHomeScreen> {
+class _MembershipHomeScreenState extends State<MembershipHomeScreen> {
   String userName = '';
   String carNumber = '';
   bool _isLoading = true;
 
   List<Map<String, dynamic>> _notices = [];
 
+  final String entryDate = '2025.06.05 (목)';
+  final String entryTime = '오전 11:26';
+  final String duration = '2분 10초';
+
+  // ============================
+  // 정기권 관련 날짜
+  final DateTime startDate = DateTime(2025, 3, 2);
+  final DateTime endDate = DateTime(2025, 6, 21);
+  final DateTime today = DateTime.now();
+
+  int totalDays = 0;
+  int currentDay = 100;
+  int remainingDays = 0;
+
+  String startDateString = '';
+  String todayString = '';
+  String endDateString = '';
+
   @override
   void initState() {
     super.initState();
+
     initializeDateFormatting('ko').then((_) {
       fetchNotices();
     });
     _fetchUserInfo();
+
+    // ============================
+    // 정기권 계산
+    totalDays = endDate.difference(startDate).inDays + 1;
+    remainingDays = totalDays - currentDay;
+
+    startDateString =
+    "${startDate.year}.${startDate.month.toString().padLeft(2, '0')}.${startDate.day.toString().padLeft(2, '0')}";
+    todayString =
+    "${today.year}.${today.month.toString().padLeft(2, '0')}.${today.day.toString().padLeft(2, '0')}";
+    endDateString =
+    "${endDate.year}.${endDate.month.toString().padLeft(2, '0')}.${endDate.day.toString().padLeft(2, '0')}";
   }
 
   Future<void> _fetchUserInfo() async {
@@ -49,7 +80,6 @@ class _LoginedHomeScreenState extends State<LoginedHomeScreen> {
     if (userInfo['success'] == true && userInfo['user'] != null) {
       final user = userInfo['user'];
 
-      // 차량번호 한글 뒤 공백 적용
       String carRaw = user['car_number'] ?? '';
       String formattedCar = carRaw;
       final reg = RegExp(r'([0-9]+[가-힣]+)([0-9]+)');
@@ -76,8 +106,6 @@ class _LoginedHomeScreenState extends State<LoginedHomeScreen> {
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
       final items = data['items'] as List<dynamic>;
-
-      // 최신순 정렬
       items.sort((a, b) {
         final da = DateTime.tryParse(a['created_at'] ?? '') ?? DateTime(2000);
         final db = DateTime.tryParse(b['created_at'] ?? '') ?? DateTime(2000);
@@ -86,9 +114,7 @@ class _LoginedHomeScreenState extends State<LoginedHomeScreen> {
 
       setState(() {
         _notices.clear();
-        _notices.addAll(items.map((item) => {
-          'title': item['title'],
-        }).toList());
+        _notices.addAll(items.map((item) => {'title': item['title']}).toList());
       });
     } else {
       print('Failed to load notices: ${response.statusCode}');
@@ -98,19 +124,15 @@ class _LoginedHomeScreenState extends State<LoginedHomeScreen> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
+    print("currentDay: $currentDay, totalDays: $totalDays, ratio: ${currentDay/totalDays}");
+    print("width: ${screenWidth * (currentDay / totalDays)}");
+    print("total width: ${screenWidth}");
 
     if (_isLoading) {
       return const Scaffold(
         body: Center(child: CircularProgressIndicator()),
       );
     }
-
-    // 기존 하드코딩된 entryDate, entryTime, duration 등
-    const String entryDate = '2025.06.05 (목)';
-    const String entryTime = '오전 11:26';
-    const String duration = '2분 10초';
-    const String currentFee = '0원';
-    const String nextFeeInfo = '200원 / 10분';
 
     return Scaffold(
       backgroundColor: const Color(0xFFF9FCFB),
@@ -140,319 +162,319 @@ class _LoginedHomeScreenState extends State<LoginedHomeScreen> {
         child: Column(
           children: [
             Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 20),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
-                    child: RichText(
-                      text: TextSpan(
-                        children: [
-                          TextSpan(
-                            text: '$userName의 ',
-                            style: const TextStyle(
-                              fontFamily: 'SpoqaHanSansNeo',
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                              color: Color(0xFF414B6A),
-                            ),
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 20),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+                  child: RichText(
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: '$userName의 ',
+                          style: const TextStyle(
+                            fontFamily: 'SpoqaHanSansNeo',
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: Color(0xFF414B6A),
                           ),
-                          WidgetSpan(
-                            alignment: PlaceholderAlignment.baseline,
-                            baseline: TextBaseline.alphabetic,
-                            child: ShaderMask(
-                              shaderCallback: (bounds) => const LinearGradient(
-                                colors: [Color(0xFF76B55C), Color(0xFF15C3AF)],
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                              ).createShader(Rect.fromLTWH(0, 0, bounds.width, bounds.height)),
-                              child: Text(
-                                '$carNumber', // ✅ 실제 변수 사용
-                                style: const TextStyle(
-                                  fontFamily: 'SpoqaHanSansNeo',
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.white, // ShaderMask 덮어쓰기용
-                                ),
+                        ),
+                        WidgetSpan(
+                          alignment: PlaceholderAlignment.baseline,
+                          baseline: TextBaseline.alphabetic,
+                          child: ShaderMask(
+                            shaderCallback: (bounds) => const LinearGradient(
+                              colors: [Color(0xFF76B55C), Color(0xFF15C3AF)],
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                            ).createShader(Rect.fromLTWH(0, 0, bounds.width, bounds.height)),
+                            child: Text(
+                              '$carNumber', // ✅ 실제 변수 사용
+                              style: const TextStyle(
+                                fontFamily: 'SpoqaHanSansNeo',
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white, // ShaderMask 덮어쓰기용
                               ),
                             ),
                           ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 15),
+                Center(
+                  child: Container(
+                    width: screenWidth * 0.92,
+                    height: 215,
+                    padding: const EdgeInsets.only(left: 17, right: 17, top: 20, bottom: 15),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(15),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          offset: const Offset(0, 0),
+                          blurRadius: 7,
+                          spreadRadius: 2,
+                        ),
+                      ],
+                      gradient: const LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Color(0xFF53BEAC), // 위쪽 색
+                          Color(0xFF47BE5B), // 아래쪽 색
                         ],
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 15),
-                  Center(
-                    child: Container(
-                      width: screenWidth * 0.92,
-                      height: 235,
-                      padding: const EdgeInsets.only(left: 17, right: 17, top: 20, bottom: 15),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(15),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
-                            offset: const Offset(0, 0),
-                            blurRadius: 7,
-                            spreadRadius: 2,
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              const Text(
-                                '주차 현황',
-                                style: TextStyle(
-                                  fontFamily: 'SpoqaHanSansNeo',
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w600,
-                                  color: Color(0xFF4B7C76),
-                                ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            const Text(
+                              '주차 현황',
+                              style: TextStyle(
+                                fontFamily: 'SpoqaHanSansNeo',
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFFF9FCFB),
                               ),
-                              Row(
-                                children: const [
-                                  Text(
-                                    '요금표 보기',
-                                    style: TextStyle(
-                                      fontFamily: 'SpoqaHanSansNeo',
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 9,
-                                      color: Color(0xFFADB5CA),
-                                    ),
-                                  ),
-                                  Icon(
-                                    Icons.keyboard_arrow_right,
-                                    size: 12,
-                                    color: Color(0xFFADB5CA),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 15),
-                          const Text(
-                            entryDate,
-                            style: TextStyle(
-                              fontFamily: 'SpoqaHanSansNeo',
-                              fontWeight: FontWeight.w400,
-                              fontSize: 9,
-                              color: Color(0xFF6B907F),
                             ),
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              RichText(
-                                text: const TextSpan(
-                                  children: [
-                                    TextSpan(
-                                      text: '$entryTime ',
-                                      style: TextStyle(
-                                        fontFamily: 'SpoqaHanSansNeo',
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 13,
-                                        color: Color(0xFF65A549),
-                                      ),
-                                    ),
-                                    TextSpan(
-                                      text: '입차',
-                                      style: TextStyle(
-                                        fontFamily: 'SpoqaHanSansNeo',
-                                        fontWeight: FontWeight.w500,
-                                        fontSize: 13,
-                                        color: Color(0xFF414B6A),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              RichText(
-                                text: const TextSpan(
-                                  children: [
-                                    TextSpan(
-                                      text: '이용 시간: ',
-                                      style: TextStyle(
-                                        fontFamily: 'SpoqaHanSansNeo',
-                                        fontWeight: FontWeight.w500,
-                                        fontSize: 13,
-                                        color: Color(0xFF414B6A),
-                                      ),
-                                    ),
-                                    TextSpan(
-                                      text: duration,
-                                      style: TextStyle(
-                                        fontFamily: 'SpoqaHanSansNeo',
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 13,
-                                        color: Color(0xFF65A549),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 22),
-                          RichText(
-                            text: const TextSpan(
-                              children: [
-                                TextSpan(
-                                  text: currentFee,
+                            Row(
+                              children: const [
+                                Text(
+                                  '요금표 보기',
                                   style: TextStyle(
                                     fontFamily: 'SpoqaHanSansNeo',
                                     fontWeight: FontWeight.w600,
-                                    fontSize: 13,
-                                    color: Color(0xFF65A549),
+                                    fontSize: 9,
+                                    color: Color(0xFFECF2E9),
                                   ),
                                 ),
-                                TextSpan(
-                                  text: ' 이용 중',
-                                  style: TextStyle(
-                                    fontFamily: 'SpoqaHanSansNeo',
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: 13,
-                                    color: Color(0xFF414B6A),
-                                  ),
+                                Icon(
+                                  Icons.keyboard_arrow_right,
+                                  size: 12,
+                                  color: Color(0xFFECF2E9),
                                 ),
                               ],
                             ),
+                          ],
+                        ),
+                        const SizedBox(height: 15),
+                        Text(
+                          entryDate,
+                          style: TextStyle(
+                            fontFamily: 'SpoqaHanSansNeo',
+                            fontWeight: FontWeight.w400,
+                            fontSize: 9,
+                            color: Color(0xFFECF2E9),
                           ),
-                          const SizedBox(height: 10),
-                          Stack(
-                            children: [
-                              Container(
-                                height: 5,
-                                width: double.infinity,
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFD9D9D9),
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                              ),
-                              LayoutBuilder(
-                                builder: (context, constraints) {
-                                  // constraints.maxWidth는 여기서만 유효
-                                  return Container(
-                                    height: 5,
-                                    width: constraints.maxWidth * 0.5,
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFF76B55C),
-                                      borderRadius: BorderRadius.circular(4),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              const Text(
-                                '0분',
-                                style: TextStyle(
-                                  fontFamily: 'SpoqaHanSansNeo',
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 8,
-                                  color: Color(0xFF4B7C76),
-                                ),
-                              ),
-                              RichText(
-                                text: const TextSpan(
-                                  children: [
-                                    TextSpan(
-                                      text: '다음 구간: ',
-                                      style: TextStyle(
-                                        fontFamily: 'SpoqaHanSansNeo',
-                                        fontWeight: FontWeight.w500,
-                                        fontSize: 10,
-                                        color: Color(0xFF2F3644),
-                                      ),
-                                    ),
-                                    TextSpan(
-                                      text: nextFeeInfo,
-                                      style: TextStyle(
-                                        fontFamily: 'SpoqaHanSansNeo',
-                                        fontWeight: FontWeight.w500,
-                                        fontSize: 10,
-                                        color: Color(0xFF61984A),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const Text(
-                                '60분',
-                                style: TextStyle(
-                                  fontFamily: 'SpoqaHanSansNeo',
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 8,
-                                  color: Color(0xFF4B7C76),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const Spacer(),
-                          Center(
-                            child: SizedBox(
-                              width: 160,
-                              height: 40,
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  gradient: const LinearGradient(
-                                    colors: [
-                                      Color(0xFF8CE2AA),
-                                      Color(0xFF93D4C7)
-                                    ],
-                                    begin: Alignment.topCenter,
-                                    end: Alignment.bottomCenter,
-                                  ),
-                                  borderRadius: BorderRadius.circular(10),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.02),
-                                      offset: const Offset(0, 3),
-                                      blurRadius: 7,
-                                      spreadRadius: 2,
-                                    ),
-                                  ],
-                                ),
-                                child: ElevatedButton(
-                                  onPressed: () {},
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.transparent,
-                                    // ✅ 배경 투명 (Container 배경 보이게)
-                                    shadowColor: Colors.transparent,
-                                    // ✅ 버튼 자체 그림자 제거
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    padding: EdgeInsets.zero,
-                                  ),
-                                  child: const Text(
-                                    '출차 결제',
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            RichText(
+                              text: TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text: '$entryTime ',
                                     style: TextStyle(
                                       fontFamily: 'SpoqaHanSansNeo',
+                                      fontWeight: FontWeight.w600,
                                       fontSize: 13,
-                                      fontWeight: FontWeight.w700,
                                       color: Colors.white,
                                     ),
                                   ),
-                                ),
+                                  TextSpan(
+                                    text: '입차',
+                                    style: TextStyle(
+                                      fontFamily: 'SpoqaHanSansNeo',
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 13,
+                                      color: Color(0xFFF9FCFB),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                          )
-                        ],
-                      ),
+                            RichText(
+                              text: TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text: '이용 시간: ',
+                                    style: TextStyle(
+                                      fontFamily: 'SpoqaHanSansNeo',
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 13,
+                                      color: Color(0xFFF9FCFB),
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: duration,
+                                    style: TextStyle(
+                                      fontFamily: 'SpoqaHanSansNeo',
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 13,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const Spacer(),
+                        const Text(
+                          '남은 정기권 기간',
+                          style: TextStyle(
+                            fontFamily: 'VitroPride',
+                            fontSize: 10,
+                            color: Colors.white,
+                          ),
+                        ),
+                        const SizedBox(height: 15),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            // 현재 진행일
+                            RichText(
+                              text: TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text: "$currentDay", // 숫자
+                                    style: const TextStyle(
+                                      fontFamily: 'SpoqaHanSansNeo',
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 13,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: " 일차", // 단위
+                                    style: const TextStyle(
+                                      fontFamily: 'SpoqaHanSansNeo',
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 13,
+                                      color: Color(0xFFF9FCFB),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                            // 남은 일수
+                            RichText(
+                              text: TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text: "$remainingDays일", // 숫자
+                                    style: const TextStyle(
+                                      fontFamily: 'SpoqaHanSansNeo',
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 13,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: " 남음", // 단위
+                                    style: const TextStyle(
+                                      fontFamily: 'SpoqaHanSansNeo',
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 13,
+                                      color: Color(0xFFF9FCFB),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        Stack(
+                          children: [
+                            Container(
+                              height: 5,
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFD9D9D9),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                            ),
+                            LayoutBuilder(
+                              builder: (context, constraints) {
+                                // constraints.maxWidth는 여기서만 유효
+                                return Container(
+                                  height: 5,
+                                  width: constraints.maxWidth * (currentDay / totalDays),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFFFFFFF),
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              startDateString,
+                              style: const TextStyle(
+                                fontFamily: 'SpoqaHanSansNeo',
+                                fontWeight: FontWeight.w500,
+                                fontSize: 8,
+                                color: Color(0xFFD6E1D1),
+                              ),
+                            ),
+                            RichText(
+                              text: TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text: "오늘: ", // 텍스트
+                                    style: const TextStyle(
+                                      fontFamily: 'SpoqaHanSansNeo',
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 10,
+                                      color: Color(0xFFECF2E9),
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: todayString, // 날짜
+                                    style: const TextStyle(
+                                      fontFamily: 'SpoqaHanSansNeo',
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 10,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Text(
+                              endDateString,
+                              style: const TextStyle(
+                                fontFamily: 'SpoqaHanSansNeo',
+                                fontWeight: FontWeight.w500,
+                                fontSize: 8,
+                                color: Color(0xFFD6E1D1),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 5),
+                      ],
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
+            ),
 
             const SizedBox(height: 25),
 
@@ -463,20 +485,12 @@ class _LoginedHomeScreenState extends State<LoginedHomeScreen> {
                 child: Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(20),
-                    gradient: const LinearGradient(
-                      begin: Alignment.centerLeft,
-                      end: Alignment.centerRight,
-                      colors: [
-                        Color(0xFF25C1A1),
-                        Color(0xFF76B55C),
-                      ],
-                    ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
+                        color: Colors.black.withOpacity(0.02),
                         offset: const Offset(0, 0),
                         blurRadius: 7,
-                        spreadRadius: 2,
+                        spreadRadius: 3,
                       ),
                     ],
                   ),
@@ -485,7 +499,7 @@ class _LoginedHomeScreenState extends State<LoginedHomeScreen> {
                       Navigator.pushNamed(context, '/payment/select_pass');
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.transparent, // Container 배경 보이게
+                      backgroundColor: Colors.white, // Container 배경 보이게
                       shadowColor: Colors.transparent,     // 버튼 그림자 제거
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20),
@@ -503,29 +517,29 @@ class _LoginedHomeScreenState extends State<LoginedHomeScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: const [
                               Text(
-                                '정기권 구매하기',
+                                '정기권 연장하기',
                                 style: TextStyle(
                                   fontFamily: 'SpoqaHanSansNeo',
                                   fontSize: 15,
-                                  fontWeight: FontWeight.w700,
-                                  color: Color(0xFFFFFFFF),
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xFF376524),
                                 ),
                               ),
                               SizedBox(height: 2),
                               Text(
-                                '정기권을 구매하여',
+                                '정기권을 연장하여',
                                 style: TextStyle(
                                   fontFamily: 'VitroPride',
                                   fontSize: 10,
-                                  color: Color(0xFFFFFFFF),
+                                  color: Color(0xFF2F3644),
                                 ),
                               ),
                               Text(
-                                '더 저렴하게 주차장을 이용해보세요.',
+                                '자유 출입 혜택을 이어가보세요.',
                                 style: TextStyle(
                                   fontFamily: 'VitroPride',
                                   fontSize: 10,
-                                  color: Color(0xFFFFFFFF),
+                                  color: Color(0xFF2F3644),
                                 ),
                               ),
                             ],
@@ -539,14 +553,14 @@ class _LoginedHomeScreenState extends State<LoginedHomeScreen> {
                                   fontFamily: 'SpoqaHanSansNeo',
                                   fontWeight: FontWeight.w600,
                                   fontSize: 10,
-                                  color: Color(0xFFECF2E9),
+                                  color: Color(0xFF2F3644),
                                 ),
                               ),
                               SizedBox(width: 3),
                               Icon(
                                 Icons.keyboard_arrow_right,
                                 size: 12,
-                                color: Color(0xFFECF2E9),
+                                color: Color(0xFF2F3644),
                               ),
                             ],
                           ),
