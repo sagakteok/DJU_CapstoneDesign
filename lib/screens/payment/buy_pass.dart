@@ -209,8 +209,10 @@ class BuyPassScreen extends StatelessWidget {
                       context,
                       '/payment/purchase',
                       arguments: {
+                        'id': plan['id'],
                         'name': plan['name'],
                         'price': plan['price'].toString(),
+                        'duration_days': plan['duration_days'] ?? 0,
                       },
                     );
                   },

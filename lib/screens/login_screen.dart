@@ -301,13 +301,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 10),
                   buildSocialButton(
-                    label: '네이버로 로그인하기',
-                    backgroundColor: const Color(0xFF66D564),
-                    textColor: Colors.white,
-                    onPressed: () {},
-                  ),
-                  const SizedBox(height: 10),
-                  buildSocialButton(
                     label: '카카오로 로그인하기',
                     backgroundColor: const Color(0xFFF5EF44),
                     textColor: Colors.black,

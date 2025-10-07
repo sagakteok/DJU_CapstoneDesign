@@ -17,6 +17,7 @@ class SelectPassScreen extends StatelessWidget {
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
+      print(data);
       if (data['items'] != null) {
         return List<Map<String, dynamic>>.from(data['items']);
       } else {
@@ -111,7 +112,7 @@ class SelectPassScreen extends StatelessWidget {
                   return Column(
                     children: plans.map((plan) {
                       return Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
+                        padding: const EdgeInsets.only(bottom: 15),
                         child: Center(
                           child: Container(
                             width: screenWidth * 0.92,
@@ -141,7 +142,12 @@ class SelectPassScreen extends StatelessWidget {
                                 Navigator.pushNamed(
                                   context,
                                   '/payment/BuyPass',
-                                  arguments: plan,
+                                  arguments: {
+                                    'id': plan['id'],
+                                    'name': plan['name'],
+                                    'price': plan['price'].toString(),
+                                    'duration_days': plan['duration_days'] ?? 0,
+                                  },
                                 );
                               },
                               child: Row(

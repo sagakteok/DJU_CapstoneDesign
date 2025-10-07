@@ -81,17 +81,7 @@ class _PaymentBreakdownState extends State<PaymentBreakdown> {
           onPressed: () {
             bottomNavIndex.value = 0;
           },
-        ),
-        centerTitle: true,
-        title: const Text(
-          '결제 내역',
-          style: TextStyle(
-            fontFamily: 'SpoqaHanSansNeo',
-            fontWeight: FontWeight.w500,
-            fontSize: 15,
-            color: Colors.black,
-          ),
-        ),
+        )
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.only(bottom: 15),

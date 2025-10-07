@@ -133,7 +133,7 @@ class _NoticeState extends State<Notice> {
             Column(
               children: _notices.map((notice) {
                 return Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
+                  padding: const EdgeInsets.only(bottom: 15),
                   child: Center(
                     child: Container(
                       width: MediaQuery.of(context).size.width * 0.92,

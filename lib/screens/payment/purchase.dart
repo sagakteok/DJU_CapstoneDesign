@@ -5,6 +5,10 @@ import 'package:tosspayments_widget_sdk_flutter/model/payment_info.dart';
 import 'package:tosspayments_widget_sdk_flutter/widgets/payment_method.dart';
 import 'package:tosspayments_widget_sdk_flutter/widgets/agreement.dart';
 import 'package:tosspayments_widget_sdk_flutter/model/payment_widget_options.dart';
+import 'dart:convert'; // jsonEncode 사용
+import 'package:http/http.dart' as http; // http.post 사용
+import 'package:jwt_decoder/jwt_decoder.dart'; // JwtDecoder 사용
+import '../../services/auth_service.dart'; // 서버에서 사용자 정보 가져오기
 
 class PurchaseScreen extends StatefulWidget {
   const PurchaseScreen({super.key});
@@ -306,15 +310,50 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
                                 .requestPayment(paymentInfo: paymentInfo);
 
                             if (result.success != null) {
-                              const SnackBar(content: Text('결제 성공!'));
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('결제 성공!')),
+                              );
+
+                              // --- Flask 엔드포인트 호출 ---
+                              final authService = AuthService();
+                              final token = await authService.getToken();
+                              if (token != null) {
+                                final decoded = JwtDecoder.decode(token);
+                                final userId = decoded['user_id'];
+
+                                final url = Uri.parse('http://192.168.75.23:3000/api/payment/subscribe');
+                                int durationDays = 0;
+                                if (args != null && args['duration_days'] != null) {
+                                  durationDays = (args['duration_days'] is int)
+                                      ? args['duration_days']
+                                      : (args['duration_days'] as num).toInt();
+                                }
+                                final response = await http.post(
+                                  url,
+                                  headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': 'Bearer $token', // 선택 사항
+                                  },
+                                  body: jsonEncode({
+                                    'user_id': userId,
+                                    'duration_days': durationDays,
+                                  }),
+                                );
+
+                                if (response.statusCode == 200) {
+                                  debugPrint('서버 결제 확인 성공: ${response.body}');
+                                } else {
+                                  debugPrint('서버 결제 확인 실패: ${response.statusCode} ${response.body}');
+                                }
+                              }
+
                               // 결제 성공 시 페이지 이동
-                              Navigator.pushReplacementNamed(
-                                  context, '/payment/PaymentComplete');
+                              Navigator.pushReplacementNamed(context, '/payment/PaymentComplete');
+
                             } else if (result.fail != null) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                    content: Text(
-                                        '결제 실패: ${result.fail!.errorMessage}')),
+                                    content: Text('결제 실패: ${result.fail!.errorMessage}')),
                               );
                             }
                           } catch (e) {

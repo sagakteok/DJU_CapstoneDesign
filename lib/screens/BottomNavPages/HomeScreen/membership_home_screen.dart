@@ -39,10 +39,6 @@ class _MembershipHomeScreenState extends State<MembershipHomeScreen> {
   final String entryTime = '오전 11:26';
   final String duration = '2분 10초';
 
-  // ============================
-  // 정기권 관련 날짜
-  final DateTime startDate = DateTime(2025, 3, 2);
-  final DateTime endDate = DateTime(2025, 6, 21);
   final DateTime today = DateTime.now();
 
   int totalDays = 0;
@@ -56,26 +52,13 @@ class _MembershipHomeScreenState extends State<MembershipHomeScreen> {
   @override
   void initState() {
     super.initState();
-
     initializeDateFormatting('ko').then((_) {
       fetchNotices();
     });
-    _fetchUserInfo();
-
-    // ============================
-    // 정기권 계산
-    totalDays = endDate.difference(startDate).inDays + 1;
-    remainingDays = totalDays - currentDay;
-
-    startDateString =
-    "${startDate.year}.${startDate.month.toString().padLeft(2, '0')}.${startDate.day.toString().padLeft(2, '0')}";
-    todayString =
-    "${today.year}.${today.month.toString().padLeft(2, '0')}.${today.day.toString().padLeft(2, '0')}";
-    endDateString =
-    "${endDate.year}.${endDate.month.toString().padLeft(2, '0')}.${endDate.day.toString().padLeft(2, '0')}";
+    fetchUserInfo(); // initState에서는 그냥 호출만
   }
 
-  Future<void> _fetchUserInfo() async {
+  Future<void> fetchUserInfo() async {
     final userInfo = await AuthService().getUserInfo();
     if (userInfo['success'] == true && userInfo['user'] != null) {
       final user = userInfo['user'];
@@ -87,9 +70,31 @@ class _MembershipHomeScreenState extends State<MembershipHomeScreen> {
         formattedCar = carRaw.replaceAllMapped(reg, (m) => '${m[1]} ${m[2]}');
       }
 
+      String startRaw = user['membership_start'] ?? '';
+      String endRaw = user['membership_end'] ?? '';
+
+      DateTime start = DateTime.tryParse(startRaw) ?? DateTime.now();
+      DateTime end = DateTime.tryParse(endRaw) ?? DateTime.now();
+
+      int total = end.difference(start).inDays + 1;
+      int current = DateTime.now().difference(start).inDays + 1;
+      int remaining = total - current;
+
       setState(() {
         userName = user['name'] ?? '';
         carNumber = formattedCar;
+
+        totalDays = total;
+        currentDay = current;
+        remainingDays = remaining;
+
+        startDateString =
+        "${start.year}.${start.month.toString().padLeft(2, '0')}.${start.day.toString().padLeft(2, '0')}";
+        todayString =
+        "${today.year}.${today.month.toString().padLeft(2, '0')}.${today.day.toString().padLeft(2, '0')}";
+        endDateString =
+        "${end.year}.${end.month.toString().padLeft(2, '0')}.${end.day.toString().padLeft(2, '0')}";
+
         _isLoading = false;
       });
     } else {
@@ -476,101 +481,101 @@ class _MembershipHomeScreenState extends State<MembershipHomeScreen> {
               ],
             ),
 
-            const SizedBox(height: 25),
+            if (remainingDays <= 7)
+              const SizedBox(height: 25),
 
-            Center(
-              child: SizedBox(
-                width: screenWidth * 0.92,
-                height: 85,
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.02),
-                        offset: const Offset(0, 0),
-                        blurRadius: 7,
-                        spreadRadius: 3,
-                      ),
-                    ],
-                  ),
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/payment/select_pass');
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white, // Container 배경 보이게
-                      shadowColor: Colors.transparent,     // 버튼 그림자 제거
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      padding: EdgeInsets.zero,
+            if (remainingDays <= 7) // 남은 일수가 7 이하일 때만 표시
+              Center(
+                child: SizedBox(
+                  width: screenWidth * 0.92,
+                  height: 85,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.02),
+                          offset: const Offset(0, 0),
+                          blurRadius: 7,
+                          spreadRadius: 3,
+                        ),
+                      ],
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 23, right: 17),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          // 왼쪽 텍스트
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: const [
-                              Text(
-                                '정기권 연장하기',
-                                style: TextStyle(
-                                  fontFamily: 'SpoqaHanSansNeo',
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w600,
-                                  color: Color(0xFF376524),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/payment/select_pass');
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        shadowColor: Colors.transparent,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        padding: EdgeInsets.zero,
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 23, right: 17),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: const [
+                                Text(
+                                  '정기권 연장하기',
+                                  style: TextStyle(
+                                    fontFamily: 'SpoqaHanSansNeo',
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w600,
+                                    color: Color(0xFF376524),
+                                  ),
                                 ),
-                              ),
-                              SizedBox(height: 2),
-                              Text(
-                                '정기권을 연장하여',
-                                style: TextStyle(
-                                  fontFamily: 'VitroPride',
-                                  fontSize: 10,
+                                SizedBox(height: 2),
+                                Text(
+                                  '정기권을 연장하여',
+                                  style: TextStyle(
+                                    fontFamily: 'VitroPride',
+                                    fontSize: 10,
+                                    color: Color(0xFF2F3644),
+                                  ),
+                                ),
+                                Text(
+                                  '자유 출입 혜택을 이어가보세요.',
+                                  style: TextStyle(
+                                    fontFamily: 'VitroPride',
+                                    fontSize: 10,
+                                    color: Color(0xFF2F3644),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              children: const [
+                                Text(
+                                  '더보기',
+                                  style: TextStyle(
+                                    fontFamily: 'SpoqaHanSansNeo',
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 10,
+                                    color: Color(0xFF2F3644),
+                                  ),
+                                ),
+                                SizedBox(width: 3),
+                                Icon(
+                                  Icons.keyboard_arrow_right,
+                                  size: 12,
                                   color: Color(0xFF2F3644),
                                 ),
-                              ),
-                              Text(
-                                '자유 출입 혜택을 이어가보세요.',
-                                style: TextStyle(
-                                  fontFamily: 'VitroPride',
-                                  fontSize: 10,
-                                  color: Color(0xFF2F3644),
-                                ),
-                              ),
-                            ],
-                          ),
-                          // 오른쪽 더보기
-                          Row(
-                            children: const [
-                              Text(
-                                '더보기',
-                                style: TextStyle(
-                                  fontFamily: 'SpoqaHanSansNeo',
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 10,
-                                  color: Color(0xFF2F3644),
-                                ),
-                              ),
-                              SizedBox(width: 3),
-                              Icon(
-                                Icons.keyboard_arrow_right,
-                                size: 12,
-                                color: Color(0xFF2F3644),
-                              ),
-                            ],
-                          ),
-                        ],
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
-            ),
             const SizedBox(height: 25),
             // ✅ 건물 별 잔여석 박스 (이 블록으로 기존 해당 Container 대체)
             Container(

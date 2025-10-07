@@ -9,6 +9,7 @@ import 'screens/bottom_navigation.dart';
 import 'screens/login_screen.dart';
 import 'screens/NoticeItem.dart';
 import 'screens/ViewParkingCam.dart';
+import 'screens/car_inquire.dart';
 import 'screens/BottomNavPages/HomeScreen/logouted_home_screen.dart';
 
 // 회원가입 단계별 화면
@@ -125,6 +126,7 @@ class _MyAppState extends State<MyApp> {
         '/login': (_) => const LoginScreen(),
         '/home': (_) => const BottomNavigation(),
         '/logoutedhome': (_) => const LogoutedHomeScreen(),
+        '/CarInquire': (_) => const CarInquireScreen(),
         '/ViewParkingCam': (_) => const ViewParkingCam(),
         '/signup/step1': (_) => const SignupStep1TermsScreen(),
         '/signup/step2': (_) => const SignupStep2UserInfoScreen(),

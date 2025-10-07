@@ -1,3 +1,4 @@
+// bottom_navigation.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_material_design_icons/flutter_material_design_icons.dart';
 import 'BottomNavPages/HomeScreen/logined_home_screen.dart';
@@ -7,6 +8,7 @@ import 'BottomNavPages/payment_breakdown.dart';
 import 'BottomNavPages/notice.dart';
 import 'BottomNavPages/my_account.dart';
 import '../main.dart'; // bottomNavIndex 사용
+import '../services/auth_service.dart'; // 서버에서 사용자 정보 가져오기
 
 class BottomNavigation extends StatefulWidget {
   const BottomNavigation({super.key});
@@ -16,21 +18,21 @@ class BottomNavigation extends StatefulWidget {
 }
 
 class _BottomNavigationState extends State<BottomNavigation> {
-  final List<Widget> _pages = const [
-    MembershipHomeScreen(),
-    CarBreakdown(),
-    PaymentBreakdown(),
-    Notice(),
-    MyAccount(),
-  ];
+  int _subscribeMembership = 0; // 0: 일반, 1: 구독
+  bool _loading = true;
 
   @override
   void initState() {
     super.initState();
     bottomNavIndex.addListener(_onIndexChanged);
+    _fetchUserSubscription();
   }
 
   void _onIndexChanged() {
+    // 홈 화면 클릭 시 항상 서버 호출
+    if (bottomNavIndex.value == 0) {
+      _fetchUserSubscription();
+    }
     if (mounted) setState(() {});
   }
 
@@ -40,10 +42,50 @@ class _BottomNavigationState extends State<BottomNavigation> {
     super.dispose();
   }
 
+  // 서버에서 사용자 정보 가져오기
+  Future<void> _fetchUserSubscription() async {
+    setState(() { _loading = true; });
+    try {
+      final authService = AuthService();
+      final result = await authService.getUserInfo();
+      if (mounted) {
+        setState(() {
+          _subscribeMembership = result['user']['subscribe_membership'] ?? 0;
+          _loading = false;
+        });
+        print('[LOG] userInfo result: $result');
+      }
+    } catch (e) {
+      if (mounted) setState(() {
+        _subscribeMembership = 0;
+        _loading = false;
+      });
+      print('[ERROR] userInfo fetch failed: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (_loading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return Scaffold(
-      body: _pages[bottomNavIndex.value],
+      body: IndexedStack(
+        index: bottomNavIndex.value,
+        children: [
+          // 숫자 값에 따라 화면 선택
+          _subscribeMembership == 1
+              ? MembershipHomeScreen(key: const ValueKey('membership'))
+              : LoginedHomeScreen(key: const ValueKey('logined')),
+          const CarBreakdown(),
+          const PaymentBreakdown(),
+          const Notice(),
+          const MyAccount(),
+        ],
+      ),
       bottomNavigationBar: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

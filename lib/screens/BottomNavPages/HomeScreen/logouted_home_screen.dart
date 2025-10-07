@@ -192,7 +192,9 @@ class _LogoutedHomeScreenState extends State<LogoutedHomeScreen> {
                               width: 160,
                               height: 40,
                               child: ElevatedButton(
-                                onPressed: () {},
+                                onPressed: () {
+                                  Navigator.pushNamed(context, '/CarInquire');
+                                },
                                 style: ElevatedButton.styleFrom(
                                   elevation: 0,
                                   shadowColor: Colors.transparent,
