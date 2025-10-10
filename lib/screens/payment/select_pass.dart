@@ -2,14 +2,15 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class SelectPassScreen extends StatelessWidget {
   const SelectPassScreen({super.key});
 
   // API 호출 (정기권 리스트 전체 가져오기)
   Future<List<Map<String, dynamic>>> fetchPassPlans() async {
-    final response = await http.get(
-      Uri.parse('http://192.168.75.23:3000/api/admin/passes/plans'),
+    final host = dotenv.env['HOST_ADDRESS'];
+    final response = await http.get(Uri.parse('$host/api/admin/passes/plans'),
       headers: {
         'x-user-id': '1',
       },

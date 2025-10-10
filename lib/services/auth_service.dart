@@ -3,10 +3,12 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class AuthService {
   final storage = FlutterSecureStorage();
-  final baseUrl = 'http://192.168.75.23:3000/api/auth';
+  final String _host = dotenv.env['HOST_ADDRESS']!;
+  late final Uri baseUrl = Uri.parse('$_host/api/auth');
 
   Future<Map<String, dynamic>> signup(String name,
       String birthDate,

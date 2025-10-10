@@ -6,6 +6,7 @@ import '../../../main.dart';
 import '../../ViewParkingCam.dart';
 import '../../NoticeItem.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 String formatDate(String rawDate) {
   try {
@@ -578,7 +579,8 @@ Color _getStatusColor(String congestionText) {
 /// 최근 공지사항 동적 섹션
 Widget _buildNoticeSection(BuildContext context, double screenWidth) {
   Future<List<Map<String, dynamic>>> fetchNotices() async {
-    final uri = Uri.parse('http://192.168.75.23:3000/api/notices');
+    final host = dotenv.env['HOST_ADDRESS'];
+    final uri = Uri.parse('$host/api/notices');
     final res = await http.get(uri);
 
     if (res.statusCode == 200) {

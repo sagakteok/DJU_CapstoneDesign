@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import '../NoticeItem.dart';
 import '../../main.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class Notice extends StatefulWidget {
   const Notice({super.key});
@@ -41,8 +42,9 @@ class _NoticeState extends State<Notice> {
   }
 
   Future<void> fetchNotices() async {
-    final response =
-    await http.get(Uri.parse('http://192.168.75.23:3000/api/notices'));
+    final host = dotenv.env['HOST_ADDRESS'];
+
+    final response = await http.get(Uri.parse('$host/api/notices'));
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);

@@ -9,6 +9,7 @@ import 'dart:convert'; // jsonEncode 사용
 import 'package:http/http.dart' as http; // http.post 사용
 import 'package:jwt_decoder/jwt_decoder.dart'; // JwtDecoder 사용
 import '../../services/auth_service.dart'; // 서버에서 사용자 정보 가져오기
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class PurchaseScreen extends StatefulWidget {
   const PurchaseScreen({super.key});
@@ -27,8 +28,8 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
     super.initState();
 
     _paymentWidget = PaymentWidget(
-      clientKey: "test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm",
-      customerKey: "user_1234",
+      clientKey: dotenv.env['PURCHASE_CLIENT_KEY']!,
+      customerKey: dotenv.env['PURHCASE_CUSTOMER_KEY']!,
     );
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -37,7 +38,7 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
 
       // 결제 수단 렌더링
       await _paymentWidget.renderPaymentMethods(
-        selector: "payment-method-container",
+        selector: dotenv.env['PURHCASE_PAYMENT_METHODS_SELECTOR']!,
         amount: Amount(
           value: price,
           currency: Currency.KRW,
@@ -47,7 +48,7 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
 
       // 동의창 렌더링
       _agreementWidgetControl = await _paymentWidget.renderAgreement(
-        selector: "agreement-container",
+        selector: dotenv.env['PURHCASE_AGREEMENT_SELECTOR']!,
       );
 
       setState(() {
@@ -321,7 +322,8 @@ class _PurchaseScreenState extends State<PurchaseScreen> {
                                 final decoded = JwtDecoder.decode(token);
                                 final userId = decoded['user_id'];
 
-                                final url = Uri.parse('http://192.168.75.23:3000/api/payment/subscribe');
+                                final host = dotenv.env['HOST_ADDRESS'];
+                                final url = Uri.parse('$host/api/payment/subscribe');
                                 int durationDays = 0;
                                 if (args != null && args['duration_days'] != null) {
                                   durationDays = (args['duration_days'] is int)
