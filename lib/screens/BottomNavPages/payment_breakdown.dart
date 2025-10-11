@@ -1,7 +1,13 @@
+// payment_breakdown.dart
 import 'package:flutter/material.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:intl/intl.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import '../../main.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import '../../services/auth_service.dart';
 
 class PaymentBreakdown extends StatefulWidget {
   const PaymentBreakdown({super.key});
@@ -12,50 +18,82 @@ class PaymentBreakdown extends StatefulWidget {
 
 class _PaymentBreakdownState extends State<PaymentBreakdown> {
   String _selectedType = '전체 내역';
-  final List<String> _types = ['전체 내역', '일반 출차 결제', '정기권 결제'];
+  final List<String> _types = ['전체 내역', '출차', '정기권'];
 
   bool _isDropdownOpen = false;
   bool _searchPerformed = false;
   List<Map<String, dynamic>> _filteredData = [];
+  List<Map<String, dynamic>> _allData = [];
 
-  final List<Map<String, dynamic>> _allData = [
-    {
-      'date': '2025-07-25',
-      'time': '오전 08:15',
-      'amount': 1500,
-      'type': '출차',
-    },
-    {
-      'date': '2025-07-26',
-      'time': '오전 09:30',
-      'amount': 2000,
-      'type': '정기권',
-    },
-    {
-      'date': '2025-07-27',
-      'time': '오전 10:00',
-      'amount': 1700,
-      'type': '출차',
-    },
-    {
-      'date': '2025-07-28',
-      'time': '오전 10:30',
-      'amount': 1200,
-      'type': '정기권',
-    },
-  ];
+  int? _userId;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserIdAndFetchData();
+  }
+
+  Future<void> _loadUserIdAndFetchData() async {
+    final authService = AuthService();
+    final token = await authService.getToken();
+    debugPrint('[PaymentBreakdown] token: $token');
+
+    if (token == null) return;
+
+    final decodedToken = JwtDecoder.decode(token);
+    final userId = decodedToken['user_id'];
+    debugPrint('[PaymentBreakdown] decoded userId: $userId');
+
+    if (mounted) {
+      setState(() {
+        _userId = userId;
+      });
+      _fetchPaymentData();
+    }
+  }
+
+  Future<void> _fetchPaymentData() async {
+    if (_userId == null) return;
+
+    try {
+      final host = dotenv.env['HOST_ADDRESS'];
+      final url = Uri.parse('$host/api/payment/history/$_userId');
+      final response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final payments = data['payments'] as List;
+
+        setState(() {
+          _allData = payments.map((item) {
+            final date = DateTime.parse(item['use_date']);
+            final time = item['created_at'] != null
+                ? DateTime.parse(item['created_at']).toLocal()
+                : date;
+
+            return {
+              'date': DateFormat('yyyy-MM-dd').format(date),
+              'time': DateFormat('a hh:mm', 'ko_KR').format(time),
+              'amount': item['amount'],
+              'type': item['type'], // DB enum 그대로
+            };
+          }).toList();
+        });
+      } else {
+        print("결제내역 로드 실패: ${response.statusCode}");
+      }
+    } catch (e) {
+      print("결제내역 API 호출 에러: $e");
+    }
+  }
 
   void _performSearch() {
     setState(() {
       _searchPerformed = true;
       if (_selectedType == '전체 내역') {
         _filteredData = List.from(_allData);
-      } else if (_selectedType == '일반 출차 결제') {
-        _filteredData = _allData.where((item) => item['type'] == '출차').toList();
-      } else if (_selectedType == '정기권 결제') {
-        _filteredData = _allData.where((item) => item['type'] == '정기권').toList();
       } else {
-        _filteredData = [];
+        _filteredData = _allData.where((item) => item['type'] == _selectedType).toList();
       }
     });
   }
@@ -73,15 +111,15 @@ class _PaymentBreakdownState extends State<PaymentBreakdown> {
     return Scaffold(
       backgroundColor: const Color(0xFFF9FCFB),
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () {
-            bottomNavIndex.value = 0;
-          },
-        )
+          backgroundColor: Colors.white,
+          elevation: 0,
+          scrolledUnderElevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.black),
+            onPressed: () {
+              bottomNavIndex.value = 0;
+            },
+          )
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.only(bottom: 15),
@@ -242,7 +280,7 @@ class _PaymentBreakdownState extends State<PaymentBreakdown> {
               ),
             ),
 
-            // 여기부터 수정된 조건부 위젯 시작
+            // 조건부 내역 출력
             _searchPerformed
                 ? _filteredData.isNotEmpty
                 ? Padding(
