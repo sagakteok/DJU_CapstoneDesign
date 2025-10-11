@@ -53,7 +53,7 @@ class BuyPassScreen extends StatelessWidget {
       body: Center(
         child: Column(
           children: [
-            SizedBox(height: screenHeight * 0.03),
+            SizedBox(height: screenHeight * 0.02),
             // 상단 텍스트
             SizedBox(
               width: screenWidth * 0.88,

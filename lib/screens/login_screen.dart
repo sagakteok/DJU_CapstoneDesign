@@ -145,6 +145,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
     final buttonWidth = MediaQuery.of(context).size.width * 0.85;
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
     final screenHeight = MediaQuery.of(context).size.height;
@@ -169,9 +170,9 @@ class _LoginScreenState extends State<LoginScreen> {
       body: Center(
         child: Column(
           children: [
-            SizedBox(height: screenHeight * 0.01),
+            SizedBox(height: screenHeight * 0.02),
             SizedBox(
-              width: buttonWidth,
+              width: screenWidth * 0.88,
               child: const Text(
                 '로그인',
                 style: TextStyle(

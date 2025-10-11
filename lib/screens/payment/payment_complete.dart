@@ -20,7 +20,7 @@ class PaymentCompleteScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            SizedBox(height: screenHeight * 0.03),
+            SizedBox(height: screenHeight * 0.02),
             SizedBox(
               width: screenWidth * 0.88,
               child: Column(

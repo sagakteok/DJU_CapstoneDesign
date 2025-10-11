@@ -83,16 +83,88 @@ class _MyAccountState extends State<MyAccount> {
     final bool? confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('회원 탈퇴 확인'),
-        content: const Text('정말로 회원 탈퇴를 진행하시겠습니까? 이 작업은 되돌릴 수 없습니다.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('취소'),
+        backgroundColor: const Color(0xFFFFFFFF),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20), // 다이얼로그 모서리 둥글기
+        ),
+        title: const Text(
+          '경고',
+          style: TextStyle(
+            fontFamily: 'VitroPride',
+            fontSize: 18,
+            color: Color(0xFF4B7C76),
           ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('확인'),
+        ),
+        content: const Text(
+          '정말로 회원 탈퇴를 진행하시겠습니까?\n이 작업은 되돌릴 수 없습니다.',
+          style: TextStyle(
+            fontFamily: 'SpoqaHanSansNeo',
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+            color: Color(0xFF2F3644),
+          ),
+        ),
+        actionsPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        actions: [
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Expanded(
+                    flex: 5,
+                    child: SizedBox(
+                      height: 45,
+                      child: TextButton(
+                        style: TextButton.styleFrom(
+                          backgroundColor: const Color(0xFFECF2E9),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        onPressed: () => Navigator.of(context).pop(false),
+                        child: const Text(
+                          '취소',
+                          style: TextStyle(
+                            fontFamily: 'SpoqaHanSansNeo',
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: Color(0xFF50A12E),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    flex: 5,
+                    child: SizedBox(
+                      height: 45,
+                      child: TextButton(
+                        style: TextButton.styleFrom(
+                          backgroundColor: const Color(0xFF50A12E),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        onPressed: () => Navigator.of(context).pop(true),
+                        child: const Text(
+                          '확인',
+                          style: TextStyle(
+                            fontFamily: 'SpoqaHanSansNeo',
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10), // 버튼 아래 공간 추가
+            ],
           ),
         ],
       ),

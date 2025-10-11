@@ -146,7 +146,7 @@ class _CarInquireScreenState extends State<CarInquireScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(height: screenHeight * 0.03),
+                  SizedBox(height: screenHeight * 0.02),
                   Center(
                     child: SizedBox(
                       width: 300,

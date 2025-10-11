@@ -57,7 +57,7 @@ class SelectPassScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            SizedBox(height: screenHeight * 0.03),
+            SizedBox(height: screenHeight * 0.02),
             SizedBox(
               width: screenWidth * 0.88,
               child: Column(
@@ -94,7 +94,7 @@ class SelectPassScreen extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 40),
+            const SizedBox(height: 50),
 
             FutureBuilder<List<Map<String, dynamic>>>(
               future: fetchPassPlans(),

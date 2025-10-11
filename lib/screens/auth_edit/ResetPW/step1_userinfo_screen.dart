@@ -105,6 +105,8 @@ class _ResetPWStep1UserInfoScreenState extends State<ResetPWStep1UserInfoScreen>
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
     final buttonWidth = MediaQuery.of(context).size.width * 0.85;
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
     final isKeyboardVisible = bottomInset > 0;
@@ -120,9 +122,9 @@ class _ResetPWStep1UserInfoScreenState extends State<ResetPWStep1UserInfoScreen>
       body: Center(
         child: Column(
           children: [
-            const SizedBox(height: 10),
+            SizedBox(height: screenHeight * 0.02),
             SizedBox(
-              width: buttonWidth,
+              width: screenWidth * 0.88,
               child: const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -134,20 +136,21 @@ class _ResetPWStep1UserInfoScreenState extends State<ResetPWStep1UserInfoScreen>
                       color: Color(0xFF1E1E1E),
                     ),
                   ),
-                  SizedBox(height: 10),
+                  SizedBox(height: 12),
                   Text(
                     '비밀번호를 다시 설정하기 위해',
                     style: TextStyle(
-                      fontSize: 13,
+                      fontSize: 11,
                       fontFamily: 'SpoqaHanSansNeo',
                       fontWeight: FontWeight.w500,
                       color: Color(0xFF000000),
                     ),
                   ),
+                  SizedBox(height: 2),
                   Text(
                     '회원 정보를 입력해주세요.',
                     style: TextStyle(
-                      fontSize: 13,
+                      fontSize: 11,
                       fontFamily: 'SpoqaHanSansNeo',
                       fontWeight: FontWeight.w500,
                       color: Color(0xFF000000),

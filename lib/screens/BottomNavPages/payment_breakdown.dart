@@ -136,7 +136,7 @@ class _PaymentBreakdownState extends State<PaymentBreakdown> {
                   const Text(
                     '결제 내역',
                     style: TextStyle(
-                      fontSize: 25,
+                      fontSize: 27,
                       fontFamily: 'VitroPride',
                       color: Color(0xFF1E1E1E),
                     ),

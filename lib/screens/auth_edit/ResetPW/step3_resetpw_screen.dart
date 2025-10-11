@@ -105,6 +105,7 @@ class _ResetPWStep3ResetPWScreenState extends State<ResetPWStep3ResetPWScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
     final buttonWidth = MediaQuery.of(context).size.width * 0.85;
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
     final isKeyboardVisible = bottomInset > 0;
@@ -121,9 +122,9 @@ class _ResetPWStep3ResetPWScreenState extends State<ResetPWStep3ResetPWScreen> {
       body: Center(
         child: Column(
           children: [
-            const SizedBox(height: 10),
+            SizedBox(height: screenHeight * 0.02),
             SizedBox(
-              width: buttonWidth,
+              width: screenWidth * 0.88,
               child: const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -135,20 +136,21 @@ class _ResetPWStep3ResetPWScreenState extends State<ResetPWStep3ResetPWScreen> {
                       color: Color(0xFF1E1E1E),
                     ),
                   ),
-                  SizedBox(height: 10),
+                  SizedBox(height: 12),
                   Text(
                     '정상적인 서비스 이용을 위해',
                     style: TextStyle(
-                      fontSize: 13,
+                      fontSize: 11,
                       fontFamily: 'SpoqaHanSansNeo',
                       fontWeight: FontWeight.w500,
                       color: Color(0xFF000000),
                     ),
                   ),
+                  SizedBox(height: 2),
                   Text(
                     '새 비밀번호를 입력해주세요.',
                     style: TextStyle(
-                      fontSize: 13,
+                      fontSize: 11,
                       fontFamily: 'SpoqaHanSansNeo',
                       fontWeight: FontWeight.w500,
                       color: Color(0xFF000000),

@@ -100,6 +100,7 @@ class _PasswordEditScreenState extends State<PasswordEditScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
     final buttonWidth = MediaQuery.of(context).size.width * 0.85;
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
     final screenHeight = MediaQuery.of(context).size.height;
@@ -123,7 +124,7 @@ class _PasswordEditScreenState extends State<PasswordEditScreen> {
           children: [
             SizedBox(height: screenHeight * 0.02),
             SizedBox(
-              width: buttonWidth,
+              width: screenWidth * 0.88,
               child: const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -135,11 +136,11 @@ class _PasswordEditScreenState extends State<PasswordEditScreen> {
                       color: Color(0xFF1E1E1E),
                     ),
                   ),
-                  SizedBox(height: 10),
+                  SizedBox(height: 12),
                   Text(
                     '새로운 비밀번호를 설정해보세요',
                     style: TextStyle(
-                      fontSize: 13,
+                      fontSize: 11,
                       fontFamily: 'SpoqaHanSansNeo',
                       fontWeight: FontWeight.w500,
                       color: Color(0xFF000000),

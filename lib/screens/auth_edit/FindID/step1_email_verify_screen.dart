@@ -121,6 +121,7 @@ class _FindIDStep1EmailVerifyScreenState extends State<FindIDStep1EmailVerifyScr
   @override
   Widget build(BuildContext context) {
     final buttonWidth = MediaQuery.of(context).size.width * 0.85;
+    final screenWidth = MediaQuery.of(context).size.width;
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
     final screenHeight = MediaQuery.of(context).size.height;
     final isKeyboardVisible = bottomInset > 0;
@@ -145,7 +146,7 @@ class _FindIDStep1EmailVerifyScreenState extends State<FindIDStep1EmailVerifyScr
           children: [
             SizedBox(height: screenHeight * 0.02),
             SizedBox(
-              width: buttonWidth,
+              width: screenWidth * 0.88,
               child: const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -157,20 +158,21 @@ class _FindIDStep1EmailVerifyScreenState extends State<FindIDStep1EmailVerifyScr
                       color: Color(0xFF1E1E1E),
                     ),
                   ),
-                  SizedBox(height: 10),
+                  SizedBox(height: 12),
                   Text(
                     '이메일을 찾기 위해',
                     style: TextStyle(
-                      fontSize: 13,
+                      fontSize: 11,
                       fontFamily: 'SpoqaHanSansNeo',
                       fontWeight: FontWeight.w500,
                       color: Color(0xFF000000),
                     ),
                   ),
+                  SizedBox(height: 2),
                   Text(
                     '본인 인증을 진행해주세요.',
                     style: TextStyle(
-                      fontSize: 13,
+                      fontSize: 11,
                       fontFamily: 'SpoqaHanSansNeo',
                       fontWeight: FontWeight.w500,
                       color: Color(0xFF000000),

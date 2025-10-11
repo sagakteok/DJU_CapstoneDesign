@@ -179,6 +179,8 @@ class _ResetPWStep2EmailVerifyScreenState
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
     final buttonWidth = MediaQuery.of(context).size.width * 0.85;
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
     final isKeyboardVisible = bottomInset > 0;
@@ -194,9 +196,9 @@ class _ResetPWStep2EmailVerifyScreenState
       body: Center(
         child: Column(
           children: [
-            const SizedBox(height: 10),
+            SizedBox(height: screenHeight * 0.02),
             SizedBox(
-              width: buttonWidth,
+              width: screenWidth * 0.88,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -208,20 +210,21 @@ class _ResetPWStep2EmailVerifyScreenState
                       color: Color(0xFF1E1E1E),
                     ),
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 12),
                   const Text(
                     '본인이 입력한 이메일 주소에서',
                     style: TextStyle(
-                      fontSize: 13,
+                      fontSize: 11,
                       fontFamily: 'SpoqaHanSansNeo',
                       fontWeight: FontWeight.w500,
                       color: Color(0xFF000000),
                     ),
                   ),
+                  const SizedBox(height: 2),
                   const Text(
                     '인증을 완료해주세요.',
                     style: TextStyle(
-                      fontSize: 13,
+                      fontSize: 11,
                       fontFamily: 'SpoqaHanSansNeo',
                       fontWeight: FontWeight.w500,
                       color: Color(0xFF000000),

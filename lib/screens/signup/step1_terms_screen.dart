@@ -56,6 +56,7 @@ class _SignupStep1TermsScreenState extends State<SignupStep1TermsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
     final buttonWidth = MediaQuery.of(context).size.width * 0.85;
     final screenHeight = MediaQuery.of(context).size.height;
 
@@ -74,7 +75,7 @@ class _SignupStep1TermsScreenState extends State<SignupStep1TermsScreen> {
           SizedBox(height: screenHeight * 0.02),
           Center(
             child: SizedBox(
-              width: buttonWidth,
+              width: screenWidth * 0.88,
               child: const Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -86,20 +87,21 @@ class _SignupStep1TermsScreenState extends State<SignupStep1TermsScreen> {
                       color: Color(0xFF1E1E1E),
                     ),
                   ),
-                  SizedBox(height: 10),
+                  SizedBox(height: 12),
                   Text(
                     '서비스 이용을 위하여',
                     style: TextStyle(
-                      fontSize: 13,
+                      fontSize: 11,
                       fontFamily: 'SpoqaHanSansNeo',
                       fontWeight: FontWeight.w500,
                       color: Color(0xFF000000),
                     ),
                   ),
+                  SizedBox(height: 2),
                   Text(
                     '다음 약관에 동의해주세요.',
                     style: TextStyle(
-                      fontSize: 13,
+                      fontSize: 11,
                       fontFamily: 'SpoqaHanSansNeo',
                       fontWeight: FontWeight.w500,
                       color: Color(0xFF000000),

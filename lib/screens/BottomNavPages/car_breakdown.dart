@@ -91,7 +91,7 @@ class _CarBreakdownState extends State<CarBreakdown> {
                   const Text(
                     '입출차 내역',
                     style: TextStyle(
-                      fontSize: 25,
+                      fontSize: 27,
                       fontFamily: 'VitroPride',
                       color: Color(0xFF1E1E1E),
                     ),

@@ -5,6 +5,7 @@ class AppStart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
     final buttonWidth = MediaQuery.of(context).size.width * 0.85;
     final screenHeight = MediaQuery.of(context).size.height;
 
@@ -53,7 +54,7 @@ class AppStart extends StatelessWidget {
           children: [
             SizedBox(height: screenHeight * 0.01),
             SizedBox(
-              width: buttonWidth,
+              width: screenWidth * 0.88,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: const [
@@ -71,7 +72,7 @@ class AppStart extends StatelessWidget {
                       Text(
                         '대전대학교 ',
                         style: TextStyle(
-                          fontSize: 13,
+                          fontSize: 11,
                           fontFamily: 'SpoqaHanSansNeo',
                           fontWeight: FontWeight.w600,
                           color: Color(0xFF65A549),
@@ -80,7 +81,7 @@ class AppStart extends StatelessWidget {
                       Text(
                         '주차장 서비스 앱입니다.',
                         style: TextStyle(
-                          fontSize: 13,
+                          fontSize: 11,
                           fontFamily: 'SpoqaHanSansNeo',
                           fontWeight: FontWeight.w500,
                           color: Color(0xFF1E1E1E),
@@ -88,23 +89,23 @@ class AppStart extends StatelessWidget {
                       ),
                     ],
                   ),
-                  SizedBox(height: 5),
+                  SizedBox(height: 2),
                   Text(
                     '정기권 발권과 사전 결제 서비스를',
                     style: TextStyle(
-                      fontSize: 13,
+                      fontSize: 11,
                       fontFamily: 'SpoqaHanSansNeo',
                       fontWeight: FontWeight.w500,
                       color: Color(0xFF1E1E1E),
                     ),
                   ),
-                  SizedBox(height: 5),
+                  SizedBox(height: 2),
                   Row(
                     children: [
                       Text(
                         'Lot Bot ',
                         style: TextStyle(
-                          fontSize: 13,
+                          fontSize: 11,
                           fontFamily: 'VitroCore',
                           color: Color(0xFF65A549),
                         ),
@@ -112,7 +113,7 @@ class AppStart extends StatelessWidget {
                       Text(
                         '에서 이용해보세요!',
                         style: TextStyle(
-                          fontSize: 13,
+                          fontSize: 11,
                           fontFamily: 'SpoqaHanSansNeo',
                           fontWeight: FontWeight.w500,
                           color: Color(0xFF1E1E1E),
