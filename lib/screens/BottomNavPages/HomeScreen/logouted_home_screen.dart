@@ -28,8 +28,8 @@ void _showLoginAlertAndRedirect(BuildContext context) {
       duration: Duration(seconds: 2),
     ),
   );
-  Future.delayed(const Duration(seconds: 2), () {
-    Navigator.pushNamed(context, '/appstart');
+  Future.delayed(const Duration(seconds: 1), () {
+    Navigator.pushNamed(context, '/login');
   });
 }
 
@@ -63,18 +63,23 @@ class _LogoutedHomeScreenState extends State<LogoutedHomeScreen> {
         scrolledUnderElevation: 0,
         centerTitle: false,
         automaticallyImplyLeading: false,
-        title: ShaderMask(
-          shaderCallback: (bounds) => const LinearGradient(
-            colors: [Color(0xFF76B55C), Color(0xFF15C3AF)],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ).createShader(Rect.fromLTWH(0, 0, bounds.width, bounds.height)),
-          child: const Text(
-            'Lot Bot',
-            style: TextStyle(
-              fontFamily: 'VitroCore',
-              fontSize: 20,
-              color: Colors.white, // 반드시 지정해야 함 (실제 그라데이션으로 덮어씌워짐)
+        title: GestureDetector(
+          onTap: () {
+            Navigator.pushNamed(context, '/appstart');
+          },
+          child: ShaderMask(
+            shaderCallback: (bounds) => const LinearGradient(
+              colors: [Color(0xFF76B55C), Color(0xFF15C3AF)],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ).createShader(Rect.fromLTWH(0, 0, bounds.width, bounds.height)),
+            child: const Text(
+              'Lot Bot',
+              style: TextStyle(
+                fontFamily: 'VitroCore',
+                fontSize: 20,
+                color: Colors.white, // 반드시 지정해야 함
+              ),
             ),
           ),
         ),

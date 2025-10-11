@@ -120,16 +120,6 @@ class _UserInfoEditScreenState extends State<UserInfoEditScreen> {
             Navigator.pushReplacementNamed(context, '/home');
           },
         ),
-        centerTitle: true,
-        title: const Text(
-          '계정 정보 수정',
-          style: TextStyle(
-            fontFamily: 'SpoqaHanSansNeo',
-            fontWeight: FontWeight.w500,
-            fontSize: 15,
-            color: Colors.black,
-          ),
-        ),
         flexibleSpace: Container(color: Colors.white),
       ),
       body: Center(

@@ -18,19 +18,9 @@ class NoticeItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          '공지사항 상세',
-          style: TextStyle(
-            fontFamily: 'SpoqaHanSansNeo',
-            fontWeight: FontWeight.w500,
-            fontSize: 15,
-            color: Colors.black,
-          ),
-        ),
         backgroundColor: Colors.white,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black),
-        centerTitle: true,
       ),
       body: SingleChildScrollView(
         child: Padding(

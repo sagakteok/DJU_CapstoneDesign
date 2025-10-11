@@ -29,10 +29,7 @@ class _BottomNavigationState extends State<BottomNavigation> {
   }
 
   void _onIndexChanged() {
-    // 홈 화면 클릭 시 항상 서버 호출
-    if (bottomNavIndex.value == 0) {
-      _fetchUserSubscription();
-    }
+    _fetchUserSubscription();
     if (mounted) setState(() {});
   }
 

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
+import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -300,11 +302,21 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                   const SizedBox(height: 10),
-                  buildSocialButton(
+                buildSocialButton(
                     label: '카카오로 로그인하기',
                     backgroundColor: const Color(0xFFF5EF44),
                     textColor: Colors.black,
-                    onPressed: () {},
+                    onPressed: () async {
+                      final loginResult = await _authService.loginWithKakao();
+
+                      if (loginResult['success'] == true && loginResult['token'] != null) {
+                        Navigator.pushReplacementNamed(context, '/home');
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(loginResult['message'] ?? '카카오 연동된 계정이 없습니다.')),
+                        );
+                      }
+                    }
                   ),
                 ],
               ),

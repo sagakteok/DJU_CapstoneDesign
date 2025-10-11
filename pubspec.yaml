@@ -25,6 +25,7 @@ dependencies:
   tosspayments_widget_sdk_flutter: ^2.1.2
   flutter_inappwebview: any
   url_launcher: any
+  kakao_flutter_sdk_user: ^1.9.1
 
 dev_dependencies:
   flutter_launcher_icons: ^0.13.1

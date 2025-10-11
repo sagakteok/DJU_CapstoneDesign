@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 
 class AuthService {
   final storage = FlutterSecureStorage();
@@ -434,6 +435,67 @@ class AuthService {
       }
     } catch (e) {
       return {"success": false, "message": e.toString()};
+    }
+  }
+
+  Future<Map<String, dynamic>> linkKakao(int userId, String kakaoId) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/kakao_link'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'user_id': userId, 'kakao_id': kakaoId}),
+      );
+      return jsonDecode(response.body);
+    } catch (e) {
+      return {'success': false, 'message': e.toString()};
+    }
+  }
+
+  Future<Map<String, dynamic>> unlinkKakao(int userId) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/kakao_unlink'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'user_id': userId}),
+      );
+      return jsonDecode(response.body);
+    } catch (e) {
+      return {'success': false, 'message': e.toString()};
+    }
+  }
+
+  Future<Map<String, dynamic>> loginWithKakao() async {
+    try {
+      OAuthToken token;
+      if (await isKakaoTalkInstalled()) {
+        token = await UserApi.instance.loginWithKakaoTalk();
+      } else {
+        token = await UserApi.instance.loginWithKakaoAccount();
+      }
+
+      final user = await UserApi.instance.me();
+      final kakaoId = user.id.toString();
+
+      // 1️⃣ 서버에 카카오 로그인 요청
+      final response = await http.post(
+        Uri.parse('$baseUrl/login/kakao'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'kakao_id': kakaoId}),
+      );
+
+      final body = jsonDecode(response.body);
+
+      if (response.statusCode == 200 && body['token'] != null) {
+        // 2️⃣ 토큰 저장
+        await storage.write(key: 'token', value: body['token']);
+        await storage.write(key: 'user_id', value: body['user_id'].toString());
+
+        return {'success': true, 'token': body['token'], 'user_id': body['user_id']};
+      } else {
+        return {'success': false, 'message': body['error'] ?? '카카오 연동된 계정이 없습니다.'};
+      }
+    } catch (e) {
+      return {'success': false, 'message': '카카오 로그인 실패: $e'};
     }
   }
 }
