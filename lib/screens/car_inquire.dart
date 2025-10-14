@@ -212,7 +212,14 @@ class _CarInquireScreenState extends State<CarInquireScreen> {
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: () {
-                        Navigator.pushReplacementNamed(context, '/payment/purchase');
+                        Navigator.pushReplacementNamed(
+                          context,
+                          '/payment/CarLeavePurchase',
+                          arguments: {
+                            'duration': displayDuration,   // ex: "20분"
+                            'currentFee': displayAmount,   // ex: "1,000원"
+                          },
+                        );
                       },
                       style: ElevatedButton.styleFrom(
                         padding: EdgeInsets.zero,

@@ -1,7 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 
 class PaymentCompleteScreen extends StatelessWidget {
   const PaymentCompleteScreen({super.key});
+
+  // ✅ 토큰 유효성 검사 함수
+  Future<bool> _checkLoginStatus() async {
+    const storage = FlutterSecureStorage();
+    String? token = await storage.read(key: 'token');
+
+    // 토큰이 없거나 만료되었으면 비회원
+    if (token == null || token.isEmpty) return false;
+    if (JwtDecoder.isExpired(token)) return false;
+
+    return true; // 토큰 존재 & 유효 → 로그인 상태
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -82,8 +96,14 @@ class PaymentCompleteScreen extends StatelessWidget {
                         height: 52,
                         width: double.infinity,
                         child: ElevatedButton(
-                          onPressed: () {
-                            Navigator.pushReplacementNamed(context, '/home');
+                          onPressed: () async {
+                            bool isLoggedIn = await _checkLoginStatus();
+
+                            if (isLoggedIn) {
+                              Navigator.pushReplacementNamed(context, '/home');
+                            } else {
+                              Navigator.pushReplacementNamed(context, '/logoutedhome');
+                            }
                           },
                           style: ElevatedButton.styleFrom(
                             padding: EdgeInsets.zero,

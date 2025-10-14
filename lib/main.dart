@@ -44,6 +44,7 @@ import 'screens/auth_edit/userinfo_edit_complete.dart';
 import 'screens/payment/select_pass.dart';
 import 'screens/payment/buy_pass.dart';
 import 'screens/payment/purchase.dart';
+import 'screens/payment/car_leave_purchase.dart';
 import 'screens/payment/payment_complete.dart';
 
 ValueNotifier<int> bottomNavIndex = ValueNotifier<int>(0);
@@ -151,6 +152,7 @@ class _MyAppState extends State<MyApp> {
         '/payment/select_pass': (_) => const SelectPassScreen(),
         '/payment/BuyPass': (_) => const BuyPassScreen(),
         '/payment/purchase': (_) => const PurchaseScreen(),
+        '/payment/CarLeavePurchase': (_) => const CarLeavePurchaseScreen(),
         '/payment/PaymentComplete': (_) => const PaymentCompleteScreen(),
       },
     );

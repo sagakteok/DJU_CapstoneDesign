@@ -22,6 +22,12 @@ String formatDate(String rawDate) {
   }
 }
 
+String formatDuration(int seconds) {
+  final int minutes = seconds ~/ 60; // 몫 = 분
+  final int remainingSeconds = seconds % 60; // 나머지 = 초
+  return '${minutes}분 ${remainingSeconds}초';
+}
+
 class LoginedHomeScreen extends StatefulWidget {
   const LoginedHomeScreen({super.key});
 
@@ -110,8 +116,10 @@ class _LoginedHomeScreenState extends State<LoginedHomeScreen> {
     // 기존 하드코딩된 entryDate, entryTime, duration 등
     const String entryDate = '2025.06.05 (목)';
     const String entryTime = '오전 11:26';
-    const String duration = '2분 10초';
-    const String currentFee = '0원';
+    final int duration = 2000; // 예시
+    final String formattedDuration = formatDuration(duration);
+    const int currentFeeValue = 5000; // 숫자만 저장
+    final String currentFee = '${NumberFormat('#,###').format(currentFeeValue)}원';
     const String nextFeeInfo = '200원 / 10분';
 
     return Scaffold(
@@ -275,7 +283,7 @@ class _LoginedHomeScreenState extends State<LoginedHomeScreen> {
                                 ),
                               ),
                               RichText(
-                                text: const TextSpan(
+                                text: TextSpan(
                                   children: [
                                     TextSpan(
                                       text: '이용 시간: ',
@@ -287,7 +295,7 @@ class _LoginedHomeScreenState extends State<LoginedHomeScreen> {
                                       ),
                                     ),
                                     TextSpan(
-                                      text: duration,
+                                      text: formattedDuration,
                                       style: TextStyle(
                                         fontFamily: 'SpoqaHanSansNeo',
                                         fontWeight: FontWeight.w600,
@@ -302,7 +310,7 @@ class _LoginedHomeScreenState extends State<LoginedHomeScreen> {
                           ),
                           const SizedBox(height: 22),
                           RichText(
-                            text: const TextSpan(
+                            text: TextSpan(
                               children: [
                                 TextSpan(
                                   text: currentFee,
@@ -425,7 +433,16 @@ class _LoginedHomeScreenState extends State<LoginedHomeScreen> {
                                   ],
                                 ),
                                 child: ElevatedButton(
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    Navigator.pushNamed(
+                                      context,
+                                      '/payment/CarLeavePurchase',
+                                      arguments: {
+                                        'duration': formattedDuration,
+                                        'currentFee': currentFee,
+                                      },
+                                    );
+                                  },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.transparent,
                                     // ✅ 배경 투명 (Container 배경 보이게)
