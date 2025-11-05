@@ -83,4 +83,4 @@ ios/Flutter/App.framework
 ios/Flutter/Flutter.framework
 ios*.xcconfig
 ios/.symlinks
-ios/Runner/GoogleService-Info.plist
+ios/Runner/GoogleService-Infgit branch -M maino.plist
