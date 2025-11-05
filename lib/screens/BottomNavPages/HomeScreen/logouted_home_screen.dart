@@ -10,14 +10,11 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 String formatDate(String rawDate) {
   try {
-    // GMT 문자열 파싱 후 한국 시간으로 변환
-    DateTime dateTime = DateFormat('EEE, dd MMM yyyy HH:mm:ss', 'en')
-        .parse(rawDate, true)
-        .toLocal();
+    DateTime dateTime = DateFormat('EEE, dd MMM yyyy HH:mm:ss', 'en').parse(rawDate, true).toLocal();
     return DateFormat("yyyy.MM.dd (E)", 'ko').format(dateTime);
   } catch (e) {
     print('Date parsing error: $e');
-    return rawDate; // 파싱 실패 시 원본 문자열 반환
+    return rawDate;
   }
 }
 
@@ -33,7 +30,6 @@ void _showLoginAlertAndRedirect(BuildContext context) {
   });
 }
 
-
 class LogoutedHomeScreen extends StatefulWidget {
   const LogoutedHomeScreen({super.key});
 
@@ -42,13 +38,24 @@ class LogoutedHomeScreen extends StatefulWidget {
 }
 
 class _LogoutedHomeScreenState extends State<LogoutedHomeScreen> {
+  // 1. TextEditingController 추가
+  final _carNumberController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
-    // intl 초기화
     initializeDateFormatting('ko').then((_) {
-      setState(() {}); // 필요 시 UI 갱신
+      if (mounted) {
+        setState(() {});
+      }
     });
+  }
+
+  // 2. 컨트롤러 리소스 정리를 위한 dispose 메서드 추가
+  @override
+  void dispose() {
+    _carNumberController.dispose();
+    super.dispose();
   }
 
   @override
@@ -78,7 +85,7 @@ class _LogoutedHomeScreenState extends State<LogoutedHomeScreen> {
               style: TextStyle(
                 fontFamily: 'VitroCore',
                 fontSize: 20,
-                color: Colors.white, // 반드시 지정해야 함
+                color: Colors.white,
               ),
             ),
           ),
@@ -88,150 +95,164 @@ class _LogoutedHomeScreenState extends State<LogoutedHomeScreen> {
         child: Column(
           children: [
             Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 20),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
-                    child: const Text(
-                      '로그인 해주세요.',
-                      style: TextStyle(
-                        fontFamily: 'SpoqaHanSansNeo',
-                        fontWeight: FontWeight.w500,
-                        fontSize: 14,
-                        color: Color(0xFFB8C8B1),
-                      ),
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 20),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+                  child: const Text(
+                    '로그인 해주세요.',
+                    style: TextStyle(
+                      fontFamily: 'SpoqaHanSansNeo',
+                      fontWeight: FontWeight.w500,
+                      fontSize: 14,
+                      color: Color(0xFFB8C8B1),
                     ),
                   ),
-                  const SizedBox(height: 15),
-                  Center(
-                    child: Container(
-                      width: screenWidth * 0.92,
-                      height: 200,
-                      padding: const EdgeInsets.only(left: 17, right: 17, top: 20, bottom: 15),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(15),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
-                            offset: const Offset(0, 0),
-                            blurRadius: 7,
-                            spreadRadius: 2,
-                          )
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              const Text(
-                                '차량 번호 조회',
-                                style: TextStyle(
-                                  fontFamily: 'SpoqaHanSansNeo',
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w600,
-                                  color: Color(0xFF4B7C76),
-                                ),
-                              ),
-                              Row(
-                                children: const [
-                                  Text(
-                                    '요금표 보기',
-                                    style: TextStyle(
-                                      fontFamily: 'SpoqaHanSansNeo',
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 9,
-                                      color: Color(0xFFADB5CA),
-                                    ),
-                                  ),
-                                  Icon(
-                                    Icons.keyboard_arrow_right,
-                                    size: 12,
-                                    color: Color(0xFFADB5CA),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                          const Text(
-                            '조회하실 차량 번호를 입력해주세요.',
-                            style: TextStyle(
-                              fontFamily: 'VitroPride',
-                              fontSize: 10,
-                              color: Color(0xFF414B6A),
-                            ),
-                          ),
-                          const SizedBox(height: 25),
-                          SizedBox(
-                            width: double.infinity,
-                            child: TextField(
-                              decoration: const InputDecoration(
-                                hintText: '차량번호 입력 (ex.123사 5678)',
-                                hintStyle: TextStyle(
-                                  fontFamily: 'SpoqaHanSansNeo',
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 11,
-                                  color: Color(0xFFD6E1D1),
-                                ),
-                                enabledBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(color: Color(0xFFD6E1D1), width: 1),
-                                ),
-                                focusedBorder: UnderlineInputBorder(
-                                  borderSide: BorderSide(color: Color(0xFF76B55C), width: 1),
-                                ),
-                              ),
-                              style: const TextStyle(
+                ),
+                const SizedBox(height: 15),
+                Center(
+                  child: Container(
+                    width: screenWidth * 0.92,
+                    height: 200,
+                    padding: const EdgeInsets.only(left: 17, right: 17, top: 20, bottom: 15),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(15),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          offset: const Offset(0, 0),
+                          blurRadius: 7,
+                          spreadRadius: 2,
+                        )
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            const Text(
+                              '차량 번호 조회',
+                              style: TextStyle(
                                 fontFamily: 'SpoqaHanSansNeo',
+                                fontSize: 15,
                                 fontWeight: FontWeight.w600,
-                                fontSize: 13,
-                                color: Color(0xFF2F3644),
+                                color: Color(0xFF4B7C76),
                               ),
                             ),
-                          ),
-                          const Spacer(),
-                          Center(
-                            child: SizedBox(
-                              width: 160,
-                              height: 40,
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  Navigator.pushNamed(context, '/CarInquire');
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  elevation: 0,
-                                  shadowColor: Colors.transparent,
-                                  backgroundColor: const Color(0xFF8CCE71),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  padding: EdgeInsets.zero,
-                                ),
-                                child: const Text(
-                                  '조회하기',
+                            Row(
+                              children: const [
+                                Text(
+                                  '요금표 보기',
                                   style: TextStyle(
                                     fontFamily: 'SpoqaHanSansNeo',
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w700,
-                                    color: Colors.white,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 9,
+                                    color: Color(0xFFADB5CA),
                                   ),
+                                ),
+                                Icon(
+                                  Icons.keyboard_arrow_right,
+                                  size: 12,
+                                  color: Color(0xFFADB5CA),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        const Text(
+                          '조회하실 차량 번호를 입력해주세요.',
+                          style: TextStyle(
+                            fontFamily: 'VitroPride',
+                            fontSize: 10,
+                            color: Color(0xFF414B6A),
+                          ),
+                        ),
+                        const SizedBox(height: 25),
+                        SizedBox(
+                          width: double.infinity,
+                          child: TextField(
+                            // 3. 컨트롤러 연결
+                            controller: _carNumberController,
+                            decoration: const InputDecoration(
+                              hintText: '차량번호 입력 (ex.123사 5678)',
+                              hintStyle: TextStyle(
+                                fontFamily: 'SpoqaHanSansNeo',
+                                fontWeight: FontWeight.w500,
+                                fontSize: 11,
+                                color: Color(0xFFD6E1D1),
+                              ),
+                              enabledBorder: UnderlineInputBorder(
+                                borderSide: BorderSide(color: Color(0xFFD6E1D1), width: 1),
+                              ),
+                              focusedBorder: UnderlineInputBorder(
+                                borderSide: BorderSide(color: Color(0xFF76B55C), width: 1),
+                              ),
+                            ),
+                            style: const TextStyle(
+                              fontFamily: 'SpoqaHanSansNeo',
+                              fontWeight: FontWeight.w600,
+                              fontSize: 13,
+                              color: Color(0xFF2F3644),
+                            ),
+                          ),
+                        ),
+                        const Spacer(),
+                        Center(
+                          child: SizedBox(
+                            width: 160,
+                            height: 40,
+                            child: ElevatedButton(
+                              // 4. 조회하기 버튼 로직 수정
+                              onPressed: () {
+                                final carNumber = _carNumberController.text.trim();
+                                if (carNumber.isNotEmpty) {
+                                  Navigator.pushNamed(
+                                    context,
+                                    '/CarInquire',
+                                    arguments: carNumber, // 입력된 차량 번호를 전달
+                                  );
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('차량 번호를 입력해주세요.'),
+                                      duration: Duration(seconds: 2),
+                                    ),
+                                  );
+                                }
+                              },
+                              style: ElevatedButton.styleFrom(
+                                elevation: 0,
+                                shadowColor: Colors.transparent,
+                                backgroundColor: const Color(0xFF8CCE71),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                padding: EdgeInsets.zero,
+                              ),
+                              child: const Text(
+                                '조회하기',
+                                style: TextStyle(
+                                  fontFamily: 'SpoqaHanSansNeo',
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white,
                                 ),
                               ),
                             ),
-                          )
-                        ],
-                      ),
+                          ),
+                        )
+                      ],
                     ),
                   ),
-                ],
-              ),
-
+                ),
+              ],
+            ),
             const SizedBox(height: 25),
-
-            // 정기권 구매 박스
             Center(
               child: SizedBox(
                 width: screenWidth * 0.92,
@@ -331,10 +352,7 @@ class _LogoutedHomeScreenState extends State<LogoutedHomeScreen> {
                 ),
               ),
             ),
-
             const SizedBox(height: 25),
-
-            // 건물별 잔여석
             Container(
               width: screenWidth * 0.92,
               padding: const EdgeInsets.all(20),
@@ -395,10 +413,7 @@ class _LogoutedHomeScreenState extends State<LogoutedHomeScreen> {
                 ],
               ),
             ),
-
             const SizedBox(height: 25),
-
-            // 최근 공지사항 타이틀
             Padding(
               padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
               child: const Align(
@@ -414,10 +429,7 @@ class _LogoutedHomeScreenState extends State<LogoutedHomeScreen> {
               ),
             ),
             const SizedBox(height: 15),
-
-            // ✅ 동적 공지사항 섹션
             _buildNoticeSection(context, screenWidth),
-
             const SizedBox(height: 30),
           ],
         ),
@@ -425,7 +437,6 @@ class _LogoutedHomeScreenState extends State<LogoutedHomeScreen> {
     );
   }
 
-  /// 건물 별 잔여석 UI
   Widget _buildBuildingStatus({
     required BuildContext context,
     required String buildingName,
@@ -581,7 +592,6 @@ Color _getStatusColor(String congestionText) {
   }
 }
 
-/// 최근 공지사항 동적 섹션
 Widget _buildNoticeSection(BuildContext context, double screenWidth) {
   Future<List<Map<String, dynamic>>> fetchNotices() async {
     final host = dotenv.env['HOST_ADDRESS'];
