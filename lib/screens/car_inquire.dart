@@ -15,18 +15,26 @@ class _CarInquireScreenState extends State<CarInquireScreen> {
   // 2. 화면에 표시할 데이터를 위한 상태 변수들
   bool _isLoading = true;
   String? _errorMessage;
-  String displayCarNumber = '';
-  String displayEntryTime = '';
-  String displayDuration = '';
-  String displayAmount = '';
+
+  // 기본값을 '-'로 시작해 UI 안정성 확보
+  String displayCarNumber = '-';
+  String displayEntryTime = '-';
+  String displayDuration = '-';
+  String displayAmount = '-';
+
+  // didChangeDependencies 중복 호출 가드
+  bool _fetched = false;
 
   // 3. initState 대신 didChangeDependencies 사용 (build가 처음 호출되기 전에 arguments를 받기 위함)
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    if (_fetched) return; // 중복 요청 방지
+
     // 이전 화면에서 전달된 차량 번호(argument)를 가져옴
     final carNumber = ModalRoute.of(context)!.settings.arguments as String?;
     if (carNumber != null && carNumber.isNotEmpty) {
+      _fetched = true;
       // 차량 번호로 실제 DB 데이터 조회를 시작
       _fetchParkingDetails(carNumber);
     } else {
@@ -37,33 +45,133 @@ class _CarInquireScreenState extends State<CarInquireScreen> {
     }
   }
 
-  // 4. DB에서 실제 주차 기록을 가져오는 새로운 함수
-  Future<void> _fetchParkingDetails(String carNumber) async {
-    // AuthService에 새로 추가한 함수를 호출
-    final result = await AuthService().getParkingRecordForGuest(carNumber);
+  // ---- 응답 안전 파싱 유틸 ----
+  // 다양한 키 후보 중 첫 매칭 값 반환
+  dynamic _pick(Map<String, dynamic> map, List<String> keys) {
+    for (final k in keys) {
+      if (map.containsKey(k)) return map[k];
+    }
+    return null;
+  }
 
-    if (mounted) { // 위젯이 화면에 아직 붙어있는지 확인
-      if (result['success'] == true) {
-        // 성공적으로 데이터를 받아왔을 경우
-        final entryTime = DateTime.parse(result['entry_time']).toLocal();
-        final durationSeconds = result['duration_seconds'] as num;
-        final currentFee = result['current_fee'] as num;
+  // 숫자/문자 모두 지원하는 안전 num 캐스팅
+  num _toNum(dynamic v, {num fallback = 0}) {
+    if (v is num) return v;
+    if (v is String) return num.tryParse(v) ?? fallback;
+    return fallback;
+  }
 
-        setState(() {
-          // 상태 변수에 실제 데이터 할당
-          displayCarNumber = formatCarNumber(carNumber);
-          displayEntryTime = formatDateTime(entryTime);
-          displayDuration = formatDuration(durationSeconds / 60); // 초를 분으로 변환
-          displayAmount = '${formatCurrency(currentFee)}원';
-          _isLoading = false;
-        });
-      } else {
-        // 데이터를 받아오지 못했을 경우 (차량이 없거나, 서버 오류 등)
-        setState(() {
-          _isLoading = false;
-          _errorMessage = result['message'] ?? '주차 정보를 조회할 수 없습니다.';
-        });
+  // entry_time 다양한 포맷 지원 파서
+  DateTime? _parseEntryTime(dynamic raw) {
+    if (raw == null) return null;
+
+    // 1) 문자열 ISO / 'yyyy-MM-dd HH:mm:ss'
+    if (raw is String && raw.trim().isNotEmpty) {
+      final dt = DateTime.tryParse(raw);
+      if (dt != null) return dt.toLocal();
+
+      // 공백 포함 일반 포맷 수동 파싱
+      final reg = RegExp(r'^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2}):(\d{2})$');
+      final m = reg.firstMatch(raw);
+      if (m != null) {
+        final dt2 = DateTime(
+          int.parse(m.group(1)!),
+          int.parse(m.group(2)!),
+          int.parse(m.group(3)!),
+          int.parse(m.group(4)!),
+          int.parse(m.group(5)!),
+          int.parse(m.group(6)!),
+        );
+        return dt2; // 서버가 로컬 기준 문자열이면 그대로 사용
       }
+    }
+
+    // 2) 숫자 에폭(초/밀리초)
+    if (raw is num) {
+      final int v = raw.toInt();
+      final bool looksMs = v > 9999999999; // 10자리=초, 13자리=밀리초 추정
+      final dt = DateTime.fromMillisecondsSinceEpoch(
+        looksMs ? v : v * 1000,
+        isUtc: true,
+      );
+      return dt.toLocal();
+    }
+
+    // 3) Map 형태 (예: {seconds: 1699250000} / {milliseconds: 1699250000000})
+    if (raw is Map) {
+      final sec = raw['seconds'] ?? raw['epoch_seconds'] ?? raw['epoch'];
+      if (sec is num) {
+        final dt = DateTime.fromMillisecondsSinceEpoch(sec.toInt() * 1000, isUtc: true);
+        return dt.toLocal();
+      }
+      final ms = raw['milliseconds'] ?? raw['epoch_ms'];
+      if (ms is num) {
+        final dt = DateTime.fromMillisecondsSinceEpoch(ms.toInt(), isUtc: true);
+        return dt.toLocal();
+      }
+      final s = raw['value'] ?? raw['time'] ?? raw['date'];
+      if (s != null) return _parseEntryTime(s);
+    }
+
+    return null;
+  }
+  // -------------------------
+
+  // 4. DB에서 실제 주차 기록을 가져오는 함수
+  Future<void> _fetchParkingDetails(String carNumber) async {
+    final raw = await AuthService().getParkingRecordForGuest(carNumber);
+    if (!mounted) return;
+
+    // 백엔드가 { success, data: {...} } 형태일 수도 있으므로 처리
+    Map<String, dynamic> resultBody;
+    if (raw is Map && raw['data'] is Map) {
+      resultBody = Map<String, dynamic>.from(raw['data'] as Map);
+    } else {
+      resultBody = Map<String, dynamic>.from(raw as Map);
+    }
+
+    // 성공 판정: success=true 이거나, resultBody가 비어 있지 않으면 성공으로 간주
+    final bool success = (raw is Map && raw['success'] == true) || resultBody.isNotEmpty;
+
+    if (success) {
+      // 서로 다른 키 케이스 대응
+      final dynamic entryRaw = _pick(resultBody, [
+        'entry_time',
+        'entryTime',
+        'entry_at',
+        'entryTimeUtc',
+        'entry'
+      ]);
+
+      final DateTime? entryTime = _parseEntryTime(entryRaw);
+
+      final num durationSeconds = _toNum(_pick(resultBody, [
+        'duration_seconds',
+        'durationSecs',
+        'duration',
+        'elapsed_seconds'
+      ]));
+
+      final num currentFee = _toNum(_pick(resultBody, [
+        'current_fee',
+        'fee',
+        'amount',
+        'price'
+      ]));
+
+      setState(() {
+        displayCarNumber = formatCarNumber(carNumber);
+        displayEntryTime = (entryTime == null) ? '-' : formatDateTime(entryTime);
+        displayDuration = formatDuration(durationSeconds / 60); // 초 → 분
+        displayAmount = '${formatCurrency(currentFee)}원';
+        _isLoading = false;
+      });
+    } else {
+      setState(() {
+        _isLoading = false;
+        _errorMessage = (raw is Map ? raw['message'] as String? : null) ??
+            '주차 정보를 조회할 수 없습니다.';
+      });
     }
   }
 
@@ -134,15 +242,16 @@ class _CarInquireScreenState extends State<CarInquireScreen> {
           ? const Center(child: CircularProgressIndicator())
           : _errorMessage != null
           ? Center(
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Text(
-                  _errorMessage!,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 16, color: Colors.red),
-                ),
-              ),
-            )
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Text(
+            _errorMessage!,
+            textAlign: TextAlign.center,
+            style:
+            const TextStyle(fontSize: 16, color: Colors.red),
+          ),
+        ),
+      )
           : Column(
         children: [
           Expanded(
@@ -162,7 +271,8 @@ class _CarInquireScreenState extends State<CarInquireScreen> {
                   ),
                   SizedBox(height: screenHeight * 0.05),
                   Padding(
-                    padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+                    padding: EdgeInsets.symmetric(
+                        horizontal: screenWidth * 0.05),
                     child: const Text(
                       '조회된 차량',
                       style: TextStyle(
@@ -174,12 +284,12 @@ class _CarInquireScreenState extends State<CarInquireScreen> {
                   ),
                   const SizedBox(height: 30),
                   Center(
-                    child: Container(
+                    child: SizedBox(
                       width: screenWidth * 0.9,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // 6. 하드코딩된 값 대신 실제 DB에서 가져온 상태 변수 사용
+                          // 6. 상태 변수 사용
                           infoRow('차량번호', displayCarNumber),
                           const SizedBox(height: 25),
                           infoRow('입차 일시', displayEntryTime),
@@ -223,7 +333,8 @@ class _CarInquireScreenState extends State<CarInquireScreen> {
                         backgroundColor: Colors.transparent,
                         shadowColor: Colors.transparent,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15),
+                          borderRadius:
+                          BorderRadius.circular(15),
                         ),
                       ),
                       child: Ink(
