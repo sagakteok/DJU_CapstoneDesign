@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:dju_parking_project/services/parking_service.dart'; // 1단계에서 만든 서비스
+import 'package:dju_parking_project/services/parking_service.dart'; // 1단계 (수정 완료)
 import 'package:dju_parking_project/screens/ViewParkingCam.dart'; // 1번 기능(카메라) 화면
 
 /// "건물 별 잔여석" 박스를 담당하는 *재사용 가능한* 위젯.
@@ -17,7 +17,10 @@ class _BuildingStatusBoxState extends State<BuildingStatusBox> {
   final ParkingService _parkingService = ParkingService();
   bool _isLoading = true; // 초기 상태는 '로딩 중'
   String? _errorMessage; // 에러가 없으면 null
-  List<dynamic> _buildingData = []; // 비어있는 리스트로 초기화
+
+  // ★ 1. (핵심 수정) ★
+  //    데이터 타입을 List<dynamic>에서 Map<String, dynamic>으로 변경합니다.
+  Map<String, dynamic> _buildingData = {}; // 비어있는 Map으로 초기화
 
   // --- 생명주기(Lifecycle) 함수 ---
 
@@ -31,12 +34,15 @@ class _BuildingStatusBoxState extends State<BuildingStatusBox> {
   /// 1단계에서 만든 ParkingService를 호출하여 데이터를 가져옵니다.
   Future<void> _fetchParkingStatus() async {
     try {
-      final data = await _parkingService.getParkingStatus();
+      // ★ 2. (수정) ★
+      //    parking_service가 이제 Map을 반환하므로,
+      //    'data' 변수의 타입을 명시적으로 Map으로 받습니다.
+      final Map<String, dynamic> data = await _parkingService.getParkingStatus();
 
       // 위젯이 화면에서 사라지기 전에 데이터가 도착했다면
       if (mounted) {
         setState(() {
-          _buildingData = data;
+          _buildingData = data; // Map을 Map 변수에 저장 (오류 해결!)
           _isLoading = false; // 로딩 종료
           _errorMessage = null; // 에러 없음
         });
@@ -59,6 +65,7 @@ class _BuildingStatusBoxState extends State<BuildingStatusBox> {
     final screenWidth = MediaQuery.of(context).size.width;
 
     // "건물 별 잔여석" 박스의 *기존 스타일*을 그대로 가져옵니다.
+    // (이 부분은 수정할 필요 없음)
     return Container(
       width: screenWidth * 0.92,
       padding: const EdgeInsets.all(20),
@@ -107,7 +114,7 @@ class _BuildingStatusBoxState extends State<BuildingStatusBox> {
 
   /// 로딩/에러/성공 상태에 따라 다른 위젯을 반환하는 헬퍼 함수
   Widget _buildStatusContent() {
-    // 1. 로딩 중일 때
+    // 1. 로딩 중일 때 (수정 불필요)
     if (_isLoading) {
       return const Center(
         child: Padding(
@@ -117,13 +124,13 @@ class _BuildingStatusBoxState extends State<BuildingStatusBox> {
       );
     }
 
-    // 2. 에러 발생 시
+    // 2. 에러 발생 시 (수정 불필요 - 이제 에러 메시지가 더 자세히 보일 것임)
     if (_errorMessage != null) {
       return Center(
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 40),
           child: Text(
-            '오류: 데이터를 불러올 수 없습니다.\n($_errorMessage)',
+            '$_errorMessage', // e.toString()을 그대로 표시
             textAlign: TextAlign.center,
             style: const TextStyle(color: Colors.red, fontSize: 12),
           ),
@@ -131,7 +138,8 @@ class _BuildingStatusBoxState extends State<BuildingStatusBox> {
       );
     }
 
-    // 3. 성공했으나 데이터가 비어있을 때
+    // ★ 3. (수정) ★
+    //    List가 아닌 Map의 'isEmpty'를 확인합니다. (동작은 동일함)
     if (_buildingData.isEmpty) {
       return const Center(
         child: Padding(
@@ -144,26 +152,45 @@ class _BuildingStatusBoxState extends State<BuildingStatusBox> {
       );
     }
 
-    // 4. 성공 시: 백엔드에서 받은 _buildingData로 리스트 생성
+    // ★ 4. (핵심 수정) ★
+    //    데이터가 `List`가 아닌 `Map` ({"융합과학관": {...}, ...})이므로,
+    //    Map의 'entries'를 순회(iteration)해야 합니다.
+    //
+    //    .entries.toList() : Map을 List<MapEntry>로 변환
+    //    .asMap().entries.map(): List를 돌면서 index(0, 1, 2...)와
+    //                            entry(MapEntry)를 *동시에* 가져옵니다.
     return Column(
-      children: _buildingData.asMap().entries.map((entry) {
-        int index = entry.key; // 리스트의 순서 (0, 1, 2...)
-        Map<String, dynamic> building = entry.value;
+      children: _buildingData.entries.toList().asMap().entries.map((indexedEntry) {
 
-        // ★★★ (매우 중요) 백엔드 JSON 키 확인 ★★★
-        // 'name', 'available', 'total'이 백엔드 JSON과 일치하는지 확인!
+        // 0, 1, 2... (ViewParkingCam으로 전달할 순서 인덱스)
+        int index = indexedEntry.key;
+        // MapEntry<String, dynamic> (Key/Value 쌍)
+        var entry = indexedEntry.value;
+
+        // entry.key = 건물 이름 (예: "융합과학관")
+        String buildingName = entry.key;
+        // entry.value = 상세 정보 (예: {"free": "0", "total": 1})
+        Map<String, dynamic> details = entry.value;
+
+        // 스크린샷(`image_438b8c.png`)을 보면 'free'가 String("0")으로,
+        // 'total'이 int(1)로 왔습니다. 이를 안전하게 int로 변환합니다.
+        int available = int.tryParse(details['free']?.toString() ?? '0') ?? 0;
+        int total = details['total'] ?? 0;
+
+        // 1번 기능에서 만들었던 헬퍼 함수를 재사용합니다.
         return _buildBuildingStatus(
           context: context,
-          buildingName: building['name'] ?? '이름 없음',
-          available: building['available'] ?? 0,
-          total: building['total'] ?? 0,
-          buildingIndex: index, // 1번 기능(카메라)을 위해 인덱스 전달
+          buildingName: buildingName,  // JSON의 Key를 이름으로 사용
+          available: available,        // JSON의 'free' 값을 사용
+          total: total,              // JSON의 'total' 값을 사용
+          buildingIndex: index,        // ViewParkingCam을 위해 0, 1, 2 순서 전달
         );
       }).toList(),
     );
   }
 
-  /// 개별 건물 현황을 그리는 위젯 (스타일 코드 수정 없음)
+  /// 개별 건물 현황을 그리는 위젯 (기존 `logined_home_screen.dart`에서 가져옴)
+  /// ★ 이 함수는 수정할 필요가 전혀 없습니다. ★
   Widget _buildBuildingStatus({
     required BuildContext context,
     required String buildingName,
@@ -171,7 +198,7 @@ class _BuildingStatusBoxState extends State<BuildingStatusBox> {
     required int total,
     required int buildingIndex,
   }) {
-    // (로직 및 스타일 코드 원본과 100% 동일)
+    // (이하 로직 및 스타일 코드 원본과 100% 동일)
     final double rate = total == 0 ? 0 : available / total;
     String congestionText;
     Color congestionColor;
