@@ -498,4 +498,28 @@ class AuthService {
       return {'success': false, 'message': '카카오 로그인 실패: $e'};
     }
   }
+
+  Future<Map<String, dynamic>> getParkingRecordForGuest(String carNumber) async {
+    // Note: The base URL for parking is different. We use _host directly.
+    final url = Uri.parse('$_host/api/parking/inquire/guest/$carNumber');
+    try {
+      final response = await http.get(
+        url,
+        headers: {"Content-Type": "application/json"},
+      ).timeout(const Duration(seconds: 10));
+
+      final body = jsonDecode(response.body);
+      if (response.statusCode == 200) {
+        // On success, the python server returns the data directly.
+        // We wrap it with a success flag for consistent handling in the app.
+        return {'success': true, ...body};
+      } else {
+        // On failure, the python server returns a body like {'error': 'message'}.
+        return {'success': false, 'message': body['error'] ?? '차량 정보 조회 실패'};
+      }
+    } catch (e) {
+      debugPrint('[AuthService] 비회원 차량 조회 오류: $e');
+      return {'success': false, 'message': '네트워크 오류가 발생했습니다.'};
+    }
+  }
 }

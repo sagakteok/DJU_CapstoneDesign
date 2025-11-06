@@ -26,7 +26,6 @@ dependencies:
   flutter_inappwebview: any
   url_launcher: any
   kakao_flutter_sdk_user: ^1.9.1
-  video_player: ^2.8.6
 
 dev_dependencies:
   flutter_launcher_icons: ^0.13.1
@@ -40,7 +39,6 @@ flutter:
   assets:
     - assets/fonts/
     - assets/splash/splash_logo.png
-    - assets/images/
     - .env
 
   fonts:

@@ -9,7 +9,7 @@ import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'screens/app_start.dart';
 import 'screens/bottom_navigation.dart';
 import 'screens/login_screen.dart';
-import 'screens/NoticeItem.dart'; // (만약 NoticeItem.dart가 화면이면 유지, 아니면 관련 화면 import)
+import 'screens/NoticeItem.dart';
 import 'screens/ViewParkingCam.dart';
 import 'screens/car_inquire.dart';
 import 'screens/BottomNavPages/HomeScreen/logouted_home_screen.dart';
@@ -29,7 +29,8 @@ import 'screens/auth_edit/FindID/step2_complete_screen.dart';
 
 // 비밀번호 재설정 단계별 화면
 import 'screens/auth_edit/ResetPW/step1_userinfo_screen.dart';
-// (step2_email_verify_screen, step3_resetpw_screen import가 누락된 것 같으나, 원본 유지)
+import 'screens/auth_edit/ResetPW/step2_email_verify_screen.dart';
+import 'screens/auth_edit/ResetPW/step3_resetpw_screen.dart';
 import 'screens/auth_edit/ResetPW/step4_complete_screen.dart';
 
 // 계정 정보 수정
@@ -48,25 +49,18 @@ import 'screens/payment/payment_complete.dart';
 
 ValueNotifier<int> bottomNavIndex = ValueNotifier<int>(0);
 
-// ★ 1. main 함수를 올바른 순서로 재구성합니다.
-Future<void> main() async {
-
-  // ★ 2. Flutter 엔진 초기화 (가장 먼저 호출)
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  // ★ 3. .env 파일 로드
   await dotenv.load(fileName: ".env");
-
-  // ★ 4. 카카오 SDK 초기화 (dotenv 로드 이후)
-  // 🚨 주의: .env 파일에 KAKAO_NATIVE_APP_KEY가 없으면 여기서도 null 오류가 발생합니다.
   KakaoSdk.init(nativeAppKey: dotenv.env['KAKAO_NATIVE_APP_KEY']);
+  runApp(const MyApp());
 
-  // ★ 5. 화면 회전 금지 (runApp보다 먼저)
+  // 화면 회전 금지
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
   ]);
 
-  // ★ 6. 상태바 & 내비게이션바 스타일 (runApp보다 먼저)
+  // 상태바 & 내비게이션바 스타일
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
@@ -76,7 +70,6 @@ Future<void> main() async {
     ),
   );
 
-  // ★ 7. runApp은 *단 한 번만* 호출합니다. (Provider 포함)
   runApp(
     ChangeNotifierProvider(
       create: (_) => SignupState(),
@@ -85,7 +78,6 @@ Future<void> main() async {
   );
 }
 
-// (이하 MyApp, _MyAppState 클래스는 원본과 동일)
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
@@ -151,9 +143,6 @@ class _MyAppState extends State<MyApp> {
         '/auth_edit/FindID/step1': (_) => const FindIDStep1EmailVerifyScreen(),
         '/auth_edit/FindID/step2': (_) => const FindIDStep2CompleteScreen(),
         '/auth_edit/ResetPW/step1': (_) => const ResetPWStep1UserInfoScreen(),
-        // (필요시 누락된 ResetPW 2, 3단계 라우트 추가)
-        // '/auth_edit/ResetPW/step2': (_) => const ResetPWStep2EmailVerifyScreen(),
-        // '/auth_edit/ResetPW/step3': (_) => const ResetPWStep3ResetPWScreen(),
         '/auth_edit/ResetPW/step4': (_) => const ResetPWStep4ResetCompleteScreen(),
         '/auth_edit/UserInfoEdit': (_) => const UserInfoEditScreen(),
         '/auth_edit/EmailEdit': (_) => const EmailEditScreen(),
