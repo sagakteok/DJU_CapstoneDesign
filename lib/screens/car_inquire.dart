@@ -117,62 +117,82 @@ class _CarInquireScreenState extends State<CarInquireScreen> {
   }
   // -------------------------
 
-  // 4. DB에서 실제 주차 기록을 가져오는 함수
   Future<void> _fetchParkingDetails(String carNumber) async {
     final raw = await AuthService().getParkingRecordForGuest(carNumber);
     if (!mounted) return;
 
-    // 백엔드가 { success, data: {...} } 형태일 수도 있으므로 처리
-    Map<String, dynamic> resultBody;
-    if (raw is Map && raw['data'] is Map) {
-      resultBody = Map<String, dynamic>.from(raw['data'] as Map);
-    } else {
-      resultBody = Map<String, dynamic>.from(raw as Map);
-    }
-
-    // 성공 판정: success=true 이거나, resultBody가 비어 있지 않으면 성공으로 간주
-    final bool success = (raw is Map && raw['success'] == true) || resultBody.isNotEmpty;
-
-    if (success) {
-      // 서로 다른 키 케이스 대응
-      final dynamic entryRaw = _pick(resultBody, [
-        'entry_time',
-        'entryTime',
-        'entry_at',
-        'entryTimeUtc',
-        'entry'
-      ]);
-
-      final DateTime? entryTime = _parseEntryTime(entryRaw);
-
-      final num durationSeconds = _toNum(_pick(resultBody, [
-        'duration_seconds',
-        'durationSecs',
-        'duration',
-        'elapsed_seconds'
-      ]));
-
-      final num currentFee = _toNum(_pick(resultBody, [
-        'current_fee',
-        'fee',
-        'amount',
-        'price'
-      ]));
-
-      setState(() {
-        displayCarNumber = formatCarNumber(carNumber);
-        displayEntryTime = (entryTime == null) ? '-' : formatDateTime(entryTime);
-        displayDuration = formatDuration(durationSeconds / 60); // 초 → 분
-        displayAmount = '${formatCurrency(currentFee)}원';
-        _isLoading = false;
-      });
-    } else {
+    // 1) 응답 형식 점검
+    if (raw is! Map) {
       setState(() {
         _isLoading = false;
-        _errorMessage = (raw is Map ? raw['message'] as String? : null) ??
-            '주차 정보를 조회할 수 없습니다.';
+        _errorMessage = '서버 응답이 올바르지 않습니다.';
       });
+      return;
     }
+
+    // 2) 성공은 오직 success == true 일 때만
+    final bool success = raw['success'] == true;
+    final Map<String, dynamic> body =
+    (raw['data'] is Map) ? Map<String, dynamic>.from(raw['data']) : const {};
+
+    if (!success) {
+      setState(() {
+        _isLoading = false;
+        _errorMessage = (raw['message'] as String?) ?? '조회된 차량이 없습니다.';
+      });
+      return;
+    }
+
+    // 3) data가 비었거나 필수 필드가 없으면 "조회 없음" 처리
+    if (body.isEmpty) {
+      setState(() {
+        _isLoading = false;
+        _errorMessage = '조회된 차량이 없습니다.';
+      });
+      return;
+    }
+
+    // 4) 필수 필드 점검 (entry_time 기준으로 기록 존재 판단)
+    final dynamic entryRaw = _pick(body, [
+      'entry_time',
+      'entryTime',
+      'entry_at',
+      'entryTimeUtc',
+      'entry',
+    ]);
+    final DateTime? entryTime = _parseEntryTime(entryRaw);
+
+    if (entryTime == null) {
+      // 기록이 없다고 판단 → 에러 화면
+      setState(() {
+        _isLoading = false;
+        _errorMessage = '조회된 차량이 없습니다.';
+      });
+      return;
+    }
+
+    // 5) 부가 필드 파싱
+    final num durationSeconds = _toNum(_pick(body, [
+      'duration_seconds',
+      'durationSecs',
+      'duration',
+      'elapsed_seconds'
+    ]));
+    final num currentFee = _toNum(_pick(body, [
+      'current_fee',
+      'fee',
+      'amount',
+      'price'
+    ]));
+
+    // 6) 성공적으로 표시
+    setState(() {
+      displayCarNumber = formatCarNumber(carNumber);
+      displayEntryTime = formatDateTime(entryTime);
+      displayDuration  = formatDuration(durationSeconds / 60); // 초→분
+      displayAmount    = '${formatCurrency(currentFee)}원';
+      _isLoading = false;
+    });
   }
 
   // ----- 포맷 함수들 -----
