@@ -1,4 +1,3 @@
-// ★ 1. video_player 패키지 임포트
 import 'package:video_player/video_player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart'; // .env 파일 임포트
@@ -35,13 +34,7 @@ class _ViewParkingCamState extends State<ViewParkingCam> {
 
   // ★ (수정) ★
   // 비디오 URL 리스트를 'late final'로 선언합니다.
-  // "나중에 initState에서 딱 한 번 초기화될 것"이라고 Dart에게 알려줍니다.
   late final List<List<String>> _videoUrls;
-
-  // ★ (삭제) ★
-  // C:\ 경로를 사용하던 잘못된 'final List<List<String>> _videoUrls = [...]'
-  // 정의를 *완전히 삭제*했습니다.
-
 
   @override
   void initState() {
@@ -204,7 +197,7 @@ class _ViewParkingCamState extends State<ViewParkingCam> {
                                       selectedBuildingIndex = index;
                                       selectedCameraIndex = 0;
                                     });
-                                    _initializeVideoPlayer(index, 0);
+                                    _initializeVideoPlayer(index, 0); // ★ 로직이 살아있는지 확인
                                   },
                                   child: Padding(
                                     padding: const EdgeInsets.only(right: 0),
@@ -282,7 +275,7 @@ class _ViewParkingCamState extends State<ViewParkingCam> {
                                           setState(() {
                                             selectedCameraIndex = index;
                                           });
-                                          _initializeVideoPlayer(selectedBuildingIndex, index);
+                                          _initializeVideoPlayer(selectedBuildingIndex, index); // ★ 로직이 살아있는지 확인
                                         },
                                         child: Center(
                                           child: Text(

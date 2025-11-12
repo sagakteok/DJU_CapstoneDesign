@@ -97,10 +97,14 @@ class _MyAppState extends State<MyApp> {
 
   Future<void> _checkToken() async {
     final token = await storage.read(key: 'token');
-    setState(() {
-      _defaultScreen =
-      token == null ? const AppStart() : const BottomNavigation();
-    });
+
+    // 👇👇👇 이 2줄만 추가/수정하면 됩니다. 👇👇👇
+    if (mounted) { // 1. 위젯이 아직 화면에 있는지 확인
+      setState(() {
+        _defaultScreen =
+        token == null ? const AppStart() : const BottomNavigation();
+      });
+    } // 2. 닫는 괄호
   }
 
   @override

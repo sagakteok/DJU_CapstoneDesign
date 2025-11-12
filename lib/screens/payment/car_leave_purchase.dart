@@ -27,14 +27,64 @@ class _CarLeavePurchaseScreenState extends State<CarLeavePurchaseScreen> {
   void initState() {
     super.initState();
 
+    // 1. 필요한 키들이 .env 파일에 있는지 먼저 확인합니다. (Null 방지)
+    final clientKey = dotenv.env['PURCHASE_CLIENT_KEY'];
+    final customerKey = dotenv.env['PURHCASE_CUSTOMER_KEY'];
+
+    // 키가 없으면 오류를 출력하고 여기서 중단합니다.
+    if (clientKey == null || customerKey == null) {
+      print("Toss Payments 위젯 키가 .env 파일에 설정되지 않았습니다.");
+      // 사용자에게 오류 알림 후 이전 화면으로 이동
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text("설정 오류"),
+            content: Text("결제 모듈을 초기화할 수 없습니다. 관리자에게 문의하세요."),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text("확인"),
+              ),
+            ],
+          ),
+        ).then((_) => Navigator.of(context).pop());
+      });
+      return; // initState 종료
+    }
+
     _paymentWidget = PaymentWidget(
-      clientKey: dotenv.env['PURCHASE_CLIENT_KEY']!,
-      customerKey: dotenv.env['PURHCASE_CUSTOMER_KEY']!,
+      clientKey: clientKey,
+      customerKey: customerKey,
     );
 
+    // 화면이 그려진 후 실행될 로직
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // 2. 이전 화면에서 전달받은 데이터(미납 정보)를 확인합니다.
       final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
-      final int price = num.tryParse(args?['currentFee']?.toString().replaceAll(RegExp(r'[^0-9]'), '') ?? '0')?.toInt() ?? 0;
+
+      // 3. 데이터가 없거나, 'currentFee'가 없는 경우 -> '결제할 내역 없음'으로 처리
+      if (args == null || args['currentFee'] == null) {
+        print("결제할 미납 내역이 없습니다. 사용자에게 알림을 표시합니다.");
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text("알림"),
+            content: Text("현재 결제할 주차 요금이 없습니다."),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text("확인"),
+              ),
+            ],
+          ),
+          // 팝업이 닫히면, 이 화면 자체도 닫고 이전 화면으로 돌아갑니다.
+        ).then((_) => Navigator.of(context).pop());
+        return; // 로직 종료
+      }
+
+      // 4. 데이터가 있는 경우에만 결제 위젯을 렌더링합니다.
+      final int price = num.tryParse(args['currentFee'].toString().replaceAll(RegExp(r'[^0-9]'), ''))?.toInt() ?? 0;
 
       await _paymentWidget.renderPaymentMethods(
         selector: dotenv.env['PURHCASE_PAYMENT_METHODS_SELECTOR']!,

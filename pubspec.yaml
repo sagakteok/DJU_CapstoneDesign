@@ -28,6 +28,11 @@ dependencies:
   kakao_flutter_sdk_user: ^1.9.1
   video_player: ^2.10.0
 
+  # ★ 1. (수정) ★
+  # video_player를 'flutter_launcher_icons:'가 아닌,
+  # 'dependencies:' 섹션의 *이곳*으로 옮겼습니다.
+  #video_player: ^2.8.6
+
 dev_dependencies:
   flutter_launcher_icons: ^0.13.1
   flutter_test:
@@ -40,6 +45,12 @@ flutter:
   assets:
     - assets/fonts/
     - assets/splash/splash_logo.png
+
+    # ★ 2. (추가) ★
+    # ViewParkingCam.dart가 'camera_error.png'를
+    # 로드할 수 있도록 'assets/images/' 경로를 추가했습니다.
+    - assets/images/
+
     - .env
 
   fonts:
@@ -68,3 +79,6 @@ flutter_launcher_icons:
   android: true
   ios: true
   image_path: "assets/icon/app_icon.png"
+
+  # ★ (삭제) ★
+  # 'video_player: ^2.8.6'를 이곳에서 삭제했습니다.
