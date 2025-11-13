@@ -568,17 +568,17 @@ class _LoginedHomeScreenState extends State<LoginedHomeScreen> {
                     Text(
                       '결제할 내역이 없습니다.',
                       style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: 'SpoqaHanSansNeo',
+                        fontSize: 20,
+                        color: Color(0xFF2F3644),
+                        fontFamily: 'VitroPride',
                       ),
                     ),
-                    SizedBox(height: 5),
+                    SizedBox(height: 3),
                     Text(
                       '현재 주차 중인 차량이 없거나, 정산할 요금이 없습니다.',
                       style: TextStyle(
-                        fontSize: 13,
-                        color: Colors.grey,
+                        fontSize: 11,
+                        color: Color(0xFFADB5CA),
                         fontFamily: 'SpoqaHanSansNeo',
                       ),
                       textAlign: TextAlign.center,
