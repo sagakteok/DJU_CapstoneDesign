@@ -10,7 +10,8 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 String formatDate(String rawDate) {
   try {
-    DateTime dateTime = DateFormat('EEE, dd MMM yyyy HH:mm:ss', 'en').parse(rawDate, true).toLocal();
+    DateTime dateTime =
+    DateFormat('EEE, dd MMM yyyy HH:mm:ss', 'en').parse(rawDate, true).toLocal();
     return DateFormat("yyyy.MM.dd (E)", 'ko').format(dateTime);
   } catch (e) {
     print('Date parsing error: $e');
@@ -49,6 +50,58 @@ class _LogoutedHomeScreenState extends State<LogoutedHomeScreen> {
         setState(() {});
       }
     });
+  }
+
+  // ✅ 요금표 모달 띄우는 함수 (로그아웃 홈용)
+  void _showFeeTableModal() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) {
+        final screenWidth = MediaQuery.of(context).size.width;
+
+        return Container(
+          padding: const EdgeInsets.only(
+            top: 12,
+            left: 16,
+            right: 16,
+            bottom: 24,
+          ),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(20),
+              topRight: Radius.circular(20),
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // 위쪽 작은 바
+              Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.only(bottom: 12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE0E0E0),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              // 요금표 이미지
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Image.asset(
+                  'assets/images/parking_fee_table.png', // ✅ 실제 이미지 경로 확인
+                  width: screenWidth - 32,
+                  fit: BoxFit.contain,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   // 2. 컨트롤러 리소스 정리를 위한 dispose 메서드 추가
@@ -94,6 +147,7 @@ class _LogoutedHomeScreenState extends State<LogoutedHomeScreen> {
       body: SingleChildScrollView(
         child: Column(
           children: [
+            // ----------------- 상단: 차량번호 조회 카드 -----------------
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -115,7 +169,8 @@ class _LogoutedHomeScreenState extends State<LogoutedHomeScreen> {
                   child: Container(
                     width: screenWidth * 0.92,
                     height: 200,
-                    padding: const EdgeInsets.only(left: 17, right: 17, top: 20, bottom: 15),
+                    padding: const EdgeInsets.only(
+                        left: 17, right: 17, top: 20, bottom: 15),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(15),
@@ -131,6 +186,7 @@ class _LogoutedHomeScreenState extends State<LogoutedHomeScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // 제목 + 요금표 보기
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           crossAxisAlignment: CrossAxisAlignment.center,
@@ -144,23 +200,27 @@ class _LogoutedHomeScreenState extends State<LogoutedHomeScreen> {
                                 color: Color(0xFF4B7C76),
                               ),
                             ),
-                            Row(
-                              children: const [
-                                Text(
-                                  '요금표 보기',
-                                  style: TextStyle(
-                                    fontFamily: 'SpoqaHanSansNeo',
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 9,
+                            // ✅ 요금표 보기 → 모달 연결
+                            GestureDetector(
+                              onTap: _showFeeTableModal,
+                              child: Row(
+                                children: const [
+                                  Text(
+                                    '요금표 보기',
+                                    style: TextStyle(
+                                      fontFamily: 'SpoqaHanSansNeo',
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 9,
+                                      color: Color(0xFFADB5CA),
+                                    ),
+                                  ),
+                                  Icon(
+                                    Icons.keyboard_arrow_right,
+                                    size: 12,
                                     color: Color(0xFFADB5CA),
                                   ),
-                                ),
-                                Icon(
-                                  Icons.keyboard_arrow_right,
-                                  size: 12,
-                                  color: Color(0xFFADB5CA),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ],
                         ),
@@ -176,7 +236,6 @@ class _LogoutedHomeScreenState extends State<LogoutedHomeScreen> {
                         SizedBox(
                           width: double.infinity,
                           child: TextField(
-                            // 3. 컨트롤러 연결
                             controller: _carNumberController,
                             decoration: const InputDecoration(
                               hintText: '차량번호 입력 (ex.123사 5678)',
@@ -187,10 +246,12 @@ class _LogoutedHomeScreenState extends State<LogoutedHomeScreen> {
                                 color: Color(0xFFD6E1D1),
                               ),
                               enabledBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(color: Color(0xFFD6E1D1), width: 1),
+                                borderSide: BorderSide(
+                                    color: Color(0xFFD6E1D1), width: 1),
                               ),
                               focusedBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(color: Color(0xFF76B55C), width: 1),
+                                borderSide: BorderSide(
+                                    color: Color(0xFF76B55C), width: 1),
                               ),
                             ),
                             style: const TextStyle(
@@ -207,14 +268,14 @@ class _LogoutedHomeScreenState extends State<LogoutedHomeScreen> {
                             width: 160,
                             height: 40,
                             child: ElevatedButton(
-                              // 4. 조회하기 버튼 로직 수정
                               onPressed: () {
-                                final carNumber = _carNumberController.text.trim();
+                                final carNumber =
+                                _carNumberController.text.trim();
                                 if (carNumber.isNotEmpty) {
                                   Navigator.pushNamed(
                                     context,
                                     '/CarInquire',
-                                    arguments: carNumber, // 입력된 차량 번호를 전달
+                                    arguments: carNumber,
                                   );
                                 } else {
                                   ScaffoldMessenger.of(context).showSnackBar(
@@ -253,6 +314,8 @@ class _LogoutedHomeScreenState extends State<LogoutedHomeScreen> {
               ],
             ),
             const SizedBox(height: 25),
+
+            // ----------------- 정기권 구매 CTA 카드 -----------------
             Center(
               child: SizedBox(
                 width: screenWidth * 0.92,
@@ -353,6 +416,8 @@ class _LogoutedHomeScreenState extends State<LogoutedHomeScreen> {
               ),
             ),
             const SizedBox(height: 25),
+
+            // ----------------- 건물별 잔여석 -----------------
             Container(
               width: screenWidth * 0.92,
               padding: const EdgeInsets.all(20),
@@ -414,6 +479,8 @@ class _LogoutedHomeScreenState extends State<LogoutedHomeScreen> {
               ),
             ),
             const SizedBox(height: 25),
+
+            // ----------------- 최근 공지사항 -----------------
             Padding(
               padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
               child: const Align(
@@ -527,7 +594,7 @@ class _LogoutedHomeScreenState extends State<LogoutedHomeScreen> {
                     ),
                     TextSpan(
                       text: '/ $total',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontFamily: 'SpoqaHanSansNeo',
                         fontWeight: FontWeight.w600,
                         fontSize: 10,
@@ -547,7 +614,8 @@ class _LogoutedHomeScreenState extends State<LogoutedHomeScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => ViewParkingCam(initialBuildingIndex: buildingIndex)
+                    builder: (context) =>
+                        ViewParkingCam(initialBuildingIndex: buildingIndex),
                   ),
                 );
               },
@@ -603,11 +671,16 @@ Widget _buildNoticeSection(BuildContext context, double screenWidth) {
       if (decoded['items'] != null) {
         List<dynamic> notices = decoded['items'];
         notices.sort((a, b) {
-          final da = DateTime.tryParse(a['created_at'] ?? '') ?? DateTime(2000);
-          final db = DateTime.tryParse(b['created_at'] ?? '') ?? DateTime(2000);
+          final da =
+              DateTime.tryParse(a['created_at'] ?? '') ?? DateTime(2000);
+          final db =
+              DateTime.tryParse(b['created_at'] ?? '') ?? DateTime(2000);
           return db.compareTo(da);
         });
-        return notices.take(3).map<Map<String, dynamic>>((n) => n as Map<String, dynamic>).toList();
+        return notices
+            .take(3)
+            .map<Map<String, dynamic>>((n) => n as Map<String, dynamic>)
+            .toList();
       }
     }
     return [];
@@ -632,7 +705,8 @@ Widget _buildNoticeSection(BuildContext context, double screenWidth) {
       final notices = snapshot.data ?? [];
       return Container(
         width: screenWidth * 0.92,
-        padding: const EdgeInsets.only(top: 20, left: 15, right: 15, bottom: 30),
+        padding:
+        const EdgeInsets.only(top: 20, left: 15, right: 15, bottom: 30),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),
@@ -681,10 +755,12 @@ Widget _buildNoticeSection(BuildContext context, double screenWidth) {
                         borderRadius: BorderRadius.circular(10),
                       ),
                       alignment: Alignment.centerLeft,
-                      padding: const EdgeInsets.only(left: 15, right: 5),
+                      padding:
+                      const EdgeInsets.only(left: 15, right: 5),
                     ),
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      mainAxisAlignment:
+                      MainAxisAlignment.spaceBetween,
                       children: [
                         Expanded(
                           child: Text(

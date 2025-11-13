@@ -59,6 +59,58 @@ class _MembershipHomeScreenState extends State<MembershipHomeScreen> {
     fetchUserInfo(); // initState에서는 그냥 호출만
   }
 
+  // ✅ 요금표 모달 띄우는 함수
+  void _showFeeTableModal() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) {
+        final screenWidth = MediaQuery.of(context).size.width;
+
+        return Container(
+          padding: const EdgeInsets.only(
+            top: 12,
+            left: 16,
+            right: 16,
+            bottom: 24,
+          ),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(20),
+              topRight: Radius.circular(20),
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // 위쪽 작은 바
+              Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.only(bottom: 12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE0E0E0),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              // 요금표 이미지
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Image.asset(
+                  'assets/images/parking_fee_table.png', // ✅ 실제 이미지 경로로 맞춰주세요
+                  width: screenWidth - 32,
+                  fit: BoxFit.contain,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   Future<void> fetchUserInfo() async {
     final userInfo = await AuthService().getUserInfo();
     if (userInfo['success'] == true && userInfo['user'] != null) {
@@ -131,7 +183,8 @@ class _MembershipHomeScreenState extends State<MembershipHomeScreen> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    print("currentDay: $currentDay, totalDays: $totalDays, ratio: ${currentDay/totalDays}");
+    print(
+        "currentDay: $currentDay, totalDays: $totalDays, ratio: ${currentDay / totalDays}");
     print("width: ${screenWidth * (currentDay / totalDays)}");
     print("total width: ${screenWidth}");
 
@@ -173,7 +226,8 @@ class _MembershipHomeScreenState extends State<MembershipHomeScreen> {
               children: [
                 const SizedBox(height: 20),
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+                  padding:
+                  EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
                   child: RichText(
                     text: TextSpan(
                       children: [
@@ -194,14 +248,15 @@ class _MembershipHomeScreenState extends State<MembershipHomeScreen> {
                               colors: [Color(0xFF76B55C), Color(0xFF15C3AF)],
                               begin: Alignment.topCenter,
                               end: Alignment.bottomCenter,
-                            ).createShader(Rect.fromLTWH(0, 0, bounds.width, bounds.height)),
+                            ).createShader(
+                                Rect.fromLTWH(0, 0, bounds.width, bounds.height)),
                             child: Text(
-                              '$carNumber', // ✅ 실제 변수 사용
+                              '$carNumber',
                               style: const TextStyle(
                                 fontFamily: 'SpoqaHanSansNeo',
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
-                                color: Colors.white, // ShaderMask 덮어쓰기용
+                                color: Colors.white,
                               ),
                             ),
                           ),
@@ -215,7 +270,8 @@ class _MembershipHomeScreenState extends State<MembershipHomeScreen> {
                   child: Container(
                     width: screenWidth * 0.92,
                     height: 215,
-                    padding: const EdgeInsets.only(left: 17, right: 17, top: 20, bottom: 15),
+                    padding: const EdgeInsets.only(
+                        left: 17, right: 17, top: 20, bottom: 15),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(15),
@@ -231,8 +287,8 @@ class _MembershipHomeScreenState extends State<MembershipHomeScreen> {
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                         colors: [
-                          Color(0xFF53BEAC), // 위쪽 색
-                          Color(0xFF47BE5B), // 아래쪽 색
+                          Color(0xFF53BEAC),
+                          Color(0xFF47BE5B),
                         ],
                       ),
                     ),
@@ -252,30 +308,36 @@ class _MembershipHomeScreenState extends State<MembershipHomeScreen> {
                                 color: Color(0xFFF9FCFB),
                               ),
                             ),
-                            Row(
-                              children: const [
-                                Text(
-                                  '요금표 보기',
-                                  style: TextStyle(
-                                    fontFamily: 'SpoqaHanSansNeo',
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 9,
+                            // ✅ 요금표 보기 클릭 → 모달
+                            GestureDetector(
+                              onTap: () {
+                                _showFeeTableModal();
+                              },
+                              child: Row(
+                                children: const [
+                                  Text(
+                                    '요금표 보기',
+                                    style: TextStyle(
+                                      fontFamily: 'SpoqaHanSansNeo',
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 9,
+                                      color: Color(0xFFECF2E9),
+                                    ),
+                                  ),
+                                  Icon(
+                                    Icons.keyboard_arrow_right,
+                                    size: 12,
                                     color: Color(0xFFECF2E9),
                                   ),
-                                ),
-                                Icon(
-                                  Icons.keyboard_arrow_right,
-                                  size: 12,
-                                  color: Color(0xFFECF2E9),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ],
                         ),
                         const SizedBox(height: 15),
                         Text(
                           entryDate,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontFamily: 'SpoqaHanSansNeo',
                             fontWeight: FontWeight.w400,
                             fontSize: 9,
@@ -290,14 +352,14 @@ class _MembershipHomeScreenState extends State<MembershipHomeScreen> {
                                 children: [
                                   TextSpan(
                                     text: '$entryTime ',
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       fontFamily: 'SpoqaHanSansNeo',
                                       fontWeight: FontWeight.w600,
                                       fontSize: 13,
                                       color: Colors.white,
                                     ),
                                   ),
-                                  TextSpan(
+                                  const TextSpan(
                                     text: '입차',
                                     style: TextStyle(
                                       fontFamily: 'SpoqaHanSansNeo',
@@ -312,7 +374,7 @@ class _MembershipHomeScreenState extends State<MembershipHomeScreen> {
                             RichText(
                               text: TextSpan(
                                 children: [
-                                  TextSpan(
+                                  const TextSpan(
                                     text: '이용 시간: ',
                                     style: TextStyle(
                                       fontFamily: 'SpoqaHanSansNeo',
@@ -323,7 +385,7 @@ class _MembershipHomeScreenState extends State<MembershipHomeScreen> {
                                   ),
                                   TextSpan(
                                     text: duration,
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       fontFamily: 'SpoqaHanSansNeo',
                                       fontWeight: FontWeight.w600,
                                       fontSize: 13,
@@ -353,7 +415,7 @@ class _MembershipHomeScreenState extends State<MembershipHomeScreen> {
                               text: TextSpan(
                                 children: [
                                   TextSpan(
-                                    text: "$currentDay", // 숫자
+                                    text: "$currentDay",
                                     style: const TextStyle(
                                       fontFamily: 'SpoqaHanSansNeo',
                                       fontWeight: FontWeight.w600,
@@ -361,9 +423,9 @@ class _MembershipHomeScreenState extends State<MembershipHomeScreen> {
                                       color: Colors.white,
                                     ),
                                   ),
-                                  TextSpan(
-                                    text: " 일차", // 단위
-                                    style: const TextStyle(
+                                  const TextSpan(
+                                    text: " 일차",
+                                    style: TextStyle(
                                       fontFamily: 'SpoqaHanSansNeo',
                                       fontWeight: FontWeight.w500,
                                       fontSize: 13,
@@ -379,7 +441,7 @@ class _MembershipHomeScreenState extends State<MembershipHomeScreen> {
                               text: TextSpan(
                                 children: [
                                   TextSpan(
-                                    text: "$remainingDays일", // 숫자
+                                    text: "$remainingDays일",
                                     style: const TextStyle(
                                       fontFamily: 'SpoqaHanSansNeo',
                                       fontWeight: FontWeight.w600,
@@ -387,9 +449,9 @@ class _MembershipHomeScreenState extends State<MembershipHomeScreen> {
                                       color: Colors.white,
                                     ),
                                   ),
-                                  TextSpan(
-                                    text: " 남음", // 단위
-                                    style: const TextStyle(
+                                  const TextSpan(
+                                    text: " 남음",
+                                    style: TextStyle(
                                       fontFamily: 'SpoqaHanSansNeo',
                                       fontWeight: FontWeight.w500,
                                       fontSize: 13,
@@ -414,10 +476,12 @@ class _MembershipHomeScreenState extends State<MembershipHomeScreen> {
                             ),
                             LayoutBuilder(
                               builder: (context, constraints) {
-                                // constraints.maxWidth는 여기서만 유효
                                 return Container(
                                   height: 5,
-                                  width: constraints.maxWidth * (currentDay / totalDays),
+                                  width: constraints.maxWidth *
+                                      (totalDays == 0
+                                          ? 0
+                                          : currentDay / totalDays),
                                   decoration: BoxDecoration(
                                     color: const Color(0xFFFFFFFF),
                                     borderRadius: BorderRadius.circular(4),
@@ -443,9 +507,9 @@ class _MembershipHomeScreenState extends State<MembershipHomeScreen> {
                             RichText(
                               text: TextSpan(
                                 children: [
-                                  TextSpan(
-                                    text: "오늘: ", // 텍스트
-                                    style: const TextStyle(
+                                  const TextSpan(
+                                    text: "오늘: ",
+                                    style: TextStyle(
                                       fontFamily: 'SpoqaHanSansNeo',
                                       fontWeight: FontWeight.w500,
                                       fontSize: 10,
@@ -453,7 +517,7 @@ class _MembershipHomeScreenState extends State<MembershipHomeScreen> {
                                     ),
                                   ),
                                   TextSpan(
-                                    text: todayString, // 날짜
+                                    text: todayString,
                                     style: const TextStyle(
                                       fontFamily: 'SpoqaHanSansNeo',
                                       fontWeight: FontWeight.w600,
@@ -483,10 +547,9 @@ class _MembershipHomeScreenState extends State<MembershipHomeScreen> {
               ],
             ),
 
-            if (remainingDays <= 7)
-              const SizedBox(height: 25),
+            if (remainingDays <= 7) const SizedBox(height: 25),
 
-            if (remainingDays <= 7) // 남은 일수가 7 이하일 때만 표시
+            if (remainingDays <= 7)
               Center(
                 child: SizedBox(
                   width: screenWidth * 0.92,
@@ -579,7 +642,8 @@ class _MembershipHomeScreenState extends State<MembershipHomeScreen> {
                 ),
               ),
             const SizedBox(height: 25),
-            // ✅ 건물 별 잔여석 박스 (이 블록으로 기존 해당 Container 대체)
+
+            // 건물 별 잔여석 박스
             Container(
               width: screenWidth * 0.92,
               padding: const EdgeInsets.all(20),
@@ -598,7 +662,6 @@ class _MembershipHomeScreenState extends State<MembershipHomeScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // 타이틀 (왼쪽 상단)
                   const Text(
                     '건물 별 잔여석',
                     style: TextStyle(
@@ -608,7 +671,6 @@ class _MembershipHomeScreenState extends State<MembershipHomeScreen> {
                       color: Color(0xFF4B7C76),
                     ),
                   ),
-                  // 서브타이틀 (왼쪽)
                   const Text(
                     '실시간 주차칸도 확인해보세요.',
                     style: TextStyle(
@@ -624,7 +686,7 @@ class _MembershipHomeScreenState extends State<MembershipHomeScreen> {
                     buildingName: '융합과학관',
                     available: 200,
                     total: 250,
-                    buildingIndex: 0, // index 추가
+                    buildingIndex: 0,
                   ),
                   _buildBuildingStatus(
                     context: context,
@@ -647,7 +709,8 @@ class _MembershipHomeScreenState extends State<MembershipHomeScreen> {
             const SizedBox(height: 25),
 
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+              padding:
+              EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
               child: const Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
@@ -671,7 +734,7 @@ class _MembershipHomeScreenState extends State<MembershipHomeScreen> {
     );
   }
 
-  /// ✅ 건물 별 잔여석 UI 요소 (주차칸 보기 버튼 세로 가운데 정렬)
+  /// 건물 별 잔여석 UI 요소
   Widget _buildBuildingStatus({
     required BuildContext context,
     required String buildingName,
@@ -701,9 +764,9 @@ class _MembershipHomeScreenState extends State<MembershipHomeScreen> {
       padding: const EdgeInsets.symmetric(vertical: 15),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.center, // ✅ 버튼과 그룹 세로 정렬
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // ⬅️ 왼쪽 그룹 (건물명 + 혼잡도, 잔여석 숫자)
+          // 왼쪽 그룹
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -743,7 +806,7 @@ class _MembershipHomeScreenState extends State<MembershipHomeScreen> {
               Text.rich(
                 TextSpan(
                   children: [
-                    TextSpan(
+                    const TextSpan(
                       text: '잔여석: ',
                       style: TextStyle(
                         fontFamily: 'SpoqaHanSansNeo',
@@ -763,7 +826,7 @@ class _MembershipHomeScreenState extends State<MembershipHomeScreen> {
                     ),
                     TextSpan(
                       text: '/ $total',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontFamily: 'SpoqaHanSansNeo',
                         fontWeight: FontWeight.w600,
                         fontSize: 10,
@@ -781,11 +844,11 @@ class _MembershipHomeScreenState extends State<MembershipHomeScreen> {
             height: 35,
             child: ElevatedButton(
               onPressed: () {
-                // 건물별 주차칸 보기 눌렀을 때 해당 인덱스 전달
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => ViewParkingCam(initialBuildingIndex: buildingIndex)
+                    builder: (context) =>
+                        ViewParkingCam(initialBuildingIndex: buildingIndex),
                   ),
                 );
               },
@@ -818,19 +881,19 @@ class _MembershipHomeScreenState extends State<MembershipHomeScreen> {
 Color _getStatusColor(congestionText) {
   switch (congestionText) {
     case '여유':
-      return const Color(0xFF76B55C); // 녹색
+      return const Color(0xFF76B55C);
     case '보통':
-      return const Color(0xFFD7D139); // 노란색
+      return const Color(0xFFD7D139);
     case '혼잡':
-      return const Color(0xFFCD0505); // 주황
+      return const Color(0xFFCD0505);
     case '만차':
-      return const Color(0xFF757575); // 빨강
+      return const Color(0xFF757575);
     default:
-      return const Color(0xFF414B6A); // 기본색
+      return const Color(0xFF414B6A);
   }
 }
 
-// 최근 공지사항 섹션 (API 연동, 제목 제거)
+// 최근 공지사항 섹션
 Widget _buildNoticeSection(BuildContext context, double screenWidth) {
   Future<List<Map<String, dynamic>>> fetchNotices() async {
     final host = dotenv.env['HOST_ADDRESS'];
@@ -839,15 +902,21 @@ Widget _buildNoticeSection(BuildContext context, double screenWidth) {
 
     if (res.statusCode == 200) {
       final decoded = json.decode(res.body);
-      if (decoded['items'] != null) {   // 여기 items로 바꿔야 함
+      if (decoded['items'] != null) {
         List<dynamic> notices = decoded['items'];
         // 최신순 정렬, 최대 3개만
         notices.sort((a, b) {
-          final da = DateTime.tryParse(a['created_at'] ?? '') ?? DateTime(2000);
-          final db = DateTime.tryParse(b['created_at'] ?? '') ?? DateTime(2000);
+          final da =
+              DateTime.tryParse(a['created_at'] ?? '') ?? DateTime(2000);
+          final db =
+              DateTime.tryParse(b['created_at'] ?? '') ?? DateTime(2000);
           return db.compareTo(da);
         });
-        return notices.take(3).map<Map<String, dynamic>>((n) => n as Map<String, dynamic>).toList();
+        return notices
+            .take(3)
+            .map<Map<String, dynamic>>(
+                (n) => n as Map<String, dynamic>)
+            .toList();
       }
     }
     return [];
@@ -871,7 +940,8 @@ Widget _buildNoticeSection(BuildContext context, double screenWidth) {
       final notices = snapshot.data ?? [];
       return Container(
         width: screenWidth * 0.92,
-        padding: const EdgeInsets.only(top: 20, left: 15, right: 15, bottom: 30),
+        padding:
+        const EdgeInsets.only(top: 20, left: 15, right: 15, bottom: 30),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),
@@ -887,11 +957,8 @@ Widget _buildNoticeSection(BuildContext context, double screenWidth) {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 공지사항 리스트
             ...notices.map((notice) {
               final String title = notice['title'] ?? '';
-              final String content = notice['content'] ?? '';
-              final String category = notice['category'] ?? '';
               final String dateRaw = notice['created_at'] ?? '';
               final String formattedDate = formatDate(dateRaw);
               return Padding(
@@ -921,10 +988,12 @@ Widget _buildNoticeSection(BuildContext context, double screenWidth) {
                         borderRadius: BorderRadius.circular(10),
                       ),
                       alignment: Alignment.centerLeft,
-                      padding: const EdgeInsets.only(left: 15, right: 5),
+                      padding:
+                      const EdgeInsets.only(left: 15, right: 5),
                     ),
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      mainAxisAlignment:
+                      MainAxisAlignment.spaceBetween,
                       children: [
                         Expanded(
                           child: Text(
@@ -950,7 +1019,6 @@ Widget _buildNoticeSection(BuildContext context, double screenWidth) {
               );
             }).toList(),
             const SizedBox(height: 20),
-            // 하단 "더 읽어보러 가기" 버튼
             Center(
               child: SizedBox(
                 width: screenWidth * 0.8,
