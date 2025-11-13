@@ -62,23 +62,20 @@ class _PaymentBreakdownState extends State<PaymentBreakdown> {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        final List<dynamic> payments = data['history'] ?? [];
+        final payments = data['payments'] as List;
 
         setState(() {
           _allData = payments.map((item) {
-            // ==================== 여기 필드명을 수정해야 합니다! ====================
-            // 서버 응답 필드명: 'entry_time', 'exit_time', 'final_fee', 'is_paid'
-
-            final date = DateTime.parse(item['entry_time']); // 'use_date' -> 'entry_time'
-            final time = item['exit_time'] != null
-                ? DateTime.parse(item['exit_time']).toLocal() // 'created_at' -> 'exit_time'
+            final date = DateTime.parse(item['use_date']);
+            final time = item['created_at'] != null
+                ? DateTime.parse(item['created_at']).toLocal()
                 : date;
 
             return {
               'date': DateFormat('yyyy-MM-dd').format(date),
               'time': DateFormat('a hh:mm', 'ko_KR').format(time),
-              'amount': item['final_fee'], // 'amount' -> 'final_fee'
-              'type': item['is_paid'] == true ? '출차' : '미납', // 'type' -> 'is_paid' 값에 따라 결정
+              'amount': item['amount'],
+              'type': item['type'], // DB enum 그대로
             };
             // =====================================================================
           }).toList();
